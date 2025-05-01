@@ -1,0 +1,107 @@
+//===----------------------------------------------------------------------===//
+//  Copyright (c) 2025 Javier Cuesta
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//===----------------------------------------------------------------------===//
+
+/// Dynamic Postgres Database Role
+///
+/// [Vault documentation](https://developer.hashicorp.com/vault/api-docs/secret/databases#create-role)
+module PostgresRole
+
+/// Specifies the name of the role to create. This is specified as part of the URL.
+name: String
+
+/// The name of the database connection to use for this role.
+db_connection_name: String
+
+/// Specifies the TTL for the leases associated with this role. Accepts time suffixed strings (1h) or an integer number of seconds. Defaults to system/engine default TTL time.
+default_ttl: String?
+
+/// Specifies the maximum TTL for the leases associated with this role. Accepts time suffixed strings (1h) or an integer number of seconds. Defaults to sys/mounts's default TTL time;
+/// this value is allowed to be less than the mount max TTL (or, if not set, the system max TTL), but it is not allowed to be longer. See also The TTL General Case.
+max_ttl: String?
+
+///  Specifies the database statements executed to create and configure a user. Must be a semicolon-separated string, a base64-encoded semicolon-separated string,
+/// a serialized JSON string array, or a base64-encoded serialized JSON string array. The `{{name}}`, `{{password}}` and `{{expiration}}` values will be substituted. The generated password will be a random alphanumeric 20 character string.
+creation_statements: Listing<String>
+
+/// Specifies the database statements to be executed to revoke a user. Must be a semicolon-separated string, a base64-encoded semicolon-separated string, a serialized JSON string array, or a base64-encoded serialized JSON string array.
+/// The `{{name}}` value will be substituted. If not provided defaults to a generic drop user statement.
+revocation_statements: Listing<String>?
+
+/// Specifies the database statements to be executed rollback a create operation in the event of an error. Not every plugin type will support this functionality. Must be a semicolon-separated string, a base64-encoded semicolon-separated string,
+/// a serialized JSON string array, or a base64-encoded serialized JSON string array. The `{{name}}` value will be substituted.
+rollback_statements: Listing<String>?
+
+/// Specifies the database statements to be executed to renew a user. Not every plugin type will support this functionality. Must be a semicolon-separated string, a base64-encoded semicolon-separated string, a serialized JSON string array,
+/// or a base64-encoded serialized JSON string array. The `{{name}}` and `{{expiration}}` values will be substituted.
+renew_statements: Listing<String>?
+
+/// Specifies the database statements to be executed to rotate the password for a given username. Must be a semicolon-separated string, a base64-encoded semicolon-separated string, a serialized JSON string array,
+/// or a base64-encoded serialized JSON string array. The `{{name}}` and `{{password}}` values will be substituted. The generated password will be a random alphanumeric 20 character string.
+rotation_statements: Listing<String>?
+
+class PasswordCredential {
+  passwordPolicy: String?
+
+  hidden type: String = "password"
+}
+
+class RSAPrivateKey {
+  key_bits: Int?
+  format: String?
+
+  hidden type: String = "rsa_private_key"
+}
+
+class ClientCertificate {
+  /// A username template to be used for the client certificate common name.
+  common_name_template: String?
+
+  /// The PEM-encoded CA certificate.
+  ca_cert: String?
+  
+  /// The PEM-encoded private key for the given ca_cert.
+  ca_private_key: String? 
+  
+  /// Specifies the desired key type. Options include: rsa, ed25519, ec.
+  key_type: String
+
+  /// Number of bits to use for the generated keys. Options include: 2048 (default),
+  /// 3072, 4096; with `key_type=ec`, allowed values are: 224, 256 (default), 384, 521; ignored with `key_type=ed25519`.
+  key_bits: Int?
+
+  /// The number of bits to use in the signature algorithm. Options include: 256 (default), 384, 512.
+  signature_bits: Int?
+
+  hidden type: String = "client_certificate"
+}
+
+hidden credential: PasswordCredential|RSAPrivateKey|ClientCertificate
+
+typealias CredentialType = "password"|"rsa_private_key"|"client_certificate"
+
+/// Specifies the type of credential that will be generated for the role. Options include: `password`,
+/// `rsa_private_key`, `client_certificate`. See the plugin's API page for credential types supported 
+/// by individual databases.
+credential_type: CredentialType? = credential.type
+
+/// Specifies the configuration for the given `credential_type`. See documentation for details
+credential_config: Mapping<String, String>? = 
+  let (config = credential
+                  .toMap()
+                  .filter((_, elem) -> elem != null)
+                  .mapValues((_, elem) -> elem.toString())
+                  .toMapping())
+  if (config.isEmpty) null else config

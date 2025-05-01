@@ -1,0 +1,41 @@
+//===----------------------------------------------------------------------===//
+//  Copyright (c) 2025 Javier Cuesta
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//===----------------------------------------------------------------------===//
+
+/// Vault System Mount. Enables a new secrets engine at the given path
+module MountConfiguration
+
+/// Specifies the type of the backend, such as "kv", "database", "aws", etc...
+`type`: String
+
+/// Specifies the path where the secrets engine will be mounted. This is specified as part of the URL.
+path: String
+
+typealias ConfigKey = "default_lease_ttl"|"max_lease_ttl"|"force_no_cache"|"audit_non_hmac_request_keys"|"audit_non_hmac_response_keys"|"listing_visibility"|"passthrough_request_headers"|"allowed_response_headers"|"plugin_version"|"identity_token"
+
+/// Specifies the human-friendly description of the mount.
+description: String?
+
+/// Specifies configuration options for this mount; if set on a specific mount, values will override any global defaults (e.g. the system TTL/Max TTL)
+config: Mapping<ConfigKey, String>?
+
+///  Specifies mount type specific options that are passed to the backend.
+options: Mapping<String,String>?
+
+`local`: Boolean?
+
+seal_wrap: Boolean?
+
+external_entropy_access: Boolean?

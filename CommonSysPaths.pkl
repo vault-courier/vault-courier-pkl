@@ -1,0 +1,154 @@
+//===----------------------------------------------------------------------===//
+//  Copyright (c) 2025 Javier Cuesta
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//===----------------------------------------------------------------------===//
+
+module CommonSysPaths
+
+amends "@openapi/Document.pkl"
+import "@openapi/PathItem.pkl"
+import "@openapi/Reference.pkl"
+import "@openapi/Schema.pkl"
+
+
+paths {
+  ["/sys/wrapping/unwrap"] {
+    description = "Unwraps a response-wrapped token."
+    parameters {
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      operationId = "unwrap"
+      tags {
+        "system"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = new Schema {
+              type = "object"
+              properties {
+                ["token"] {
+                  type = "string"
+                }
+              }
+            }
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/AuthMethodResponse"
+              }
+            }
+          }
+        }
+        ["400"] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+components {
+  schemas {
+    ["AuthMethodResponse"] {
+      type = "object"
+      properties {
+        ["request_id"] {
+          type = "string"
+        }
+        ["renewable"] {
+          type = "boolean"
+        }
+        ["lease_id"] {
+          type = "string"
+        }
+        ["lease_duration"] {
+          type = "integer"
+        }
+        ["data"] {
+          type = "object"
+          properties {
+            ["secret_id_accessor"] {
+              type = "string"
+            }
+            ["secret_id"] {
+              type = "string"
+            }
+            ["secret_id_ttl"] {
+              type = "integer"
+            }
+            ["secret_id_num_uses"] {
+              type = "integer"
+            }
+          }
+          required {
+            "secret_id_accessor"
+            "secret_id"
+            "secret_id_ttl"
+            "secret_id_num_uses"
+          }
+        }
+        ["wrap_info"] {
+          type = "object"
+          properties {
+            ["token"] {
+              type = "string"
+            }
+            ["accessor"] {
+              type = "string"
+            }
+            ["ttl"] {
+              type = "integer"
+              description = "wrapped ttl in seconds"
+            }
+            ["creation_time"] {
+              type = "string"
+            }
+            ["creation_path"] {
+              type = "string"
+            }
+            ["wrapped_accessor"] {
+              type = "string"
+            }
+          }
+          required {
+            "token"
+            "accessor"
+            "ttl"
+            "creation_time"
+            "creation_path"
+            "wrapped_accessor"
+          }
+        }
+      }
+    }
+  }
+}

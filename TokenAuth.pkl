@@ -1,0 +1,81 @@
+//===----------------------------------------------------------------------===//
+//  Copyright (c) 2025 Javier Cuesta
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//===----------------------------------------------------------------------===//
+
+/// The token auth method is built-in and automatically available at `/auth/token`. It allows users to authenticate using a token, as well to create new tokens, revoke secrets by token, and more.
+/// When any other auth method returns an identity, Vault core invokes the token method to create a new unique token for that identity.
+/// The token store can also be used to bypass any other auth method: you can create tokens directly, as well as perform a variety of other operations on tokens such as renewal and revocation.
+/// [Token concepts](https://developer.hashicorp.com/vault/docs/concepts/tokens)
+/// [API](https://developer.hashicorp.com/vault/api-docs/auth/token)
+module TokenAuth
+
+amends "@openapi/Document.pkl"
+import "@openapi/PathItem.pkl"
+import "@openapi/Reference.pkl"
+import "@openapi/Schema.pkl"
+import "@openapi/HTTPResponse.pkl"
+
+paths {
+  ["/auth/token/create"] {
+    description = "The token create path is used to create new tokens."
+    parameters {
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/WrapTTLHeader"
+      }
+    }
+    post {
+      summary = "The token create path is used to create new tokens."
+      operationId = "token-create"
+      tags {
+        "auth"
+      }
+      requestBody {
+        content {
+          ["application/json"] {
+            schema = new Reference {
+              `$ref` = "#/components/schemas/TokenCreateRequest"
+            }
+          }
+        }
+        required = true
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/TokenCreateResponse"
+              }
+            }
+          }
+        }
+        [HTTPResponse.BadRequest] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

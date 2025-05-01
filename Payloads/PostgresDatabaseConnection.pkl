@@ -1,0 +1,109 @@
+//===----------------------------------------------------------------------===//
+//  Copyright (c) 2025 Javier Cuesta
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//===----------------------------------------------------------------------===//
+
+/// This is the payload for configuring Vault and Postgres connections
+/// https://developer.hashicorp.com/vault/api-docs/secret/databases/postgresql
+module PostgresDatabaseConnection
+
+/// Custom database engine path
+enginePath: String?
+
+/// The name of the connection
+connection: String
+
+/// The database's name which the vault role is going to admin
+hidden databaseName: String
+
+typealias PostgresSSLMode = "disable"|"allow"|"prefer"|"require"|"verify-ca"|"verify-full"
+hidden sslMode: PostgresSSLMode
+
+const plugin_name: "postgresql-database-plugin"
+
+/// Specifies if the connection is verified during initial configuration. Defaults to true.
+verify_connection: Boolean? = true
+
+/// List of the _vault_ roles allowed to use this connection. Defaults to empty (no roles), if contains a `*` any role can use this connection.
+/// Currently, roles and connections are bounded if this parameter is different than `*`. This means credentials cannot be generated and accessed by a role which is not on the list.
+allowed_roles: Listing<String>?
+
+/// Localhost or ipv4 host address
+hidden host: "localhost"|String(matches(Regex(#"((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}"#)))
+
+hidden port: UInt16
+
+/// Vault database ("Root") user.
+username: String(!isBlank)
+
+/// This password is usually overriden after first set
+password: String(!isBlank)
+
+/// Specifies the maximum number of open connections to the database. Defaults to 4
+max_open_connections: UInt8?
+
+/// Specifies the maximum number of idle connections to the database.
+/// A zero uses the value of `max_open_connections` and a negative value
+/// disables idle connections. If larger than `max_open_connections` it will be reduced to be equal. Defaults to zero
+max_idle_connections: UInt8?
+
+/// Specifies the maximum amount of time a connection may be reused. If `<= 0s`, connections are reused forever.
+max_connection_lifetime: String? = "0s"
+
+/// The x509 CA file for validating the certificate presented by the PostgreSQL server. Must be PEM encoded. Defaults to empty
+tls_ca: String?
+
+/// The x509 client certificate for connecting to the database. Must be PEM encoded. Defaults to empty
+tls_certificate: String?
+
+/// The secret key used for the x509 client certificate. Must be PEM encoded. Defaults to empty
+private_key: String?
+
+/// If set to `gcp_iam`, will enable IAM authentication to a Google CloudSQL instance.
+/// For more information on authenticating to CloudSQL via IAM, please refer to Google's official documentation here.
+/// Default to empty string
+auth_type: String?
+
+/// JSON encoded credentials for a GCP Service Account to use for IAM authentication. Requires `auth_type` to be `gcp_iam`.
+/// Default to empty string
+service_account_json: String?
+
+/// Enables the option to connect to CloudSQL Instances with Private IP. Requires `auth_type` to be `gcp_iam`.
+/// Defaults to `false`
+use_private_ip: Boolean?
+
+/// Template describing how dynamic usernames are generated.
+///
+/// Defaults to
+/// ```
+/// {{ printf "v-%s-%s-%s-%s" (.DisplayName | truncate 8) (.RoleName | truncate 8) (random 20) (unix_time) | truncate 63 }}
+/// ```
+username_template: String?
+
+/// Turns off the escaping of special characters inside of the username and password fields. See the databases secrets engine docs for more information. Defaults to false.
+disable_escaping: Boolean?
+
+/// When set to "scram-sha-256", passwords will be hashed by Vault and stored as-is by PostgreSQL.
+/// Using "scram-sha-256" requires a minimum version of PostgreSQL 10. Available options are
+/// "scram-sha-256" and "password". The default is "password". When set to "password", passwords
+/// will be sent to PostgreSQL in plaintext format and may appear in PostgreSQL logs as-is.
+/// For more information, please refer to the PostgreSQL documentation.
+password_authentication: "password"|"scram-sha-256" = "password"
+
+/// Postgres URL connection
+fixed connection_url: String =
+  "postgresql://{{username}}:{{password}}@\(host):\(port)/\(databaseName)?sslmode=\(sslMode)"
+
+/// Specifies the database statements to be executed to rotate the root user's credentials. See the plugin's API page for more information on support and formatting for this parameter.
+root_rotation_statements: Listing<String>?

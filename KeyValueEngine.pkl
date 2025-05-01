@@ -1,0 +1,225 @@
+//===----------------------------------------------------------------------===//
+//  Copyright (c) 2025 Javier Cuesta
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//===----------------------------------------------------------------------===//
+
+module KeyValueEngine
+
+amends "@openapi/Document.pkl"
+import "@openapi/PathItem.pkl"
+import "@openapi/Reference.pkl"
+import "@openapi/Schema.pkl"
+
+/// Parameter name in the crud endpoint
+local parameterKVPathName = "kv_path"
+local secretKeyParameter = "secret_key"
+
+paths {
+  ["/{\(parameterKVPathName)}/data/{\(secretKeyParameter)}"] {
+    description = "Server secrets endpoint"
+    parameters {
+      new {
+        name = parameterKVPathName
+        description = "Key-value engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "The key path for a stored secret in this path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Writes a kv secret"
+      description = "Writes a kv secret"
+      operationId = "write-kv-secrets"
+      tags {
+        "secrets"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = new Schema {
+              type = "object"
+              properties {
+                ["options"] {
+                  type = "object"
+                  properties {
+                    ["cas"] {
+                      type = "integer"
+                    }
+                  }
+                }
+                ["data"] {
+                  type = "object"
+                }
+              }
+              required {
+                "data"
+              }
+            }
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Schema {
+                type = "object"
+                properties {
+                  ["request_id"] {
+                    type = "string"
+                  }
+                  ["renewable"] {
+                    type = "boolean"
+                  }
+                  ["data"] {
+                    type = "object"
+                    properties {
+                      ["created_time"] {
+                        type = "string"
+                      }
+                      ["deletion_time"] {
+                        type = "string"
+                      }
+                      ["destroyed"] {
+                        type = "boolean"
+                      }
+                      ["version"] {
+                        type = "integer"
+                      }
+                    }
+                  }
+                  ["mount_type"] {
+                    type = "string"
+                  }
+                }
+                required {
+                  "data"
+                }
+              }
+            }
+          }
+        }
+        ["400"] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+    get {
+      summary = "Reads an existing secret"
+      description = "Reads an existing secret"
+      operationId = "read-kv-secrets"
+      tags {
+        "secrets"
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Schema {
+                type = "object"
+                properties {
+                  ["request_id"] {
+                    type = "string"
+                  }
+                  ["lease_id"] {
+                    type = "string"
+                  }
+                  ["lease_duration"] {
+                    type = "integer"
+                  }
+                  ["renewable"] {
+                    type = "boolean"
+                  }
+                  ["data"] {
+                    type = "object"
+                    properties {
+                      ["data"] {
+                        type = "object"
+                      }
+                    }
+                    required {
+                      "data"
+                    }
+                  }
+                  ["metadata"] {
+                    type = "object"
+                    properties {
+                      ["created_time"] {
+                        type = "string"
+                      }
+                      ["deletion_time"] {
+                        type = "string"
+                      }
+                      ["destroyed"] {
+                        type = "boolean"
+                      }
+                      ["version"] {
+                        type = "integer"
+                      }
+                    }
+                    required {
+                      "created_time"
+                      "destroyed"
+                      "version"
+                    }
+                  }
+                  ["mount_type"] {
+                    type = "string"
+                  }
+                }
+                required {
+                  "data"
+                }
+              }
+            }
+          }
+        }
+        ["400"] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }  
+}
