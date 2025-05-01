@@ -29,12 +29,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
-    env:
-      PKL_VERSION: '0.28.2'
     steps:
     - name: Checkout
       uses: actions/checkout@v4
     - name: Install Pkl
+      env: 
+        PKL_VERSION: '0.28.2'
       run: |
         echo "Installing pkl version ${PKL_VERSION}..."
         curl -L -o /usr/local/bin/pkl 'https://github.com/apple/pkl/releases/download/${PKL_VERSION}/pkl-alpine-linux-amd64'
