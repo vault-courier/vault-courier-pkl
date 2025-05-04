@@ -50,6 +50,7 @@ jobs:
     - name: Upload package
       env:
         TAG_NAME: ${{ github.event.release.tag_name }}
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
         echo "Uploading Pkl package"
         echo TAG_NAME=${TAG_NAME}
