@@ -1,0 +1,7 @@
+amends "pkl:test"
+
+examples {
+  ["openapi.json"] {
+    import(".../VaultOpenApi.pkl").output.text
+  }
+}
