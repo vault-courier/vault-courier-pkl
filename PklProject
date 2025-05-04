@@ -30,7 +30,7 @@ package {
   }
   license = "Apache-2.0"
   baseUri = "package://github.com/vault-courier/\(name)" 
-  version = "0.0.1"
+  version = "0.0.2"
   packageZipUrl = "https://github.com/vault-courier/\(name)/\(name)@\(version).zip"
   issueTracker = "https://github.com/vault-courier/\(name)/issues"
   sourceCode = "https://github.com/vault-courier/tree/\(name)@\(version)/packages/\(name)"
