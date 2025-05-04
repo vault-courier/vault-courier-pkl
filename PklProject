@@ -17,8 +17,11 @@
 /// OpenAPI modules and templates for configuring [HashiCorp Vault](https://developer.hashicorp.com/vault) and [OpenBao](https://openbao.org)
 amends "pkl:Project"
 
+local repo = "vault-courier-pkl"
+local tag = "\(package.name)@\(package.version)"
+
 package {
-  name = "vault-courier-pkl"
+  name = "vault.courier.pkl"
   description = """
   OpenAPI modules and templates for configuring HashiCorp Vault and OpenBao — tools designed to securely store, audit, and manage access to sensitive data like API tokens, database credentials, and certificates.
 
@@ -29,12 +32,12 @@ package {
     "Tests/**"
   }
   license = "Apache-2.0"
-  baseUri = "package://github.com/vault-courier/\(name)" 
-  version = "0.0.2"
-  packageZipUrl = "https://github.com/vault-courier/\(name)/\(name)@\(version).zip"
-  issueTracker = "https://github.com/vault-courier/\(name)/issues"
-  sourceCode = "https://github.com/vault-courier/tree/\(name)@\(version)/packages/\(name)"
-  sourceCodeUrlScheme = "https://github.com/vault-courier/blob/\(name)@\(version)/packages/\(name)%{path}#L%{line}-%{endLine}"
+  baseUri = "package://github.com/vault-courier/\(repo)" 
+  version = "0.0.3"
+  packageZipUrl = "https://github.com/vault-courier/\(repo)/releases/download/\(tag)/\(name)@\(version).zip"
+  issueTracker = "https://github.com/vault-courier/\(repo)/issues"
+  sourceCode = "https://github.com/vault-courier/\(repo)"
+  sourceCodeUrlScheme = "\(sourceCode)/blob/\(version)%{path}#L%{line}-L%{endLine}"
 }
 
 dependencies {
