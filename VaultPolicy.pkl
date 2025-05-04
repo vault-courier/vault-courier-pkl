@@ -1,0 +1,31 @@
+module VaultPolicy
+
+typealias Capability =  "create"|"read"|"update"|"delete"|"list"|"sudo"
+
+class PathPolicy {
+  capabilities: Listing<Capability>
+
+  hidden listCapabilities: String =
+    "[\(capabilities.toList().map((elem)-> #""\#(elem)""#).join(", "))]"
+}
+
+typealias Policy = Mapping<String, PathPolicy>
+
+/// Policy name
+name: String
+
+hidden policy: Policy
+
+payload: String = 
+  new Listing {
+    for (k, v in policy) {
+      "path \"\(k)\" { capabilities = \(v.listCapabilities) }"
+    }
+  }
+  .toList()
+  .join("\n")
+
+
+output {
+  renderer = new JsonRenderer {}
+}
