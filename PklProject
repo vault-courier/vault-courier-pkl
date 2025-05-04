@@ -21,7 +21,7 @@ local repo = "vault-courier-pkl"
 local tag = "\(package.name)@\(package.version)"
 
 package {
-  name = "vault.courier.pkl"
+  name = "vault-courier-pkl"
   description = """
   OpenAPI modules and templates for configuring HashiCorp Vault and OpenBao — tools designed to securely store, audit, and manage access to sensitive data like API tokens, database credentials, and certificates.
 
