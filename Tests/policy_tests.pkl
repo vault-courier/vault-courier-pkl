@@ -1,0 +1,9 @@
+amends "pkl:test"
+
+import ".../VaultPolicy.pkl"
+
+examples {
+  ["examplePolicy1.pkl"] {
+    import("Fixtures/examplePolicy1.pkl").output.text
+  }
+}

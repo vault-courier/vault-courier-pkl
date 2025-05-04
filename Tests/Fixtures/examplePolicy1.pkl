@@ -1,0 +1,33 @@
+amends ".../VaultPolicy.pkl"
+
+name = "admin_dev"
+
+policy {
+  // Create, update, and delete auth methods, e.g. enable approle auth
+  ["sys/auth/*"] {
+    capabilities {
+      "create"
+      "update"
+      "delete"
+      "sudo"
+    }
+  }
+  
+  // List existing secrets engines.
+  ["sys/mounts"] {
+    capabilities {
+      "read"
+    }
+  }
+
+  ["database/*"] {
+    capabilities {
+      "create"
+      "read"
+      "update"
+      "delete"
+      "list"
+      "sudo"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+examples {
+  ["examplePolicy1.pkl"] {
+    #"""
+    {
+      "name": "admin_dev",
+      "payload": "path \"sys/auth/*\" { capabilities = [\"create\", \"update\", \"delete\", \"sudo\"] }\npath \"sys/mounts\" { capabilities = [\"read\"] }\npath \"database/*\" { capabilities = [\"create\", \"read\", \"update\", \"delete\", \"list\", \"sudo\"] }"
+    }
+    
+    """#
+  }
+}
