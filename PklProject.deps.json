@@ -14,13 +14,6 @@
       "checksums": {
         "sha256": "0b82242e186d9d432ad34b3c60cb6df18a89dabcd1bb37111e47a2f852316e5f"
       }
-    },
-    "package://pkg.pkl-lang.org/pkl-pantry/pkl.experimental.uri@1": {
-      "type": "remote",
-      "uri": "projectpackage://pkg.pkl-lang.org/pkl-pantry/pkl.experimental.uri@1.0.3",
-      "checksums": {
-        "sha256": "0b1db5755fa0c7651d5c62e0d5ef8a9ed4ed6411fe31769d06714600162e1589"
-      }
     }
   }
 }
