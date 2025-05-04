@@ -57,4 +57,4 @@ jobs:
       run: |
         echo "Uploading Pkl package"
         echo TAG_NAME=${TAG_NAME}
-        gh release upload "vault-courier-pkl@${TAG_NAME}" .out/vault-courier-pkl@${TAG_NAME}/*
+        gh release upload vault-courier-pkl@${TAG_NAME} .out/vault-courier-pkl@${TAG_NAME}/*
