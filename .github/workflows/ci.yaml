@@ -1,0 +1,51 @@
+#===----------------------------------------------------------------------===//
+#  Copyright (c) 2025 Javier Cuesta
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#===----------------------------------------------------------------------===//
+
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-pkl-package:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Install Pkl
+      env: 
+        PKL_VERSION: '0.28.2'
+      run: |
+        echo "Installing pkl version ${PKL_VERSION}..."
+        curl -L -o /usr/local/bin/pkl "https://github.com/apple/pkl/releases/download/${PKL_VERSION}/pkl-alpine-linux-amd64"
+        chmod 755 /usr/local/bin/pkl
+        pkl --version
+        echo $(which pkl)
+    - name: Resolve package dependencies
+      run: |
+        pkl project resolve
+    - name: Run tests
+      run: |
+        pkl test Tests/*.pkl
