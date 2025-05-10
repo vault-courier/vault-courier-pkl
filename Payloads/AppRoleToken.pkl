@@ -18,7 +18,7 @@
 /// See AppRoleAuth.pkl and [API](https://developer.hashicorp.com/vault/api-docs/auth/approle#parameters-5)
 module AppRoleToken
 
-engine_path: String = "approle"
+mount_path: String = "approle"
 
 /// Name of the AppRole. Must be less than 4096 bytes.
 role_name: String

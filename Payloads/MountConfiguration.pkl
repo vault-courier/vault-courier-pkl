@@ -18,12 +18,10 @@
 module MountConfiguration
 
 /// Specifies the type of the backend, such as "kv", "database", "aws", etc...
-`type`: String
+`type`: SecretEngine
 
 /// Specifies the path where the secrets engine will be mounted. This is specified as part of the URL.
 path: String
-
-typealias ConfigKey = "default_lease_ttl"|"max_lease_ttl"|"force_no_cache"|"audit_non_hmac_request_keys"|"audit_non_hmac_response_keys"|"listing_visibility"|"passthrough_request_headers"|"allowed_response_headers"|"plugin_version"|"identity_token"
 
 /// Specifies the human-friendly description of the mount.
 description: String?
@@ -39,3 +37,19 @@ options: Mapping<String,String>?
 seal_wrap: Boolean?
 
 external_entropy_access: Boolean?
+
+typealias SecretEngine =
+  "kv"
+  |"database"
+
+typealias ConfigKey = 
+  "default_lease_ttl"
+  |"max_lease_ttl"
+  |"force_no_cache"
+  |"audit_non_hmac_request_keys"
+  |"audit_non_hmac_response_keys"
+  |"listing_visibility"
+  |"passthrough_request_headers"
+  |"allowed_response_headers"
+  |"plugin_version"
+  |"identity_token"
