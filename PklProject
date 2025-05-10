@@ -18,7 +18,7 @@
 amends "pkl:Project"
 
 local repo = "vault-courier-pkl"
-local tag = "\(package.version)"
+local tag = "\(package.name)@\(package.version)"
 
 package {
   name = "vault-courier-pkl"

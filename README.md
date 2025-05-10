@@ -4,4 +4,6 @@ This repository contains the OpenAPI modules and Pkl templates for configuring [
 
 Packages are available at:
 
-`package://pkg.pkl-lang.org/github.com/vault-courier/vault-courier-pkl/vault-courier-pkl@<VERSION>`
+```
+package://pkg.pkl-lang.org/github.com/vault-courier/vault-courier-pkl/vault-courier-pkl@<VERSION>
+```
