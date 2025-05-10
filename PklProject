@@ -42,7 +42,7 @@ package {
 
 dependencies {
   ["openapi"] { 
-    uri = "package://pkg.pkl-lang.org/pkl-pantry/org.openapis.v3@2.1.2" 
+    uri = "package://pkg.pkl-lang.org/pkl-pantry/org.openapis.v3@2.1.3" 
   }
   ["net"] {
     uri = "package://pkg.pkl-lang.org/pkl-pantry/pkl.experimental.net@1.2.1"
