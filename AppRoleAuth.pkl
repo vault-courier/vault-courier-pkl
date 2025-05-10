@@ -259,11 +259,18 @@ paths {
             ["application/json"] {
               schema = new Schema {
                 anyOf {
-                  new Reference {
-                    `$ref` = "#/components/schemas/GenerateAppRoleSecretIdResponse"
+                  new Schema {
+                    oneOf {
+                      new Reference {
+                        `$ref` = "#/components/schemas/GenerateAppRoleSecretIdResponse"
+                      }
+                      new Reference {
+                        `$ref` = "#/components/schemas/WrapAppRoleSecretIdResponse"
+                      }
+                    }
                   }
-                  new Reference {
-                    `$ref` = "#/components/schemas/WrapAppRoleSecretIdResponse"
+                  new Schema {
+                    type = "object"
                   }
                 }
               }
