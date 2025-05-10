@@ -1,0 +1,45 @@
+/// Payload for enabling auth methods
+module AuthMethodConfig
+
+/// Specifies the path in which to enable the auth method. This is part of the request URL.
+path: String
+
+/// Specifies the name of the authentication method type, such as "approle", github" or "token".
+`type`: AuthMethod
+
+/// Specifies a human-friendly description of the auth method.
+description: String?
+
+/// Specifies configuration options for this mount; if set on a specific mount, values will override any global defaults (e.g. the system TTL/Max TTL)
+config: Mapping<ConfigKey, String>?
+
+///  Specifies mount type specific options that are passed to the backend.
+options: Mapping<String,String>?
+
+/// Specifies if the auth method is local only. Local auth methods are not replicated nor (if a secondary) removed by replication.
+/// Local auth mounts also generate entities for tokens issued. The entity will be replicated across clusters and the aliases generated
+/// on the local auth mount will be local to the cluster. If the goal of marking an auth method as `local` was to comply with GDPR guidelines,
+/// then care must be taken to not set the data pertaining to local auth mount or local auth mount aliases in the metadata of the associated
+/// entity. Metadata related to local auth mount aliases can be stored as custom_metadata on the alias itself which will also be retained locally to the cluster.
+/// These options are allowed in Vault open-source, but relevant functionality is only supported in Vault Enterprise.
+`local`: Boolean?
+
+/// Enable seal wrapping for the mount, causing values stored by the mount to be wrapped by the seal's encryption capability.
+/// These options are allowed in Vault open-source, but relevant functionality is only supported in Vault Enterprise.
+seal_wrap: Boolean?
+
+typealias AuthMethod =
+  "approle"
+  |"token"
+
+typealias ConfigKey = 
+  "default_lease_ttl"
+  |"max_lease_ttl"
+  |"force_no_cache"
+  |"audit_non_hmac_request_keys"
+  |"audit_non_hmac_response_keys"
+  |"listing_visibility"
+  |"passthrough_request_headers"
+  |"allowed_response_headers"
+  |"plugin_version"
+  |"identity_token"
