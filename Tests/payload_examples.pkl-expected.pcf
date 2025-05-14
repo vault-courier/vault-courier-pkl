@@ -1,0 +1,16 @@
+examples {
+  ["static_role1"] {
+    """
+    vault_role_name = "test_static_role"
+    db_username = "test_static_role_username"
+    db_connection_name = "postgres_db"
+    rotation_period = 28.d
+    rotation_schedule = null
+    rotation_window = null
+    rotation_statements = null
+    credential_type = "password"
+    credential_config = null
+    
+    """
+  }
+}
