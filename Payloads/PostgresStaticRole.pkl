@@ -28,20 +28,11 @@ db_username: String
 /// The name of the database connection to use for this role.
 db_connection_name: String
 
-class RotationSchedule {
-  schedule: String
-  window: String?
-}
-
-class RotationPeriod {
-  period: String
-}
-
 hidden rotation: RotationPeriod|RotationSchedule
 
 /// Specifies the amount of time Vault should wait before rotating the password. The minimum is 5 seconds.
 /// Uses duration format strings. Mutually exclusive with `rotation_schedule`.
-rotation_period: String? = 
+rotation_period: Duration? = 
   if (rotation is RotationPeriod) rotation.period else null
 
 /// A cron-style string that will define the schedule on which rotations should occur. This should be
@@ -55,13 +46,39 @@ rotation_schedule: String? =
 /// If the credential is not rotated during this window, due to a failure or otherwise, it will not be rotated until
 /// the next scheduled rotation. The minimum is 1 hour. Uses duration format strings. Optional when `rotation_schedule`
 /// is set and disallowed when `rotation_period` is set.
-rotation_window: String? = 
+rotation_window: Duration? = 
   if (rotation is RotationSchedule) rotation.window else null
 
 /// Specifies the database statements to be executed to rotate the password for the configured database user.
 /// Not every plugin type will support this functionality. See the plugin's API page for more information on
 /// support and formatting for this parameter.
 rotation_statements: Listing<String>?
+
+hidden credential: PasswordCredential|RSAPrivateKey|ClientCertificate
+
+/// Specifies the type of credential that will be generated for the role. Options include: `password`,
+/// `rsa_private_key`, `client_certificate`. See the plugin's API page for credential types supported 
+/// by individual databases.
+credential_type: CredentialType? = credential.type
+
+/// Specifies the configuration for the given `credential_type`. See documentation for details
+credential_config: Mapping<String, String>? = 
+  let (config = credential
+                  .toMap()
+                  .filter((_, elem) -> elem != null)
+                  .mapValues((_, elem) -> elem.toString())
+                  .toMapping())
+  if (config.isEmpty) null else config
+
+
+class RotationSchedule {
+  schedule: String
+  window: Duration?
+}
+
+class RotationPeriod {
+  period: Duration
+}
 
 class PasswordCredential {
   passwordPolicy: String?
@@ -99,20 +116,4 @@ class ClientCertificate {
   hidden type: String = "client_certificate"
 }
 
-hidden credential: PasswordCredential|RSAPrivateKey|ClientCertificate
-
 typealias CredentialType = "password"|"rsa_private_key"|"client_certificate"
-
-/// Specifies the type of credential that will be generated for the role. Options include: `password`,
-/// `rsa_private_key`, `client_certificate`. See the plugin's API page for credential types supported 
-/// by individual databases.
-credential_type: CredentialType? = credential.type
-
-/// Specifies the configuration for the given `credential_type`. See documentation for details
-credential_config: Mapping<String, String>? = 
-  let (config = credential
-                  .toMap()
-                  .filter((_, elem) -> elem != null)
-                  .mapValues((_, elem) -> elem.toString())
-                  .toMapping())
-  if (config.isEmpty) null else config
