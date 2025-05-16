@@ -19,14 +19,14 @@ amends "@openapi/Document.pkl"
 import "@openapi/Schema.pkl"
 import "@openapi/HTTPResponse.pkl"
 
-import "TokenAuth.pkl" as TokenAuth
-import "AppRoleAuth.pkl" as AppRoleAuth
+import "AuthMethods/TokenAuth.pkl" as TokenAuth
+import "AuthMethods/AppRoleAuth.pkl" as AppRoleAuth
 import "SystemBackend/Wrapping.pkl"
 import "SystemBackend/PoliciesACL.pkl"
 import "SystemBackend/Mounts.pkl"
 import "SystemBackend/SystemAuth.pkl"
-import "KeyValueEngine.pkl" as KeyValueEngine
-import "PostgresDatabaseConfiguration.pkl" as PostgresDatabaseConfiguration
+import "SecretEngines/KeyValue/KeyValueEngine.pkl" as KeyValueEngine
+import "SecretEngines/Databases/PostgresSQL/PostgresDatabaseConfiguration.pkl" as PostgresDatabaseConfiguration
 
 info {
   title = "Vault Courier"
