@@ -1,0 +1,7 @@
+amends "../Payloads/AppRoleToken.pkl"
+
+import "app_role1.pkl" as appRole
+
+role_name = appRole.role_name
+
+ttl = 30.min
