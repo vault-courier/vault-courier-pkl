@@ -18,16 +18,16 @@ secret_id_bound_cidrs: Listing<String>?
 secret_id_num_uses: Int?
 
 /// Duration in either an integer number of seconds (3600) or an integer time unit (60m) after which by default any SecretID expires. A value of zero will allow the SecretID to not expire. However, this option may be overridden by the request's `ttl` field when generating a SecretID.
-secret_id_ttl: String?
+secret_id_ttl: Duration?
 
 /// If set, the secret IDs generated using this role will be cluster local. This can only be set during role creation and once set, it can't be reset later.
 local_secret_ids: Boolean?
 
 /// The incremental lifetime for generated tokens. This current value of this will be referenced at renewal time.
-token_ttl: String?
+token_ttl: Duration?
 
 /// The maximum lifetime for generated tokens. This current value of this will be referenced at renewal time.
-token_max_ttl: String?
+token_max_ttl: Duration?
 
 /// List of token policies to encode onto generated tokens. Depending on the auth method, this list may be supplemented by user/group/other values.
 token_policies: Listing<String>
@@ -45,7 +45,7 @@ token_no_default_policy: Boolean?
 token_num_uses: Int?
 
 /// The maximum allowed period value when a periodic token is requested from this role.
-token_period: String?
+token_period: Duration?
 
 typealias TokenType = "batch"|"service"|"default"
 

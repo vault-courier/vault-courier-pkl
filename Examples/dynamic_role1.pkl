@@ -1,0 +1,15 @@
+amends "../Payloads/PostgresRole.pkl"
+
+name = "test_dynamic_role"
+
+db_connection_name = "postgres_db"
+
+default_ttl = 1.h
+
+max_ttl = 2.h
+
+creation_statements {
+  #"CREATE ROLE \"{{name}}\" LOGIN PASSWORD '{{password}}';"#
+}
+
+credential = new PasswordCredential {}

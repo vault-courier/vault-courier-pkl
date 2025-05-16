@@ -17,56 +17,6 @@ examples {
         }
       ],
       "paths": {
-        "/auth/token/create": {
-          "description": "The token create path is used to create new tokens.",
-          "post": {
-            "tags": [
-              "auth"
-            ],
-            "summary": "The token create path is used to create new tokens.",
-            "operationId": "token-create",
-            "requestBody": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/TokenCreateRequest"
-                  }
-                }
-              },
-              "required": true
-            },
-            "responses": {
-              "200": {
-                "description": "OK",
-                "content": {
-                  "application/json": {
-                    "schema": {
-                      "$ref": "#/components/schemas/TokenCreateResponse"
-                    }
-                  }
-                }
-              },
-              "400": {
-                "description": "BadRequest",
-                "content": {
-                  "application/json": {
-                    "schema": {
-                      "$ref": "#/components/schemas/VaultErrorsResponse"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "parameters": [
-            {
-              "$ref": "#/components/parameters/VaultTokenHeader"
-            },
-            {
-              "$ref": "#/components/parameters/WrapTTLHeader"
-            }
-          ]
-        },
         "/sys/policies/acl/{name}": {
           "description": "Read, Modify, or Delete an access control policy.",
           "post": {
@@ -255,6 +205,107 @@ examples {
             },
             {
               "$ref": "#/components/parameters/VaultTokenHeader"
+            }
+          ]
+        },
+        "/sys/wrapping/unwrap": {
+          "description": "Unwraps a response-wrapped token.",
+          "post": {
+            "tags": [
+              "system"
+            ],
+            "operationId": "unwrap",
+            "requestBody": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "token": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              },
+              "required": true
+            },
+            "responses": {
+              "200": {
+                "description": "OK",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/AuthMethodResponse"
+                    }
+                  }
+                }
+              },
+              "400": {
+                "description": "BadRequest",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/VaultErrorsResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/VaultTokenHeader"
+            }
+          ]
+        },
+        "/auth/token/create": {
+          "description": "The token create path is used to create new tokens.",
+          "post": {
+            "tags": [
+              "auth"
+            ],
+            "summary": "The token create path is used to create new tokens.",
+            "operationId": "token-create",
+            "requestBody": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/TokenCreateRequest"
+                  }
+                }
+              },
+              "required": true
+            },
+            "responses": {
+              "200": {
+                "description": "OK",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/TokenCreateResponse"
+                    }
+                  }
+                }
+              },
+              "400": {
+                "description": "BadRequest",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/VaultErrorsResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/VaultTokenHeader"
+            },
+            {
+              "$ref": "#/components/parameters/WrapTTLHeader"
             }
           ]
         },
@@ -954,57 +1005,6 @@ examples {
                 "type": "string"
               }
             },
-            {
-              "$ref": "#/components/parameters/VaultTokenHeader"
-            }
-          ]
-        },
-        "/sys/wrapping/unwrap": {
-          "description": "Unwraps a response-wrapped token.",
-          "post": {
-            "tags": [
-              "system"
-            ],
-            "operationId": "unwrap",
-            "requestBody": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "token": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              },
-              "required": true
-            },
-            "responses": {
-              "200": {
-                "description": "OK",
-                "content": {
-                  "application/json": {
-                    "schema": {
-                      "$ref": "#/components/schemas/AuthMethodResponse"
-                    }
-                  }
-                }
-              },
-              "400": {
-                "description": "BadRequest",
-                "content": {
-                  "application/json": {
-                    "schema": {
-                      "$ref": "#/components/schemas/VaultErrorsResponse"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "parameters": [
             {
               "$ref": "#/components/parameters/VaultTokenHeader"
             }
@@ -1797,7 +1797,7 @@ examples {
               },
               "policies": {
                 "type": "array",
-                "description": "List of policies for the token",
+                "description": "A list of policies for the token. This must be a subset of the policies belonging to the token making the request, unless the calling token is root or contains sudo capabilities to auth/token/create. If not specified, defaults to all the policies of the calling token.",
                 "items": {
                   "type": "string"
                 }
@@ -1873,65 +1873,9 @@ examples {
             },
             "required": [
               "request_id",
-              "mount_type",
               "renewable",
               "auth"
             ]
-          },
-          "PoliciesWriteAclPolicyRequest": {
-            "type": "object",
-            "properties": {
-              "policy": {
-                "type": "string",
-                "description": "The rules of the policy."
-              }
-            }
-          },
-          "MountsEnableSecretsEngineRequest": {
-            "type": "object",
-            "properties": {
-              "config": {
-                "type": "object",
-                "format": "map",
-                "description": "Configuration for this mount, such as default_lease_ttl and max_lease_ttl."
-              },
-              "description": {
-                "type": "string",
-                "description": "User-friendly description for this mount."
-              },
-              "external_entropy_access": {
-                "type": "boolean",
-                "description": "Whether to give the mount access to Vault's external entropy.",
-                "default": false
-              },
-              "local": {
-                "type": "boolean",
-                "description": "Mark the mount as a local mount, which is not replicated and is unaffected by replication.",
-                "default": false
-              },
-              "options": {
-                "type": "object",
-                "format": "kvpairs",
-                "description": "The options to pass into the backend. Should be a json object with string keys and values."
-              },
-              "plugin_name": {
-                "type": "string",
-                "description": "Name of the plugin to mount based from the name registered in the plugin catalog."
-              },
-              "plugin_version": {
-                "type": "string",
-                "description": "The semantic version of the plugin to use, or image tag if oci_image is provided."
-              },
-              "seal_wrap": {
-                "type": "boolean",
-                "description": "Whether to turn on seal wrapping for the mount.",
-                "default": false
-              },
-              "type": {
-                "type": "string",
-                "description": "The type of the backend. Example: \"passthrough\""
-              }
-            }
           },
           "AuthEnableMethodRequest": {
             "type": "object",
@@ -2019,6 +1963,61 @@ examples {
             "required": [
               "data"
             ]
+          },
+          "PoliciesWriteAclPolicyRequest": {
+            "type": "object",
+            "properties": {
+              "policy": {
+                "type": "string",
+                "description": "The rules of the policy."
+              }
+            }
+          },
+          "MountsEnableSecretsEngineRequest": {
+            "type": "object",
+            "properties": {
+              "config": {
+                "type": "object",
+                "format": "map",
+                "description": "Configuration for this mount, such as default_lease_ttl and max_lease_ttl."
+              },
+              "description": {
+                "type": "string",
+                "description": "User-friendly description for this mount."
+              },
+              "external_entropy_access": {
+                "type": "boolean",
+                "description": "Whether to give the mount access to Vault's external entropy.",
+                "default": false
+              },
+              "local": {
+                "type": "boolean",
+                "description": "Mark the mount as a local mount, which is not replicated and is unaffected by replication.",
+                "default": false
+              },
+              "options": {
+                "type": "object",
+                "format": "kvpairs",
+                "description": "The options to pass into the backend. Should be a json object with string keys and values."
+              },
+              "plugin_name": {
+                "type": "string",
+                "description": "Name of the plugin to mount based from the name registered in the plugin catalog."
+              },
+              "plugin_version": {
+                "type": "string",
+                "description": "The semantic version of the plugin to use, or image tag if oci_image is provided."
+              },
+              "seal_wrap": {
+                "type": "boolean",
+                "description": "Whether to turn on seal wrapping for the mount.",
+                "default": false
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the backend. Example: \"passthrough\""
+              }
+            }
           },
           "AuthMethodResponse": {
             "type": "object",
