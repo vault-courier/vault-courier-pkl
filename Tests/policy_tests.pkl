@@ -16,7 +16,7 @@
 
 amends "pkl:test"
 
-import ".../VaultPolicy.pkl"
+import ".../Payloads/VaultPolicy.pkl"
 
 examples {
   ["examplePolicy1.pkl"] {
