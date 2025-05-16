@@ -92,6 +92,8 @@ components {
 
     ...AppRoleAuth.components.schemas
 
+    ...TokenAuth.components.schemas
+
     ...PostgresDatabaseConfiguration.components.schemas
 
     ["VaultErrorsResponse"] {

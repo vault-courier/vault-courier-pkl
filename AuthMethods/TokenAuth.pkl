@@ -78,4 +78,194 @@ paths {
       }
     }
   }
+
+  ["/auth/token/renew"] {
+    description = "This endpoint will renew the given token and prevent expiration."
+    parameters {
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/WrapTTLHeader"
+      }
+    }
+    post {
+      summary = "This endpoint will renew the given token and prevent expiration."
+      operationId = "token-renew"
+      tags {
+        "auth"
+      }
+      requestBody {
+        content {
+          ["application/json"] {
+            schema = new Reference {
+              `$ref` = "#/components/schemas/TokenRenewRequest"
+            }
+          }
+        }
+        required = true
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/TokenCreateResponse"
+              }
+            }
+          }
+        }
+        [HTTPResponse.BadRequest] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+components {
+  schemas {
+    ["TokenCreateRequest"] {
+      type = "object"
+      properties {
+        ["display_name"] {
+          type =  "string"
+          description = "Name to associate with this token"
+        }
+        ["entity_alias"] {
+          type = "string"
+          description = "Name of the entity alias to associate with this token"
+        }
+        ["explicit_max_ttl"] {
+          type = "string"
+          description = "Explicit Max TTL of this token"
+        }
+        ["id"] {
+          type = "string"
+          description = "Value for the token"
+        }
+        ["meta"] {
+          type = "object"
+          description = "Arbitrary key=value metadata to associate with the token"
+          format = "kvpairs"
+        }
+        ["no_default_policy"] {
+          type = "boolean"
+          description = "Do not include default policy for this token"
+        }
+        ["no_parent"] {
+          type = "boolean"
+          description = "Create the token with no parent"
+        }
+        ["num_uses"] {
+          type = "integer"
+          description = "Max number of uses for this token"
+        }
+        ["period"] {
+          type = "string"
+          description = "Renew period"
+        }
+        ["policies"] {
+          type = "array"
+          description = "A list of policies for the token. This must be a subset of the policies belonging to the token making the request, unless the calling token is root or contains sudo capabilities to auth/token/create. If not specified, defaults to all the policies of the calling token."
+          items = new Schema {
+            type = "string"
+          }
+        }
+        ["renewable"] {
+          type = "boolean"
+          description = "Allow token to be renewed past its initial TTL up to system/mount maximum TTL"
+          default = true
+        }
+        ["ttl"] {
+          type = "string"
+          description = "Time to live for this token"
+        }
+        ["type"] {
+          type = "string"
+          description = "Token type"
+        }
+      }
+    }
+    ["TokenCreateResponse"] {
+      type = "object"
+      properties {
+        ["request_id"] {
+          type = "string"
+          description = "the id of the request associated with this response"
+        }
+        ["renewable"] {
+          type = "boolean"
+        }
+        ["mount_type"] {
+          type = "string"
+        }
+        ["auth"] {
+          type = "object"
+          properties {
+            ["client_token"] {
+              type = "string"
+              description = "the token value"
+            }
+            ["accessor"] {
+              type = "string"
+            }
+            ["token_policies"] {
+              type = "array"
+              description = "List of policies attached to the token"
+              items = new Schema {
+                type = "string"
+              }
+            }
+            ["lease_duration"] {
+              type = "integer"
+            }
+            ["token_type"] {
+              type = "string"
+            }
+            ["orphan"] {
+              type = "boolean"
+            }
+            ["num_uses"] {
+              type = "integer"
+            }
+          }
+          required {
+            "client_token"
+            "accessor"
+            "token_policies"
+            "lease_duration"
+            "token_type"
+            "orphan"
+            "num_uses"
+          }
+        }
+      }
+      required {
+        "request_id"
+        "renewable"
+        "auth"
+      }
+    }
+
+    ["TokenRenewRequest"] {
+      type = "object"
+      properties {
+        ["increment"] {
+          type = "string"
+          description = "The desired increment in seconds to the token expiration"
+          format = "duration"
+          default = "0"
+        }
+      }
+    }
+  }
 }
