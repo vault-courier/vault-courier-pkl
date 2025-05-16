@@ -1,0 +1,72 @@
+examples {
+  ["app_role1"] {
+    """
+    approle_path = null
+    role_name = "server_app_us_west"
+    bind_secret_id = null
+    secret_id_bound_cidrs = null
+    secret_id_num_uses = null
+    secret_id_ttl = 3600.s
+    local_secret_ids = null
+    token_ttl = 60.min
+    token_max_ttl = 24.h
+    token_policies {
+      "read_only"
+    }
+    token_bound_cidrs = null
+    token_explicit_max_ttl = null
+    token_no_default_policy = null
+    token_num_uses = null
+    token_period = null
+    token_type = "batch"
+    
+    """
+  }
+  ["app_role_token1"] {
+    """
+    role_name = "server_app_us_west"
+    meta = null
+    cidr_list = null
+    token_bound_cidrs = null
+    ttl = 30.min
+    num_uses = null
+    wrap_ttl = null
+    
+    """
+  }
+  ["dynamic_role1"] {
+    #"""
+    name = "test_dynamic_role"
+    db_connection_name = "postgres_db"
+    default_ttl = 1.h
+    max_ttl = 2.h
+    creation_statements {
+      "CREATE ROLE \\\"{{name}}\\\" LOGIN PASSWORD '{{password}}';"
+    }
+    revocation_statements = null
+    rollback_statements = null
+    renew_statements = null
+    rotation_statements = null
+    credential_type = "password"
+    credential_config = null
+    
+    """#
+  }
+  ["static_role1"] {
+    """
+    vault_role_name = "test_static_role"
+    db_username = "test_static_role_username"
+    db_connection_name = "postgres_db"
+    rotation_period = 28.d
+    rotation_schedule = null
+    rotation_window = null
+    rotation_statements = null
+    credential_type = "password"
+    credential_config = null
+    
+    """
+  }
+  ["user_token"] {
+    ""
+  }
+}

@@ -14,7 +14,7 @@
 //  limitations under the License.
 //===----------------------------------------------------------------------===//
 
-module CommonSysPaths
+module Wrapping
 
 amends "@openapi/Document.pkl"
 import "@openapi/PathItem.pkl"
