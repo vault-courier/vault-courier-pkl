@@ -18,6 +18,7 @@ amends "@openapi/Document.pkl"
 
 import "@openapi/Schema.pkl"
 import "@openapi/HTTPResponse.pkl"
+import "VaultGenericResponse.pkl"
 
 import "AuthMethods/TokenAuth.pkl" as TokenAuth
 import "AuthMethods/AppRoleAuth.pkl" as AppRoleAuth
@@ -95,6 +96,8 @@ components {
     ...TokenAuth.components.schemas
 
     ...PostgresDatabaseConfiguration.components.schemas
+
+    ["VaultGenericResponse"] = new VaultGenericResponse {}
 
     ["VaultErrorsResponse"] {
       type = "object"

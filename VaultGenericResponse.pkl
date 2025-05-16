@@ -1,0 +1,115 @@
+//===----------------------------------------------------------------------===//
+//  Copyright (c) 2025 Javier Cuesta
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//===----------------------------------------------------------------------===//
+module VaultGenericResponse extends "@openapi/Schema.pkl"
+
+import "@openapi/Schema.pkl"
+
+type = "object"
+
+properties {
+  ["request_id"] {
+    type = "string"
+  }
+  ["lease_id"] {
+    type = "string"
+  }
+  ["renewable"] {
+    type = "boolean"
+  }
+  ["lease_duration"] {
+    type = "integer"
+  }
+  ["data"] {
+    type = "object"
+  }
+  ["wrap_info"] {
+    type = "object"
+    properties {
+      ["token"] {
+        type = "string"
+      }
+      ["ttl"] {
+        type = "integer"
+      }
+      ["creation_time"] {
+        type = "string"
+      }
+      ["accessor"] {
+        type = "string"
+      }
+      ["creation_path"] {
+        type = "string"
+      }
+      ["wrapped_accessor"] {
+        type = "string"
+      }
+    }
+  }
+  ["warnings"] {
+    type = "array"
+    description = "A list of warnings, e.g. ignored parameters"
+    items = new Schema {
+      type = "string"
+    }
+  }
+  ["auth"] {
+    type = "object"
+    properties {
+      ["client_token"] {
+        type = "string"
+      }
+      ["accessor"] {
+        type = "string"
+      }
+      ["token_policies"] {
+        type = "array"
+        description = "A list of policies for the token. This must be a subset of the policies belonging to the token making the request, unless the calling token is root or contains sudo capabilities to auth/token/create. If not specified, defaults to all the policies of the calling token."
+        items = new Schema {
+          type = "string"
+        }
+      }
+      ["identity_policies"] {
+        type = "array"
+        description = "A list of policies for the token. This must be a subset of the policies belonging to the token making the request, unless the calling token is root or contains sudo capabilities to auth/token/create. If not specified, defaults to all the policies of the calling token."
+        items = new Schema {
+          type = "string"
+        }
+      }
+      ["metadata"] {
+        type = "object"
+        format = "kvpairs"
+      }
+      ["lease_duration"] {
+        type = "integer"
+      }
+      ["renewable"] {
+        type = "boolean"
+      }
+      ["entity_id"] {
+        type = "string"
+      }
+      ["token_type"] {
+        type = "string"
+      }
+      ["orphan"] {
+        type = "boolean"
+      }
+      ["num_uses"] {
+        type = "integer"
+      }
+    }
+  }
+}
