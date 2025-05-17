@@ -282,6 +282,98 @@ paths {
       }
     }
   }
+
+  ["/auth/token/revoke-self"] {
+    description = "Revokes the token used to call it and all child tokens. When the token is revoked, all dynamic secrets generated with it are also revoked."
+    parameters {
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/WrapTTLHeader"
+      }
+    }
+    post {
+      summary = "Revokes the token used to call it and all child tokens. When the token is revoked, all dynamic secrets generated with it are also revoked."
+      operationId = "token-revoke-self"
+      tags {
+        "auth"
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultApiResponse"
+              }
+            }
+          }
+        }
+        [HTTPResponse.BadRequest] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/auth/token/revoke-accessor"] {
+    description = "Revoke the token associated with the accessor and all the child tokens. This is meant for purposes where there is no access to token ID but there is need to revoke a token and its children."
+    parameters {
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/WrapTTLHeader"
+      }
+    }
+    post {
+      summary = "Revoke the token associated with the accessor and all the child tokens. This is meant for purposes where there is no access to token ID but there is need to revoke a token and its children."
+      operationId = "token-revoke-accessor"
+      tags {
+        "auth"
+      }
+      requestBody {
+        content {
+          ["application/json"] {
+            schema = new Reference {
+              `$ref` = "#/components/schemas/TokenRevokeAccessorRequest"
+            }
+          }
+        }
+        required = true
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultApiResponse"
+              }
+            }
+          }
+        }
+        [HTTPResponse.BadRequest] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 components {
@@ -409,6 +501,19 @@ components {
       }
       required {
         "token"
+      }
+    }
+
+    ["TokenRevokeAccessorRequest"] {
+      type = "object"
+      properties {
+        ["accessor"] {
+          type = "string"
+          description = "Accessor associated with the token to renew."
+        }
+      }
+      required {
+        "accessor"
       }
     }
   }
