@@ -111,7 +111,7 @@ paths {
           content {
             ["application/json"] {
               schema = new Reference {
-                `$ref` = "#/components/schemas/VaultGenericResponse"
+                `$ref` = "#/components/schemas/VaultApiResponse"
               }
             }
           }
@@ -222,6 +222,14 @@ components {
               type = "array"
               description = "List of policies attached to the token"
               items = new Schema {
+                type = "string"
+              }
+            }
+            ["metadata"] {
+              type = "object"
+              description = "Arbitrary key=value metadata to associate with the token"
+              format = "kvpairs"
+              additionalProperties {
                 type = "string"
               }
             }

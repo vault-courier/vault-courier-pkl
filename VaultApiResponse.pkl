@@ -13,7 +13,7 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //===----------------------------------------------------------------------===//
-module VaultGenericResponse extends "@openapi/Schema.pkl"
+module VaultApiResponse extends "@openapi/Schema.pkl"
 
 import "@openapi/Schema.pkl"
 
@@ -81,16 +81,13 @@ properties {
           type = "string"
         }
       }
-      ["identity_policies"] {
-        type = "array"
-        description = "A list of policies for the token. This must be a subset of the policies belonging to the token making the request, unless the calling token is root or contains sudo capabilities to auth/token/create. If not specified, defaults to all the policies of the calling token."
-        items = new Schema {
-          type = "string"
-        }
-      }
       ["metadata"] {
         type = "object"
+        description = "Arbitrary key=value metadata to associate with the token"
         format = "kvpairs"
+        additionalProperties {
+          type = "string"
+        }
       }
       ["lease_duration"] {
         type = "integer"
@@ -103,13 +100,26 @@ properties {
       }
       ["token_type"] {
         type = "string"
+        enum {
+          "batch"
+          "service"
+          "default"
+          "default-service"
+          "default-batch"
+        }
       }
       ["orphan"] {
+        type = "boolean"
+      }
+      ["mfa_requirement"] {
         type = "boolean"
       }
       ["num_uses"] {
         type = "integer"
       }
     }
+  }
+  ["mount_type"] {
+    type = "string"
   }
 }

@@ -18,7 +18,7 @@ amends "@openapi/Document.pkl"
 
 import "@openapi/Schema.pkl"
 import "@openapi/HTTPResponse.pkl"
-import "VaultGenericResponse.pkl"
+import "VaultApiResponse.pkl"
 
 import "AuthMethods/TokenAuth.pkl" as TokenAuth
 import "AuthMethods/AppRoleAuth.pkl" as AppRoleAuth
@@ -40,7 +40,8 @@ info {
 
 servers {
   new { 
-    url = "http://127.0.0.1:8200/v1" 
+    url = "http://127.0.0.1:8200/v1"
+    description = "Default server url"
   }
 }
 
@@ -97,7 +98,7 @@ components {
 
     ...PostgresDatabaseConfiguration.components.schemas
 
-    ["VaultGenericResponse"] = new VaultGenericResponse {}
+    ["VaultApiResponse"] = new VaultApiResponse {}
 
     ["VaultErrorsResponse"] {
       type = "object"
