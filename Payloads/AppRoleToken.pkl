@@ -39,4 +39,4 @@ ttl: Duration?
 num_uses: Int?
 
 /// Set to wrap-response the generated token with the given TTL.
-wrap_ttl: String?
+wrap_ttl: Duration?
