@@ -60,7 +60,7 @@ paths {
           content {
             ["application/json"] {
               schema = new Reference {
-                `$ref` = "#/components/schemas/TokenCreateResponse"
+                `$ref` = "#/components/schemas/VaultApiResponse"
               }
             }
           }
@@ -100,6 +100,159 @@ paths {
           ["application/json"] {
             schema = new Reference {
               `$ref` = "#/components/schemas/TokenRenewRequest"
+            }
+          }
+        }
+        required = true
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultApiResponse"
+              }
+            }
+          }
+        }
+        [HTTPResponse.BadRequest] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/auth/token/renew-self"] {
+    description = "Renews a lease associated with the calling token. This is used to prevent the expiration of a token, and the automatic revocation of it. Token renewal is possible only if there is a lease associated with it."
+    parameters {
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/WrapTTLHeader"
+      }
+    }
+    post {
+      summary = "Renews a lease associated with the calling token."
+      operationId = "token-renew-self"
+      tags {
+        "auth"
+      }
+      requestBody {
+        content {
+          ["application/json"] {
+            schema = new Reference {
+              `$ref` = "#/components/schemas/TokenRenewSelfRequest"
+            }
+          }
+        }
+        required = true
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultApiResponse"
+              }
+            }
+          }
+        }
+        [HTTPResponse.BadRequest] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/auth/token/renew-accessor"] {
+    description = "Renews a lease associated with a token using its accessor. This is used to prevent the expiration of a token, and the automatic revocation of it. Token renewal is possible only if there is a lease associated with it."
+    parameters {
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/WrapTTLHeader"
+      }
+    }
+    post {
+      summary = "Renews a lease associated with a token using its accessor."
+      operationId = "token-renew-accessor"
+      tags {
+        "auth"
+      }
+      requestBody {
+        content {
+          ["application/json"] {
+            schema = new Reference {
+              `$ref` = "#/components/schemas/TokenRenewAccessorRequest"
+            }
+          }
+        }
+        required = true
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultApiResponse"
+              }
+            }
+          }
+        }
+        [HTTPResponse.BadRequest] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/auth/token/revoke"] {
+    description = "Revokes a token and all child tokens. When the token is revoked, all dynamic secrets generated with it are also revoked."
+    parameters {
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/WrapTTLHeader"
+      }
+    }
+    post {
+      summary = "Revokes a token and all child tokens. When the token is revoked, all dynamic secrets generated with it are also revoked."
+      operationId = "token-revoke"
+      tags {
+        "auth"
+      }
+      requestBody {
+        content {
+          ["application/json"] {
+            schema = new Reference {
+              `$ref` = "#/components/schemas/TokenRevokeRequest"
             }
           }
         }
@@ -195,74 +348,6 @@ components {
         }
       }
     }
-    ["TokenCreateResponse"] {
-      type = "object"
-      properties {
-        ["request_id"] {
-          type = "string"
-          description = "the id of the request associated with this response"
-        }
-        ["renewable"] {
-          type = "boolean"
-        }
-        ["mount_type"] {
-          type = "string"
-        }
-        ["auth"] {
-          type = "object"
-          properties {
-            ["client_token"] {
-              type = "string"
-              description = "the token value"
-            }
-            ["accessor"] {
-              type = "string"
-            }
-            ["token_policies"] {
-              type = "array"
-              description = "List of policies attached to the token"
-              items = new Schema {
-                type = "string"
-              }
-            }
-            ["metadata"] {
-              type = "object"
-              description = "Arbitrary key=value metadata to associate with the token"
-              format = "kvpairs"
-              additionalProperties {
-                type = "string"
-              }
-            }
-            ["lease_duration"] {
-              type = "integer"
-            }
-            ["token_type"] {
-              type = "string"
-            }
-            ["orphan"] {
-              type = "boolean"
-            }
-            ["num_uses"] {
-              type = "integer"
-            }
-          }
-          required {
-            "client_token"
-            "accessor"
-            "token_policies"
-            "lease_duration"
-            "token_type"
-            "orphan"
-            "num_uses"
-          }
-        }
-      }
-      required {
-        "request_id"
-        "renewable"
-        "auth"
-      }
-    }
 
     ["TokenRenewRequest"] {
       type = "object"
@@ -276,6 +361,50 @@ components {
           description = "The desired increment in seconds to the token expiration"
           format = "duration"
           default = "0"
+        }
+      }
+      required {
+        "token"
+      }
+    }
+
+    ["TokenRenewSelfRequest"] {
+      type = "object"
+      properties {
+        ["increment"] {
+          type = "string"
+          description = "The desired increment in seconds to the token expiration"
+          format = "duration"
+          default = "0"
+        }
+      }
+    }
+
+    ["TokenRenewAccessorRequest"] {
+      type = "object"
+      properties {
+        ["accessor"] {
+          type = "string"
+          description = "Accessor associated with the token to renew."
+        }
+        ["increment"] {
+          type = "string"
+          description = "The desired increment in seconds to the token expiration"
+          format = "duration"
+          default = "0"
+        }
+      }
+      required {
+        "accessor"
+      }
+    }
+
+    ["TokenRevokeRequest"] {
+      type = "object"
+      properties {
+        ["token"] {
+          type = "string"
+          description = "Token to renew (request body)"
         }
       }
       required {

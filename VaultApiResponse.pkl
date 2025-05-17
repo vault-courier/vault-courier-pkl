@@ -57,6 +57,14 @@ properties {
         type = "string"
       }
     }
+    required {
+      "token"
+      "accessor"
+      "ttl"
+      "creation_time"
+      "creation_path"
+      "wrapped_accessor"
+    }
   }
   ["warnings"] {
     type = "array"
@@ -117,6 +125,16 @@ properties {
       ["num_uses"] {
         type = "integer"
       }
+    }
+    required {
+      "client_token"
+      "accessor"
+      "token_policies"
+      "lease_duration"
+      "token_type"
+      "orphan"
+      "num_uses"
+      "renewable"
     }
   }
   ["mount_type"] {
