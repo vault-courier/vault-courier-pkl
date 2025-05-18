@@ -152,6 +152,7 @@ properties {
 }
 
 required {
+  "request_id"
   when (dataSchema != null) {
     "data"
   }
