@@ -65,7 +65,7 @@ paths {
           content {
             ["application/json"] {
               schema = new Reference {
-                `$ref` = "#/components/schemas/VaultApiResponse"
+                `$ref` = "#/components/schemas/AuthTokenResponse"
               }
             }
           }
@@ -256,7 +256,7 @@ paths {
           content {
             ["application/json"] {
               schema = new Reference {
-                `$ref` = "#/components/schemas/VaultApiResponse"
+                `$ref` = "#/components/schemas/AuthTokenResponse"
               }
             }
           }
@@ -307,7 +307,7 @@ paths {
           content {
             ["application/json"] {
               schema = new Reference {
-                `$ref` = "#/components/schemas/VaultApiResponse"
+                `$ref` = "#/components/schemas/AuthTokenResponse"
               }
             }
           }
@@ -358,7 +358,7 @@ paths {
           content {
             ["application/json"] {
               schema = new Reference {
-                `$ref` = "#/components/schemas/VaultApiResponse"
+                `$ref` = "#/components/schemas/AuthTokenResponse"
               }
             }
           }
@@ -652,6 +652,12 @@ paths {
 components {
   schemas {
     ["TokenCreateRequest"] = VaultDataPayload.createToken
+
+    ["AuthTokenResponse"] = (VaultApiResponse) {
+      required {
+        "auth"
+      }
+    }
 
     ["TokenLookupResponse"] = new VaultApiResponse {
       dataSchema = VaultDataPayload.tokenLookup
