@@ -13,9 +13,177 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //===----------------------------------------------------------------------===//
-module VaultDataResponse
+module VaultDataPayload
 
 import "@openapi/Schema.pkl"
+
+createToken = (Schema.PropertySchema) {
+  type = "object"
+  properties {
+    ["display_name"] {
+      type =  "string"
+      description = "Name to associate with this token"
+    }
+    ["entity_alias"] {
+      type = "string"
+      description = "Name of the entity alias to associate with this token"
+    }
+    ["explicit_max_ttl"] {
+      type = "string"
+      description = "Explicit Max TTL of this token"
+    }
+    ["id"] {
+      type = "string"
+      description = "Value for the token"
+    }
+    ["meta"] {
+      type = "object"
+      description = "Arbitrary key=value metadata to associate with the token"
+      format = "kvpairs"
+    }
+    ["no_default_policy"] {
+      type = "boolean"
+      description = "Do not include default policy for this token"
+    }
+    ["no_parent"] {
+      type = "boolean"
+      description = "Create the token with no parent"
+    }
+    ["num_uses"] {
+      type = "integer"
+      description = "Max number of uses for this token"
+    }
+    ["period"] {
+      type = "string"
+      description = "Renew period"
+    }
+    ["policies"] {
+      type = "array"
+      description = "A list of policies for the token. This must be a subset of the policies belonging to the token making the request, unless the calling token is root or contains sudo capabilities to auth/token/create. If not specified, defaults to all the policies of the calling token."
+      items = new Schema {
+        type = "string"
+      }
+    }
+    ["renewable"] {
+      type = "boolean"
+      description = "Allow token to be renewed past its initial TTL up to system/mount maximum TTL"
+      default = true
+    }
+    ["ttl"] {
+      type = "string"
+      description = "Time to live for this token"
+    }
+    ["type"] {
+      type = "string"
+      description = "Token type"
+      enum {
+        "batch"
+        "service"
+        "default"
+        "default-service"
+        "default-batch"
+      }
+    }
+  }
+}
+
+tokenLookup = (Schema.PropertySchema) {
+  type = "object"
+  properties {
+    ["accessor"] {
+      type =  "string"
+    }
+    ["creation_time"] {
+      type = "integer"
+    }
+    ["creation_ttl"] {
+      type = "integer"
+    }
+    ["display_name"] {
+      type =  "string"
+      description = "Name to associate with this token"
+    }
+    ["entity_id"] {
+      type = "string"
+      description = "Name of the entity id to associate with this token"
+    }
+    ["expire_time"] {
+      type = "string"
+      description = "Optional expire time date in string format."
+    }
+    ["explicit_max_ttl"] {
+      type = "integer"
+    }
+    ["id"] {
+      type = "string"
+      description = "Value for the token"
+    }
+    ["issue_time"] {
+      type = "string"
+      description = "Value for the token"
+    }
+    ["meta"] {
+      type = "object"
+      description = "Arbitrary key=value metadata to associate with the token"
+      format = "kvpairs"
+      additionalProperties {
+        type = "string"
+      }
+    }
+    ["num_uses"] {
+      type = "integer"
+      description = "Max number of uses for this token"
+    }
+    ["orphan"] {
+      type = "boolean"
+    }
+    ["path"] {
+      type = "string"
+    }
+    ["policies"] {
+      type = "array"
+      description = "A list of policies for the token."
+      items = new Schema {
+        type = "string"
+      }
+    }
+    ["renewable"] {
+      type = "boolean"
+      description = "Allow token to be renewed past its initial TTL up to system/mount maximum TTL"
+    }
+    ["ttl"] {
+      type = "integer"
+      description = "Time to live for this token"
+    }
+    ["type"] {
+      type = "string"
+      description = "Token type"
+      enum {
+        "batch"
+        "service"
+        "default"
+        "default-service"
+        "default-batch"
+      }
+    }
+  }
+  required {
+    "accessor"
+    "creation_time"
+    "creation_ttl"
+    "display_name"
+    "entity_id"
+    "id"
+    "issue_time"
+    "num_uses"
+    "orphan"
+    "path"
+    "policies"
+    "renewable"
+    "ttl"
+    "type"
+  }
+}
 
 createTokenRole = (Schema.PropertySchema) {
   type = "object"
@@ -75,7 +243,7 @@ createTokenRole = (Schema.PropertySchema) {
       }
     }
     ["token_explicit_max_ttl"] {
-      type = "integer"
+      type = "string"
       description = "If set, will encode an explicit max TTL onto the token. This is a hard cap even if token_ttl and token_max_ttl would otherwise allow a renewal."
     }
     ["token_no_default_policy"] {
@@ -87,7 +255,7 @@ createTokenRole = (Schema.PropertySchema) {
       description = "The maximum number of times a generated token may be used (within its lifetime); 0 means unlimited. If you require the token to have the ability to create child tokens, you will need to set this value to 0."
     }
     ["token_period"] {
-      type = "integer"
+      type = "string"
       description = "The maximum allowed period value when a periodic token is requested from this role."
     }
     ["token_type"] {
@@ -104,11 +272,20 @@ createTokenRole = (Schema.PropertySchema) {
   }
 }
 
+/// Response body when reading token role
 tokenRole = (createTokenRole) {
   properties = (createTokenRole.properties) {
     ["name"] {
       type = "string"
       description = "The name of the token role."
+    }
+    ["token_explicit_max_ttl"] {
+      type = "integer"
+      description = "If set, will encode an explicit max TTL onto the token. This is a hard cap even if token_ttl and token_max_ttl would otherwise allow a renewal."
+    }
+    ["token_period"] {
+      type = "integer"
+      description = "The maximum allowed period value when a periodic token is requested from this role."
     }
   }
   required {
