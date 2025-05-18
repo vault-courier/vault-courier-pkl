@@ -487,46 +487,8 @@ paths {
           description = "OK"
           content {
             ["application/json"] {
-              schema = new Schema {
-                type = "object"
-                properties {
-                  ["auth"] {
-                    type = "object"
-                    properties {
-                      ["renewable"] {
-                        type = "boolean"
-                      }
-                      ["lease_duration"] {
-                        type = "integer"
-                      }
-                      ["token_policies"] {
-                        type = "array"
-                        items = new Schema {
-                          type = "string"
-                        }
-                      }
-                      ["accessor"] {
-                        type = "string"
-                      }
-                      ["client_token"] {
-                        type = "string"
-                      }
-                    }
-                    required {
-                      "renewable"
-                      "lease_duration"
-                      "token_policies"
-                      "accessor"
-                      "client_token"
-                    }
-                  }
-                  ["lease_id"] {
-                    type = "string"
-                  }
-                }
-                required {
-                  "auth"
-                }
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultAuthResponse"
               }
             }
           }
@@ -641,15 +603,6 @@ components {
         ["request_id"] {
           type = "string"
         }
-        ["renewable"] {
-          type = "boolean"
-        }
-        ["lease_id"] {
-          type = "string"
-        }
-        ["lease_duration"] {
-          type = "integer"
-        }
         ["data"] {
           type = "object"
           properties {
@@ -682,14 +635,8 @@ components {
     ["WrapAppRoleSecretIdResponse"] {
       type = "object"
       properties {
-        ["renewable"] {
-          type = "boolean"
-        }
-        ["lease_id"] {
+        ["request_id"] {
           type = "string"
-        }
-        ["lease_duration"] {
-          type = "integer"
         }
         ["wrap_info"] {
           type = "object"
@@ -734,15 +681,6 @@ components {
       properties {
         ["request_id"] {
           type = "string"
-        }
-        ["renewable"] {
-          type = "boolean"
-        }
-        ["lease_id"] {
-          type = "string"
-        }
-        ["lease_duration"] {
-          type = "integer"
         }
         ["data"] {
           type = "object"
