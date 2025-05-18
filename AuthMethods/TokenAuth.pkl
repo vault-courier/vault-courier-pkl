@@ -134,6 +134,96 @@ paths {
     }
   }
 
+  ["/auth/token/lookup-self"] {
+    description = "Returns information about the current client token."
+    parameters {
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Returns information about the current client token."
+      description = "Returns information about the current client token."
+      operationId = "lookup-token-self"
+      tags {
+        "auth"
+        "token"
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/TokenLookupResponse"
+              }
+            }
+          }
+        }
+        ["400"] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/auth/token/lookup-accessor"] {
+    description = "Returns information about the client token from the accessor."
+    parameters {
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Returns information about the client token from the accessor."
+      description = "Returns information about the client token from the accessor."
+      operationId = "lookup-token-accessor"
+      tags {
+        "auth"
+        "token"
+      }
+      requestBody {
+        content {
+          ["application/json"] {
+            schema = new Reference {
+              `$ref` = "#/components/schemas/AccessorBodyRequest"
+            }
+          }
+        }
+        required = true
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/TokenLookupResponse"
+              }
+            }
+          }
+        }
+        ["400"] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   ["/auth/token/renew"] {
     description = "This endpoint will renew the given token and prevent expiration."
     parameters {
@@ -572,8 +662,22 @@ components {
       properties {
         ["token"] {
           type = "string"
-          description = "Token to renew (request body)"
         }
+      }
+      required {
+        "token"
+      }
+    }
+
+    ["AccessorBodyRequest"] {
+      type = "object"
+      properties {
+        ["accessor"] {
+          type = "string"
+        }
+      }
+      required {
+        "accessor"
       }
     }
 
