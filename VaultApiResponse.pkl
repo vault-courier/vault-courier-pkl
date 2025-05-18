@@ -16,6 +16,9 @@
 module VaultApiResponse extends "@openapi/Schema.pkl"
 
 import "@openapi/Schema.pkl"
+import "@openapi/Reference.pkl"
+
+hidden dataSchema: (*PropertySchema|Reference)?
 
 type = "object"
 
@@ -32,9 +35,15 @@ properties {
   ["lease_duration"] {
     type = "integer"
   }
-  ["data"] {
-    type = "object"
+
+  when (dataSchema != null) {
+    ["data"] = dataSchema    
+  } else {
+    ["data"] {
+      type = "object"
+    }
   }
+
   ["wrap_info"] {
     type = "object"
     properties {
@@ -139,5 +148,11 @@ properties {
   }
   ["mount_type"] {
     type = "string"
+  }
+}
+
+required {
+  when (dataSchema != null) {
+    "data"
   }
 }

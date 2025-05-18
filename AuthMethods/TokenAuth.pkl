@@ -22,10 +22,12 @@
 module TokenAuth
 
 amends "@openapi/Document.pkl"
-import "@openapi/PathItem.pkl"
 import "@openapi/Reference.pkl"
 import "@openapi/Schema.pkl"
 import "@openapi/HTTPResponse.pkl"
+
+import ".../VaultApiResponse.pkl"
+import ".../VaultDataResponse.pkl"
 
 /// Parameter name in the crud endpoint
 local parameterRoleName = "role_name"
@@ -459,7 +461,7 @@ paths {
           content {
             ["application/json"] {
               schema = new Reference {
-                `$ref` = "#/components/schemas/ReadAppRoleResponse"
+                `$ref` = "#/components/schemas/TokenReadRoleResponse"
               }
             }
           }
@@ -693,6 +695,9 @@ components {
           }
         }
       }
+      required {
+        "role_name"
+      }
     }
 
     ["TokenRenewRequest"] {
@@ -769,6 +774,10 @@ components {
       required {
         "accessor"
       }
+    }
+
+    ["TokenReadRoleResponse"] = new VaultApiResponse {
+      dataSchema = VaultDataResponse.tokenRole
     }
   }
 }
