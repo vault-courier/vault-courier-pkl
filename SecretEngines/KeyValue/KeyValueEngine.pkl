@@ -21,14 +21,105 @@ import "@openapi/PathItem.pkl"
 import "@openapi/Reference.pkl"
 import "@openapi/Schema.pkl"
 
+import ".../VaultDataResponse.pkl"
+import ".../VaultRequestBody.pkl"
+
 /// Parameter name in the crud endpoint
 local parameterKVPathName = "kv_path"
 local secretKeyParameter = "secret_key"
 
 paths {
+  ["/{\(parameterKVPathName)}/config"] {
+    parameters {
+      new {
+        name = parameterKVPathName
+        description = "Key-value engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+    }
+    description = "This path configures backend level settings that are applied to every key in the key-value store"
+    get {
+      summary = "This path retrieves the current configuration for the secrets backend at the given path."
+      description = "This path retrieves the current configuration for the secrets backend at the given path."
+      operationId = "read-kv-secrets-config"
+      tags {
+        "secrets"
+        "kv"
+      }
+      responses {
+        ["200"] {
+          description = "Ok"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/KVSecretConfigResponse"
+              }
+            }
+          }
+        }
+        ["400"] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+    post {
+      summary = "This path configures backend level settings that are applied to every key in the key-value store."
+      description = "This path configures backend level settings that are applied to every key in the key-value store."
+      operationId = "config-kv-secrets"
+      tags {
+        "secrets"
+        "kv"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = VaultRequestBody.kvSecretConfig
+          }
+        }
+      }
+      responses {
+        ["204"] {
+          description = "NoContent"
+        }
+        ["400"] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   ["/{\(parameterKVPathName)}/data/{\(secretKeyParameter)}"] {
     description = "Server secrets endpoint"
     parameters {
+      new {
+        name = "version"
+        `in` = "query"
+        description = "Specifies the version to return. If not set the latest version is returned."
+        required = false
+        schema {
+          type = "integer"
+          minimum = 0
+        }
+      }
       new {
         name = parameterKVPathName
         description = "Key-value engine path"
@@ -150,23 +241,9 @@ paths {
           description = "OK"
           content {
             ["application/json"] {
-              schema = new Schema {
-                type = "object"
+              schema = (VaultDataResponse) {
                 properties {
-                  ["request_id"] {
-                    type = "string"
-                  }
-                  ["lease_id"] {
-                    type = "string"
-                  }
-                  ["lease_duration"] {
-                    type = "integer"
-                  }
-                  ["renewable"] {
-                    type = "boolean"
-                  }
                   ["data"] {
-                    type = "object"
                     properties {
                       ["data"] {
                         type = "object"
@@ -198,12 +275,6 @@ paths {
                       "version"
                     }
                   }
-                  ["mount_type"] {
-                    type = "string"
-                  }
-                }
-                required {
-                  "data"
                 }
               }
             }
@@ -222,4 +293,14 @@ paths {
       }
     }
   }  
+}
+
+components {
+  schemas {
+    ["KVSecretConfigResponse"] = (VaultDataResponse) {
+      properties {
+        ["data"] = VaultRequestBody.kvSecretConfig
+      }
+    }
+  }
 }

@@ -13,7 +13,7 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //===----------------------------------------------------------------------===//
-module VaultDataPayload
+module VaultRequestBody
 
 import "@openapi/Schema.pkl"
 
@@ -373,6 +373,27 @@ createAppRole = (tokenCommon) {
     ["local_secret_ids"] {
       type = "boolean"
       description = "If set, the secret IDs generated using this role will be cluster local. This can only be set during role creation and once set, it can't be reset later."
+    }
+  }
+}
+
+// --- KV Secret Engine ---------------------
+
+kvSecretConfig = (Schema.PropertySchema) {
+  type = "object"
+  properties {
+    ["max_versions"] {
+      type = "integer"
+      description = "The number of versions to keep per key. This value applies to all keys, but a key's metadata setting can overwrite this value. Once a key has more than the configured allowed versions, the oldest version will be permanently deleted. When 0 is used or the value is unset, Vault will keep 10 versions."
+    }
+    ["cas_required"] {
+      type = "boolean"
+      description = "If true all keys will require the cas parameter to be set on all write requests."
+      default = "false"
+    }
+    ["delete_version_after"] {
+      type = "string"
+      description = " If set, specifies the length of time before a version is deleted. Accepts Vault's duration format strings."
     }
   }
 }
