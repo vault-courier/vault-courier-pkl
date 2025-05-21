@@ -397,3 +397,53 @@ kvSecretConfig = (Schema.PropertySchema) {
     }
   }
 }
+
+kvSecret = (Schema. PropertySchema) {
+  type = "object"
+  properties {
+    ["options"] {
+      type = "object"
+      properties {
+        ["cas"] {
+          type = "integer"
+        }
+      }
+    }
+    ["data"] {
+      type = "object"
+    }
+  }
+  required {
+    "data"
+  }
+}
+
+kvMetadata = (Schema. PropertySchema) {
+  type = "object"
+  properties {
+    ["created_time"] {
+      type = "string"
+    }
+    ["custom_metadata"] {
+      type = "object"
+      format = "kvpairs"
+      additionalProperties {
+        type = "string"
+      }
+    }
+    ["deletion_time"] {
+      type = "string"
+    }
+    ["destroyed"] {
+      type = "boolean"
+    }
+    ["version"] {
+      type = "integer"
+    }
+  }
+  required {
+    "created_time"
+    "destroyed"
+    "version"
+  }
+}

@@ -153,24 +153,8 @@ paths {
         required = true
         content {
           ["application/json"] {
-            schema = new Schema {
-              type = "object"
-              properties {
-                ["options"] {
-                  type = "object"
-                  properties {
-                    ["cas"] {
-                      type = "integer"
-                    }
-                  }
-                }
-                ["data"] {
-                  type = "object"
-                }
-              }
-              required {
-                "data"
-              }
+            schema = new Reference {
+              `$ref` = "#/components/schemas/WriteOrPatchKVSecretRequest"
             }
           }
         }
@@ -180,39 +164,8 @@ paths {
           description = "OK"
           content {
             ["application/json"] {
-              schema = new Schema {
-                type = "object"
-                properties {
-                  ["request_id"] {
-                    type = "string"
-                  }
-                  ["renewable"] {
-                    type = "boolean"
-                  }
-                  ["data"] {
-                    type = "object"
-                    properties {
-                      ["created_time"] {
-                        type = "string"
-                      }
-                      ["deletion_time"] {
-                        type = "string"
-                      }
-                      ["destroyed"] {
-                        type = "boolean"
-                      }
-                      ["version"] {
-                        type = "integer"
-                      }
-                    }
-                  }
-                  ["mount_type"] {
-                    type = "string"
-                  }
-                }
-                required {
-                  "data"
-                }
+              schema = new Reference {
+                `$ref` = "#/components/schemas/WriteSecretResponse"
               }
             }
           }
@@ -241,41 +194,48 @@ paths {
           description = "OK"
           content {
             ["application/json"] {
-              schema = (VaultDataResponse) {
-                properties {
-                  ["data"] {
-                    properties {
-                      ["data"] {
-                        type = "object"
-                      }
-                    }
-                    required {
-                      "data"
-                    }
-                  }
-                  ["metadata"] {
-                    type = "object"
-                    properties {
-                      ["created_time"] {
-                        type = "string"
-                      }
-                      ["deletion_time"] {
-                        type = "string"
-                      }
-                      ["destroyed"] {
-                        type = "boolean"
-                      }
-                      ["version"] {
-                        type = "integer"
-                      }
-                    }
-                    required {
-                      "created_time"
-                      "destroyed"
-                      "version"
-                    }
-                  }
-                }
+              schema = new Reference {
+                `$ref` = "#/components/schemas/ReadSecretResponse"
+              }
+            }
+          }
+        }
+        ["400"] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+    patch {
+      summary = "Patch a kv secret"
+      description = "This endpoint provides the ability to patch an existing secret at the specified location. The secret must neither be deleted nor destroyed. The calling token must have an ACL policy granting the patch capability. A new version will be created upon successfully applying a patch with the provided data."
+      operationId = "patch-kv-secrets"
+      tags {
+        "secrets"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/merge-patch+json"] {
+            schema = new Reference {
+              `$ref` = "#/components/schemas/WriteOrPatchKVSecretRequest"
+            }
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/WriteSecretResponse"
               }
             }
           }
@@ -300,6 +260,30 @@ components {
     ["KVSecretConfigResponse"] = (VaultDataResponse) {
       properties {
         ["data"] = VaultRequestBody.kvSecretConfig
+      }
+    }
+
+    ["WriteOrPatchKVSecretRequest"] = VaultRequestBody.kvSecret
+
+    ["WriteSecretResponse"] = (VaultDataResponse) {
+      properties {
+        ["data"] = VaultRequestBody.kvMetadata
+      }
+    }
+
+    ["ReadSecretResponse"] = (VaultDataResponse) {
+      properties {
+        ["data"] {
+          properties {
+            ["data"] {
+              type = "object"
+            }
+          }
+          required {
+            "data"
+          }
+        }
+        ["metadata"] = VaultRequestBody.kvMetadata
       }
     }
   }
