@@ -252,6 +252,221 @@ paths {
         }
       }
     }
+    `delete`{
+      summary = "This endpoint issues a soft delete of the secret's latest version at the specified location."
+      description = "This endpoint issues a soft delete of the secret's latest version at the specified location. This marks the version as deleted and will stop it from being returned from reads, but the underlying data will not be removed. A delete can be undone using the undelete path."
+      operationId = "delete-latest-kv-secrets"
+      tags {
+        "secrets"
+      }
+      responses {
+        ["204"] {
+          description = "NoContent"
+        }
+        ["400"] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterKVPathName)}/delete/{\(secretKeyParameter)}"] {
+    description = "This endpoint issues a soft delete of the specified versions of the secret. This marks the versions as deleted and will stop them from being returned from reads, but the underlying data will not be removed. A delete can be undone using the undelete path."
+    parameters {
+      new {
+        name = parameterKVPathName
+        description = "Key-value engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "The key path for a stored secret in this path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    `post`{
+      summary = "This endpoint issues a soft delete of the specified versions of the secret."
+      description = "This endpoint issues a soft delete of the specified versions of the secret. This marks the version as deleted and will stop it from being returned from reads, but the underlying data will not be removed. A delete can be undone using the undelete path."
+      operationId = "delete-kv-secrets"
+      tags {
+        "secrets"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = (VaultRequestBody.secretVersions) {
+              properties {
+                ["versions"] {
+                  description = "The versions to be deleted. The versioned data will not be deleted, but it will no longer be returned in normal get requests."
+                }
+              }
+            }
+          }
+        }
+      }
+      responses {
+        ["204"] {
+          description = "NoContent"
+        }
+        ["400"] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterKVPathName)}/undelete/{\(secretKeyParameter)}"] {
+    description = "Undeletes the data for the provided version and path in the key-value store. This restores the data, allowing it to be returned on get requests."
+    parameters {
+      new {
+        name = parameterKVPathName
+        description = "Key-value engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "The key path for a stored secret in this path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Undeletes the data for the provided version and path in the key-value store."
+      description = "Undeletes the data for the provided version and path in the key-value store. This restores the data, allowing it to be returned on get requests."
+      operationId = "undelete-kv-secrets"
+      tags {
+        "secrets"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = (VaultRequestBody.secretVersions) {
+              properties {
+                ["versions"] {
+                  description = "The versions to undelete. The versions will be restored and their data will be returned on normal get requests."
+                }
+              }
+            }
+          }
+        }
+      }
+      responses {
+        ["204"] {
+          description = "NoContent"
+        }
+        ["400"] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterKVPathName)}/destroy/{\(secretKeyParameter)}"] {
+    description = "Permanently removes the specified version data for the provided key and version numbers from the key-value store."
+    parameters {
+      new {
+        name = parameterKVPathName
+        description = "Key-value engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "The key path for a stored secret in this path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    put {
+      summary = "Permanently removes the specified version data for the provided key and version numbers from the key-value store."
+      description = "Permanently removes the specified version data for the provided key and version numbers from the key-value store."
+      operationId = "destroy-kv-secrets"
+      tags {
+        "secrets"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = (VaultRequestBody.secretVersions) {
+              properties {
+                ["versions"] {
+                  description = "The versions to destroy. Their data will be permanently deleted."
+                }
+              }
+            }
+          }
+        }
+      }
+      responses {
+        ["204"] {
+          description = "NoContent"
+        }
+        ["400"] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
   ["/{\(parameterKVPathName)}/subkeys/{\(secretKeyParameter)}"] {
@@ -342,6 +557,163 @@ paths {
       }
     }
   }
+
+  ["/{\(parameterKVPathName)}/metadata/{\(secretKeyParameter)}"] {
+    description = "This endpoint retrieves the metadata and versions for the secret at the specified path. Metadata is version-agnostic."
+    parameters {
+      new {
+        name = parameterKVPathName
+        description = "Key-value engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "The key path for a stored secret in this path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    get {
+      summary = "This endpoint retrieves the metadata and versions for the secret at the specified path"
+      description = "This endpoint retrieves the metadata and versions for the secret at the specified path"
+      operationId = "read-metadata-kv-secrets"
+      tags {
+        "secrets"
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = (VaultDataResponse) {
+                properties  {
+                  ["data"] = (VaultRequestBody.kvStoreMetadata) {
+                    properties {
+                      ["created_time"] {
+                        type = "string"
+                      }
+                      ["current_version"] {
+                        type = "integer"
+                      }
+                      ["oldest_version"] {
+                        type = "integer"
+                      }
+                      ["updated_time"] {
+                        type = "string"
+                      }
+                      ["versions"] {
+                        type = "object"
+                        description = "List of version metadata"
+                        format = "kvpairs"
+                        additionalProperties {
+                          type = "object"
+                          properties {
+                            ["created_time"] {
+                              type = "string"
+                            }
+                            ["deletion_time"] {
+                              type = "string"
+                            }
+                            ["destroyed"] {
+                              type = "boolean"
+                            }
+                          }
+                          required {
+                            "created_time"
+                            "destroyed"
+                          }
+                        }
+                      }
+                    }
+                    required {
+                      "created_time"
+                      "current_version"
+                      "updated_time"
+                      "versions"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        ["400"] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+    post {
+      summary = "This endpoint creates or updates the metadata of a secret at the specified location."
+      description = "This endpoint creates or updates the metadata of a secret at the specified location. It does not create a new version."
+      operationId = "update-metadata-kv-secrets"
+      tags {
+        "secrets"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = VaultRequestBody.kvStoreMetadata
+          }
+        }
+      }
+      responses {
+        ["204"] {
+          description = "Metadata updated"
+        }
+        ["400"] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+    `delete` {
+      summary = "This endpoint permanently deletes the key metadata and all version data for the specified key."
+      description = "This endpoint permanently deletes the key metadata and all version data for the specified key. All version history will be removed."
+      operationId = "delete-metadata-kv-secrets"
+      tags {
+        "secrets"
+      }
+      responses {
+        ["204"] {
+          description = "All metadata has been deleted"
+        }
+        ["400"] {
+          description = "BadRequest"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 components {
@@ -364,15 +736,13 @@ components {
       properties {
         ["data"] {
           properties {
+            // Due to soft-delete this can be optional
             ["data"] {
               type = "object"
             }
-          }
-          required {
-            "data"
+            ["metadata"] = VaultRequestBody.kvMetadata
           }
         }
-        ["metadata"] = VaultRequestBody.kvMetadata
       }
     }
   }

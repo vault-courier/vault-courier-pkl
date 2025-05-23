@@ -398,7 +398,7 @@ kvSecretConfig = (Schema.PropertySchema) {
   }
 }
 
-kvSecret = (Schema. PropertySchema) {
+kvSecret = (Schema.PropertySchema) {
   type = "object"
   properties {
     ["options"] {
@@ -418,7 +418,7 @@ kvSecret = (Schema. PropertySchema) {
   }
 }
 
-kvMetadata = (Schema. PropertySchema) {
+kvMetadata = (Schema.PropertySchema) {
   type = "object"
   properties {
     ["created_time"] {
@@ -445,5 +445,49 @@ kvMetadata = (Schema. PropertySchema) {
     "created_time"
     "destroyed"
     "version"
+  }
+}
+
+secretVersions = (Schema.PropertySchema) {
+  type = "object"
+  properties {
+    ["versions"] {
+      type = "array"
+      items = new Schema {
+        type = "string"
+      }
+    }
+  }
+  required {
+    "versions"
+  }
+}
+
+kvStoreMetadata = (Schema.PropertySchema) {
+  type = "object"
+  properties {
+    ["cas_required"] {
+      type = "boolean"
+    }
+    ["custom_metadata"] {
+      type = "object"
+      format = "kvpairs"
+      additionalProperties {
+        type = "string"
+      }
+    }
+    ["delete_version_after"] {
+      description = "Set the delete_version_after value to a duration to specify the deletion_time for all new versions written to this key. If not set, the backend's delete_version_after will be used. If the value is greater than the backend's delete_version_after, the backend's delete_version_after will be used. 0s is equivalent to not set"
+      type = "string"
+      default = "0s"
+    }
+    ["max_versions"] {
+      type = "integer"
+    }
+  }
+  required {
+    "cas_required"
+    "delete_version_after"
+    "max_versions"
   }
 }
