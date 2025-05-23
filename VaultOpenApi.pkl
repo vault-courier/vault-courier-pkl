@@ -18,6 +18,7 @@ amends "@openapi/Document.pkl"
 
 import "@openapi/Schema.pkl"
 import "@openapi/HTTPResponse.pkl"
+
 import "VaultApiResponse.pkl"
 
 import "AuthMethods/TokenAuth.pkl" as TokenAuth
@@ -96,13 +97,118 @@ components {
 
     ...TokenAuth.components.schemas
 
+    ...KeyValueEngine.components.schemas
+
     ...PostgresDatabaseConfiguration.components.schemas
 
     ["VaultApiResponse"] = new VaultApiResponse {}
 
     ["VaultAuthResponse"] = (VaultApiResponse) {
+      properties {
+        ["auth"] {
+          properties {
+            ["client_token"] {
+              type = "string"
+            }
+            ["accessor"] {
+              type = "string"
+            }
+            ["token_policies"] {
+              type = "array"
+              description = "A list of policies for the token. This must be a subset of the policies belonging to the token making the request, unless the calling token is root or contains sudo capabilities to auth/token/create. If not specified, defaults to all the policies of the calling token."
+              items = new Schema {
+                type = "string"
+              }
+            }
+            ["metadata"] {
+              type = "object"
+              description = "Arbitrary key=value metadata to associate with the token"
+              format = "kvpairs"
+              additionalProperties {
+                type = "string"
+              }
+            }
+            ["lease_duration"] {
+              type = "integer"
+            }
+            ["renewable"] {
+              type = "boolean"
+            }
+            ["entity_id"] {
+              type = "string"
+            }
+            ["token_type"] {
+              type = "string"
+              enum {
+                "batch"
+                "service"
+                "default"
+                "default-service"
+                "default-batch"
+              }
+            }
+            ["orphan"] {
+              type = "boolean"
+            }
+            ["mfa_requirement"] {
+              type = "boolean"
+            }
+            ["num_uses"] {
+              type = "integer"
+            }
+          }
+          required {
+            "client_token"
+            "accessor"
+            "token_policies"
+            "lease_duration"
+            "token_type"
+            "orphan"
+            "num_uses"
+            "renewable"
+          }
+        }
+      }
       required {
         "auth"
+      }
+    }
+
+    ["VaultWrappedResponse"] = (VaultApiResponse) {
+      properties {
+        ["wrap_info"] {
+          properties {
+            ["token"] {
+              type = "string"
+            }
+            ["ttl"] {
+              type = "integer"
+            }
+            ["creation_time"] {
+              type = "string"
+            }
+            ["accessor"] {
+              type = "string"
+            }
+            ["creation_path"] {
+              type = "string"
+            }
+            ["wrapped_accessor"] {
+              type = "string"
+            }
+          }
+          required {
+            "token"
+            "accessor"
+            "ttl"
+            "creation_time"
+            "creation_path"
+            "wrapped_accessor"
+          }
+        }
+      }
+      required {
+        "wrap_info"
       }
     }
 

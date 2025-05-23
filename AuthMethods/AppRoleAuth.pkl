@@ -26,8 +26,8 @@ import "@openapi/Reference.pkl"
 import "@openapi/Schema.pkl"
 import "@openapi/HTTPResponse.pkl"
 
-import ".../VaultApiResponse.pkl"
-import ".../VaultDataPayload.pkl"
+import ".../VaultDataResponse.pkl"
+import ".../VaultRequestBody.pkl"
 
 /// Parameter name in the crud endpoint
 local parameterRoleName = "role_name"
@@ -268,7 +268,7 @@ paths {
                         `$ref` = "#/components/schemas/GenerateAppRoleSecretIdResponse"
                       }
                       new Reference {
-                        `$ref` = "#/components/schemas/WrapAppRoleSecretIdResponse"
+                        `$ref` = "#/components/schemas/VaultWrappedResponse"
                       }
                     }
                   }
@@ -508,6 +508,7 @@ paths {
   }
 }
 
+// UPDATE: OAS v3.2 will support custom commands
 // OpenAPI does not support LIST requests. Wait for update of Vault's API.
 // list: Path = new {
 //   name = "/auth/\(basePath)/role"
@@ -549,38 +550,35 @@ paths {
 
 components {
   schemas {
-    ["AuthCreateAppRoleRequest"] = VaultDataPayload.createAppRole
+    ["AuthCreateAppRoleRequest"] = VaultRequestBody.createAppRole
 
-    ["ReadAppRoleResponse"] = new VaultApiResponse {
-      dataSchema = (VaultDataPayload.createAppRole) {
-        properties {
-          ["token_explicit_max_ttl"] {
-            type = "integer"
-          }
-          ["token_period"] {
-            type = "integer"
-          }
-          ["token_ttl"] {
-            type = "integer"
-          }
-          ["token_max_ttl"] {
-            type = "integer"
-          }
-          ["secret_id_ttl"] {
-            type = "integer"
+    ["ReadAppRoleResponse"] = (VaultDataResponse) {
+      properties {
+        ["data"] = (VaultRequestBody.createAppRole) {
+          properties {
+            ["token_explicit_max_ttl"] {
+              type = "integer"
+            }
+            ["token_period"] {
+              type = "integer"
+            }
+            ["token_ttl"] {
+              type = "integer"
+            }
+            ["token_max_ttl"] {
+              type = "integer"
+            }
+            ["secret_id_ttl"] {
+              type = "integer"
+            }
           }
         }
       }
     }
 
-    ["ReadAppRoleIdResponse"] {
-      type = "object"
+    ["ReadAppRoleIdResponse"] = (VaultDataResponse) {
       properties {
-        ["request_id"] {
-          type = "string"
-        }
         ["data"] {
-          type = "object"
           properties {
             ["role_id"] {
               type = "string"
@@ -590,10 +588,6 @@ components {
             "role_id"
           }
         }
-      }
-      required {
-        "request_id"
-        "data"
       }
     }
 
@@ -629,50 +623,6 @@ components {
       }
       required {
         "data"
-      }
-    }
-
-    ["WrapAppRoleSecretIdResponse"] {
-      type = "object"
-      properties {
-        ["request_id"] {
-          type = "string"
-        }
-        ["wrap_info"] {
-          type = "object"
-          properties {
-            ["token"] {
-              type = "string"
-            }
-            ["accessor"] {
-              type = "string"
-            }
-            ["ttl"] {
-              type = "integer"
-              description = "wrapped ttl in seconds"
-            }
-            ["creation_time"] {
-              type = "string"
-            }
-            ["creation_path"] {
-              type = "string"
-            }
-            ["wrapped_accessor"] {
-              type = "string"
-            }
-          }
-          required {
-            "token"
-            "accessor"
-            "ttl"
-            "creation_time"
-            "creation_path"
-            "wrapped_accessor"
-          }
-        }
-      }
-      required {
-        "wrap_info"
       }
     }
 

@@ -26,8 +26,8 @@ import "@openapi/Reference.pkl"
 import "@openapi/Schema.pkl"
 import "@openapi/HTTPResponse.pkl"
 
-import ".../VaultApiResponse.pkl"
-import ".../VaultDataPayload.pkl"
+import ".../VaultDataResponse.pkl"
+import ".../VaultRequestBody.pkl"
 
 /// Parameter name in the crud endpoint
 local parameterRoleName = "role_name"
@@ -651,10 +651,12 @@ paths {
 
 components {
   schemas {
-    ["TokenCreateRequest"] = VaultDataPayload.createToken
+    ["TokenCreateRequest"] = VaultRequestBody.createToken
 
-    ["TokenLookupResponse"] = new VaultApiResponse {
-      dataSchema = VaultDataPayload.tokenLookup
+    ["TokenLookupResponse"] = (VaultDataResponse) {
+      properties {
+        ["data"] = VaultRequestBody.tokenLookup
+      }
     }
 
     ["TokenBodyRequest"] {
@@ -681,7 +683,7 @@ components {
       }
     }
 
-    ["TokenUpdateRoleRequest"] = VaultDataPayload.createTokenRole
+    ["TokenUpdateRoleRequest"] = VaultRequestBody.createTokenRole
 
     ["TokenRenewRequest"] {
       type = "object"
@@ -759,8 +761,10 @@ components {
       }
     }
 
-    ["TokenReadRoleResponse"] = new VaultApiResponse {
-      dataSchema = VaultDataPayload.tokenRole
+    ["TokenReadRoleResponse"] = (VaultDataResponse) {
+      properties {
+        ["data"] = VaultRequestBody.tokenRole
+      }
     }
   }
 }

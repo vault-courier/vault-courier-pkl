@@ -13,48 +13,9 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //===----------------------------------------------------------------------===//
-module VaultApiResponse extends "@openapi/Schema.pkl"
 
-import "@openapi/Schema.pkl"
-import "@openapi/Reference.pkl"
-
-type = "object"
-
-properties {
-  ["request_id"] {
-    type = "string"
-  }
-  ["lease_id"] {
-    type = "string"
-  }
-  ["renewable"] {
-    type = "boolean"
-  }
-  ["lease_duration"] {
-    type = "integer"
-  }
-
-  ["data"] {
-    type = "object"
-  }
-  ["wrap_info"] {
-    type = "object"
-  }
-  ["warnings"] {
-    type = "array"
-    description = "A list of warnings, e.g. ignored parameters"
-    items = new Schema {
-      type = "string"
-    }
-  }
-  ["auth"] {
-    type = "object"
-  }
-  ["mount_type"] {
-    type = "string"
-  }
-}
+amends "VaultApiResponse.pkl"
 
 required {
-  "request_id"
+  "data"
 }
