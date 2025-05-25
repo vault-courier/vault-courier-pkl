@@ -33,7 +33,7 @@ package {
   }
   license = "Apache-2.0"
   baseUri = "package://github.com/vault-courier/\(repo)" 
-  version = "0.0.5"
+  version = "0.1.0"
   packageZipUrl = "https://github.com/vault-courier/\(repo)/releases/download/\(tag)/\(name)@\(version).zip"
   issueTracker = "https://github.com/vault-courier/\(repo)/issues"
   sourceCode = "https://github.com/vault-courier/\(repo)"
@@ -42,7 +42,7 @@ package {
 
 dependencies {
   ["openapi"] { 
-    uri = "package://pkg.pkl-lang.org/pkl-pantry/org.openapis.v3@2.1.3" 
+    uri = "package://pkg.pkl-lang.org/pkl-pantry/org.openapis.v3@2.2.0" 
   }
   ["net"] {
     uri = "package://pkg.pkl-lang.org/pkl-pantry/pkl.experimental.net@1.2.1"
