@@ -33,7 +33,7 @@ import "SecretEngines/Databases/PostgresSQL/PostgresDatabaseConfiguration.pkl" a
 info {
   title = "Vault Courier"
   description = "API client for Hashicorp Vault and OpenBao"
-  version = "0.0.1"
+  version = "0.1.0"
   license {
     name = "Apache License 2.0"
   }
