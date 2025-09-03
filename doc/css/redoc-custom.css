@@ -1,0 +1,323 @@
+/* Redoc Custom Styles */
+
+/* Base styles */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* Custom header */
+.header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 20px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.header h1 {
+    margin: 0 0 15px 0;
+    font-size: 3em;
+    font-weight: 300;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    position: relative;
+    z-index: 1;
+}
+
+.header p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 1.2em;
+    position: relative;
+    z-index: 1;
+    font-weight: 300;
+}
+
+/* API selector */
+.api-selector {
+    background: white;
+    padding: 30px 20px;
+    text-align: center;
+    border-bottom: 1px solid #e8e8e8;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    position: relative;
+}
+
+.api-selector label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-right: 20px;
+    font-size: 18px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.api-selector label i {
+    margin-right: 8px;
+    color: #667eea;
+}
+
+.api-selector select {
+    padding: 15px 25px;
+    font-size: 16px;
+    border: 2px solid #667eea;
+    border-radius: 50px;
+    background: white;
+    color: #2c3e50;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 250px;
+    font-weight: 500;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+}
+
+.api-selector select:hover {
+    border-color: #764ba2;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+    background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+}
+
+.api-selector select:focus {
+    border-color: #764ba2;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    transform: translateY(-1px);
+}
+
+.api-selector select:active {
+    transform: translateY(0);
+}
+
+/* Loading state */
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+    font-size: 20px;
+    color: #667eea;
+    background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+}
+
+.loading i {
+    margin-right: 12px;
+    animation: spin 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    font-size: 24px;
+}
+
+@keyframes spin {
+    0% { 
+        transform: rotate(0deg); 
+    }
+    100% { 
+        transform: rotate(360deg); 
+    }
+}
+
+/* Error states */
+.error-container {
+    padding: 60px 40px;
+    text-align: center;
+    background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+    border-radius: 12px;
+    margin: 20px;
+    box-shadow: 0 4px 20px rgba(255, 0, 0, 0.1);
+}
+
+.error-container h2 {
+    color: #e53e3e;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.error-container p {
+    color: #666;
+    margin-bottom: 25px;
+    font-size: 16px;
+}
+
+.error-container details {
+    text-align: left;
+    margin-top: 25px;
+    padding: 20px;
+    background: #f7f7f7;
+    border-radius: 8px;
+    border: 1px solid #e8e8e8;
+}
+
+.error-container summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #2c3e50;
+    padding: 5px 0;
+}
+
+.error-container pre {
+    background: #f5f5f5;
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 15px;
+    font-size: 13px;
+    overflow-x: auto;
+    border: 1px solid #ddd;
+}
+
+/* Custom Redoc theme variables */
+redoc {
+    --redoc-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* Redoc container styling */
+#redoc-container {
+    min-height: calc(100vh - 200px);
+}
+
+/* Pulse animation for loading */
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100px;
+    height: 100px;
+    margin: -50px 0 0 -50px;
+    border-radius: 50%;
+    background: rgba(102, 126, 234, 0.1);
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    pointer-events: none;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.8);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.3;
+    }
+    100% {
+        transform: scale(0.8);
+        opacity: 1;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #1a1a1a;
+        color: #e8e8e8;
+    }
+    
+    .api-selector {
+        background: #2d2d2d;
+        border-bottom-color: #404040;
+    }
+    
+    .api-selector label {
+        color: #e8e8e8;
+    }
+    
+    .api-selector select {
+        background: #2d2d2d;
+        border-color: #667eea;
+        color: #e8e8e8;
+    }
+    
+    .loading {
+        background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+        color: #667eea;
+    }
+    
+    .error-container {
+        background: linear-gradient(135deg, #2d1f1f 0%, #2d2d2d 100%);
+    }
+    
+    .error-container details {
+        background: #1a1a1a;
+        border-color: #404040;
+    }
+    
+    .error-container pre {
+        background: #1a1a1a;
+        border-color: #404040;
+        color: #e8e8e8;
+    }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .header {
+        padding: 30px 15px;
+    }
+    
+    .header h1 {
+        font-size: 2.2em;
+    }
+    
+    .header p {
+        font-size: 1em;
+    }
+    
+    .api-selector {
+        padding: 25px 15px;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .api-selector label {
+        display: block;
+        margin-bottom: 15px;
+        margin-right: 0;
+        font-size: 16px;
+    }
+    
+    .api-selector select {
+        min-width: auto;
+        width: 100%;
+        max-width: 300px;
+        font-size: 15px;
+        padding: 12px 20px;
+    }
+    
+    .loading {
+        height: 250px;
+        font-size: 18px;
+        padding: 0 20px;
+    }
+    
+    .error-container {
+        margin: 10px;
+        padding: 40px 20px;
+    }
+}
+
+/* Tablet responsiveness */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .header h1 {
+        font-size: 2.5em;
+    }
+    
+    .api-selector select {
+        min-width: 220px;
+    }
+}

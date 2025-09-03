@@ -13,55 +13,56 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //===----------------------------------------------------------------------===//
-module VaultApiResponse extends "@openapi/Schema.pkl"
+
+amends "@openapi/Document.pkl"
 
 import "@openapi/Schema.pkl"
-import "@openapi/Reference.pkl"
 
-type = "object"
+import "../CommonComponents.pkl"
 
-properties {
-  ["request_id"] {
-    type = "string"
-  }
+import "../SysWrappingOpenApi.pkl" as Wrapping
+import "../SysAuthOpenApi.pkl" as Auth
 
-  ["lease_id"] {
-    type = "string"
-  }
-
-  ["renewable"] {
-    type = "boolean"
-  }
-
-  ["lease_duration"] {
-    type = "integer"
-  }
-
-  ["data"] {
-    type = "object"
-  }
-
-  ["wrap_info"] {
-    type = "object"
-  }
-
-  ["warnings"] {
-    type = "array"
-    description = "A list of warnings, e.g. ignored parameters"
-    items = new Schema {
-      type = "string"
-    }
-  }
-
-  ["auth"] {
-    type = "object"
-  }
-  
-  ["mount_type"] {
-    type = "string"
+info {
+  title = "Vault Courier Authentication API"
+  description = "API client for Hashicorp Vault and OpenBao"
+  version = "0.2.0"
+  license {
+    name = "Apache License 2.0"
   }
 }
 
-required {
-  "request_id"
+servers {
+  new { 
+    url = "http://127.0.0.1:8200/v1"
+    description = "Default http server url"
+  }
+  new { 
+    url = "https://127.0.0.1:8200/v1"
+    description = "Default https server url"
+  }
+}
+
+tags {
+  new {
+    name = "policies"
+  }
+  new {
+    name = "wrapping"
+  }
+}
+
+paths {
+  ...Wrapping.paths
+  ...Auth.paths
+}
+
+components {
+  parameters {
+    ...CommonComponents.parameters
+  }
+  schemas {
+    ...Auth.authComponents.schemas
+    ...CommonComponents.schemas
+  }
 }

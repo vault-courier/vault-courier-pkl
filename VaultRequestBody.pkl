@@ -388,7 +388,7 @@ kvSecretConfig = (Schema.PropertySchema) {
     }
     ["cas_required"] {
       type = "boolean"
-      description = "If true all keys will require the cas parameter to be set on all write requests."
+      description = "If true all keys will require the Compare-And-Swap (CAS) parameter to be set on all write requests."
       default = "false"
     }
     ["delete_version_after"] {
@@ -406,6 +406,7 @@ kvSecret = (Schema.PropertySchema) {
       properties {
         ["cas"] {
           type = "integer"
+          description = "Compare-And-Swap (CAS)"
         }
       }
     }

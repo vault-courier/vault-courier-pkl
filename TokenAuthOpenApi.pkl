@@ -1,0 +1,672 @@
+//===----------------------------------------------------------------------===//
+//  Copyright (c) 2025 Javier Cuesta
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//===----------------------------------------------------------------------===//
+
+extends "@openapi/Document.pkl"
+
+import "@openapi/Components.pkl"
+import "@openapi/Schema.pkl"
+import "@openapi/HTTPResponse.pkl"
+
+import "VaultDataResponse.pkl"
+import "VaultRequestBody.pkl"
+import "CommonComponents.pkl"
+
+/// Parameter name in the crud endpoint
+local parameterRoleName = "role_name"
+
+info {
+  title = "Vault Courier Token Authentication Method"
+  description = "Token Authentication endpoints. VaultCourier is a Swift client for Hashicorp Vault and OpenBao"
+  version = "0.1.0"
+  license {
+    name = "Apache License 2.0"
+  }
+}
+
+servers {
+  new { 
+    url = "http://127.0.0.1:8200/v1"
+    description = "Default http server url"
+  }
+  new { 
+    url = "https://127.0.0.1:8200/v1"
+    description = "Default https server url"
+  }
+}
+
+paths {
+  ["/auth/token/create"] {
+    description = "The token create path is used to create new tokens."
+    parameters {
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/WrapTTLHeader"
+      }
+    }
+    post {
+      summary = "Create new Token"
+      operationId = "token-create"
+      tags {
+        "token"
+      }
+      requestBody {
+        content {
+          ["application/json"] {
+            schema = new Reference {
+              `$ref` = "#/components/schemas/TokenCreateRequest"
+            }
+          }
+        }
+        required = true
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultAuthResponse"
+              }
+            }
+          }
+        }
+        ...CommonComponents.responses
+      }
+    }
+  }
+
+  ["/auth/token/lookup"] {
+    description = "Returns information about the given token."
+    parameters {
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Lookup Token"
+      description = "Returns information about the given token."
+      operationId = "lookup-token"
+      tags {
+        "token"
+      }
+      requestBody {
+        content {
+          ["application/json"] {
+            schema = new Reference {
+              `$ref` = "#/components/schemas/TokenBodyRequest"
+            }
+          }
+        }
+        required = true
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/TokenLookupResponse"
+              }
+            }
+          }
+        }
+        ...CommonComponents.responses
+      }
+    }
+  }
+
+  ["/auth/token/lookup-self"] {
+    description = "Returns information about the current client token."
+    parameters {
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Lookup client Token"
+      description = "Returns information about the current client token."
+      operationId = "lookup-token-self"
+      tags {
+        "token"
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/TokenLookupResponse"
+              }
+            }
+          }
+        }
+        ...CommonComponents.responses
+      }
+    }
+  }
+
+  ["/auth/token/lookup-accessor"] {
+    description = "Returns information about the client token from the accessor."
+    parameters {
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Lookup Token via accessor"
+      description = "Returns information about the client token from the accessor."
+      operationId = "lookup-token-accessor"
+      tags {
+        "token"
+      }
+      requestBody {
+        content {
+          ["application/json"] {
+            schema = new Reference {
+              `$ref` = "#/components/schemas/AccessorBodyRequest"
+            }
+          }
+        }
+        required = true
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/TokenLookupResponse"
+              }
+            }
+          }
+        }
+        ...CommonComponents.responses
+      }
+    }
+  }
+
+  ["/auth/token/renew"] {
+    description = "This endpoint will renew the given token and prevent expiration."
+    parameters {
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/WrapTTLHeader"
+      }
+    }
+    post {
+      summary = "Renew Token"
+      description = "This endpoint will renew the given token and prevent expiration."
+      operationId = "token-renew"
+      tags {
+        "token"
+      }
+      requestBody {
+        content {
+          ["application/json"] {
+            schema = new Reference {
+              `$ref` = "#/components/schemas/TokenRenewRequest"
+            }
+          }
+        }
+        required = true
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultAuthResponse"
+              }
+            }
+          }
+        }
+        ...CommonComponents.responses
+      }
+    }
+  }
+
+  ["/auth/token/renew-self"] {
+    description = "Renews a lease associated with the calling token. This is used to prevent the expiration of a token, and the automatic revocation of it. Token renewal is possible only if there is a lease associated with it."
+    parameters {
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/WrapTTLHeader"
+      }
+    }
+    post {
+      summary = "Renew client Token"
+      description = "Renews a lease associated with the calling token."
+      operationId = "token-renew-self"
+      tags {
+        "token"
+      }
+      requestBody {
+        content {
+          ["application/json"] {
+            schema = new Reference {
+              `$ref` = "#/components/schemas/TokenRenewSelfRequest"
+            }
+          }
+        }
+        required = true
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultAuthResponse"
+              }
+            }
+          }
+        }
+        ...CommonComponents.responses
+      }
+    }
+  }
+
+  ["/auth/token/renew-accessor"] {
+    description = "Renews a lease associated with a token using its accessor. This is used to prevent the expiration of a token, and the automatic revocation of it. Token renewal is possible only if there is a lease associated with it."
+    parameters {
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/WrapTTLHeader"
+      }
+    }
+    post {
+      summary = "Renew Token via accessor."
+      description = "Renews a lease associated with a token using its accessor."
+      operationId = "token-renew-accessor"
+      tags {
+        "token"
+      }
+      requestBody {
+        content {
+          ["application/json"] {
+            schema = new Reference {
+              `$ref` = "#/components/schemas/TokenRenewAccessorRequest"
+            }
+          }
+        }
+        required = true
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/VaultAuthResponse"
+              }
+            }
+          }
+        }
+        ...CommonComponents.responses
+      }
+    }
+  }
+
+  ["/auth/token/revoke"] {
+    description = "Revokes a token and all child tokens. When the token is revoked, all dynamic secrets generated with it are also revoked."
+    parameters {
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/WrapTTLHeader"
+      }
+    }
+    post {
+      summary = "Revoke Token"
+      description = "Revokes a token and all child tokens. When the token is revoked, all dynamic secrets generated with it are also revoked."
+      operationId = "token-revoke"
+      tags {
+        "token"
+      }
+      requestBody {
+        content {
+          ["application/json"] {
+            schema = new Reference {
+              `$ref` = "#/components/schemas/TokenRevokeRequest"
+            }
+          }
+        }
+        required = true
+      }
+      responses {
+        ["204"] {
+          description = "NoContent"
+        }
+        ...CommonComponents.responses
+      }
+    }
+  }
+
+  ["/auth/token/revoke-self"] {
+    description = "Revokes the token used to call it and all child tokens. When the token is revoked, all dynamic secrets generated with it are also revoked."
+    parameters {
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/WrapTTLHeader"
+      }
+    }
+    post {
+      summary = "Revoke client Token"
+      description = "Revokes the token used to call it and all child tokens. When the token is revoked, all dynamic secrets generated with it are also revoked."
+      operationId = "token-revoke-self"
+      tags {
+        "token"
+      }
+      responses {
+        ["204"] {
+          description = "NoContent"
+        }
+        ...CommonComponents.responses
+      }
+    }
+  }
+
+  ["/auth/token/revoke-accessor"] {
+    description = "Revoke the token associated with the accessor and all the child tokens. This is meant for purposes where there is no access to token ID but there is need to revoke a token and its children."
+    parameters {
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/WrapTTLHeader"
+      }
+    }
+    post {
+      summary = "Revoke token via accessor"
+      description = "Revoke the token associated with the accessor and all the child tokens. This is meant for purposes where there is no access to token ID but there is need to revoke a token and its children."
+      operationId = "token-revoke-accessor"
+      tags {
+        "token"
+      }
+      requestBody {
+        content {
+          ["application/json"] {
+            schema = new Reference {
+              `$ref` = "#/components/schemas/TokenRevokeAccessorRequest"
+            }
+          }
+        }
+        required = true
+      }
+      responses {
+        ["204"] {
+          description = "NoContent"
+        }
+        ...CommonComponents.responses
+      }
+    }
+  }
+
+  ["/auth/token/revoke-orphan"] {
+    description = "Revokes a token but not its child tokens. When the token is revoked, all secrets generated with it are also revoked. All child tokens are orphaned, but can be revoked sub-sequently using `/auth/token/revoke/`. This is a root-protected endpoint."
+    parameters {
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/WrapTTLHeader"
+      }
+    }
+    post {
+      summary = "Revoke Orphan Token"
+      description = "Revokes a token but not its child tokens. When the token is revoked, all secrets generated with it are also revoked. All child tokens are orphaned, but can be revoked sub-sequently using `/auth/token/revoke/`. This is a root-protected endpoint."
+      operationId = "token-revoke-orphan"
+      tags {
+        "token"
+      }
+      requestBody {
+        content {
+          ["application/json"] {
+            schema = new Reference {
+              `$ref` = "#/components/schemas/TokenRevokeRequest"
+            }
+          }
+        }
+        required = true
+      }
+      responses {
+        ["204"] {
+          description = "NoContent"
+        }
+        ...CommonComponents.responses
+      }
+    }
+  }
+
+  ["/auth/token/roles/{\(parameterRoleName)}"] {
+    description = "Fetches the named role configuration."
+    parameters {
+      new {
+        name = parameterRoleName
+        description = "The name of the approle. Example: \"my-app-role\""
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    get {
+      summary = "Get token role configuration"
+      description = "Fetches the named role configuration."
+      operationId = "read-token-role"
+      tags {
+        "token"
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/TokenReadRoleResponse"
+              }
+            }
+          }
+        }
+        ...CommonComponents.responses
+      }
+    }
+    post {
+      summary = "Create/Update token role"
+      description = "Creates (or replaces) the named role. Roles enforce specific behavior when creating tokens that allow token functionality that is otherwise not available or would require sudo/root privileges to access. Role parameters, when set, override any provided options to the create endpoints. The role name is also included in the token path, allowing all tokens created against a role to be revoked using the `/sys/leases/revoke-prefix` endpoint."
+      operationId = "update-token-role"
+      tags {
+        "token"
+      }
+      requestBody {
+        content {
+          ["application/json"] {
+            schema = new Reference {
+              `$ref` = "#/components/schemas/TokenUpdateRoleRequest"
+            }
+          }
+        }
+        required = true
+      }
+      responses {
+        ["204"] {
+          description = "NoContent"
+        }
+        ...CommonComponents.responses
+      }
+    }
+    `delete` {
+      summary = "Delete token role."
+      description = "deletes the named token role."
+      operationId = "delete-token-role"
+      tags {
+        "token"
+      }
+      responses {
+        ["204"] {
+          description = "NoContent"
+        }
+        ...CommonComponents.responses
+      }
+    }
+  }
+}
+
+components {
+  parameters {
+    ...CommonComponents.parameters
+  }
+  schemas {
+    ...tokenComponents.schemas
+    ...CommonComponents.schemas
+  }
+}
+
+hidden tokenComponents: Components = new {
+  schemas {
+    ["TokenCreateRequest"] = VaultRequestBody.createToken
+
+    ["TokenLookupResponse"] = (VaultDataResponse) {
+      properties {
+        ["data"] = VaultRequestBody.tokenLookup
+      }
+    }
+
+    ["TokenBodyRequest"] {
+      type = "object"
+      properties {
+        ["token"] {
+          type = "string"
+        }
+      }
+      required {
+        "token"
+      }
+    }
+
+    ["AccessorBodyRequest"] {
+      type = "object"
+      properties {
+        ["accessor"] {
+          type = "string"
+        }
+      }
+      required {
+        "accessor"
+      }
+    }
+
+    ["TokenUpdateRoleRequest"] = VaultRequestBody.createTokenRole
+
+    ["TokenRenewRequest"] {
+      type = "object"
+      properties {
+        ["token"] {
+          type = "string"
+          description = "Token to renew (request body)"
+        }
+        ["increment"] {
+          type = "string"
+          description = "The desired increment in seconds to the token expiration"
+          format = "duration"
+          default = "0"
+        }
+      }
+      required {
+        "token"
+      }
+    }
+
+    ["TokenRenewSelfRequest"] {
+      type = "object"
+      properties {
+        ["increment"] {
+          type = "string"
+          description = "The desired increment in seconds to the token expiration"
+          format = "duration"
+          default = "0"
+        }
+      }
+    }
+
+    ["TokenRenewAccessorRequest"] {
+      type = "object"
+      properties {
+        ["accessor"] {
+          type = "string"
+          description = "Accessor associated with the token to renew."
+        }
+        ["increment"] {
+          type = "string"
+          description = "The desired increment in seconds to the token expiration"
+          format = "duration"
+          default = "0"
+        }
+      }
+      required {
+        "accessor"
+      }
+    }
+
+    ["TokenRevokeRequest"] {
+      type = "object"
+      properties {
+        ["token"] {
+          type = "string"
+          description = "Token to renew (request body)"
+        }
+      }
+      required {
+        "token"
+      }
+    }
+
+    ["TokenRevokeAccessorRequest"] {
+      type = "object"
+      properties {
+        ["accessor"] {
+          type = "string"
+          description = "Accessor associated with the token to renew."
+        }
+      }
+      required {
+        "accessor"
+      }
+    }
+
+    ["TokenReadRoleResponse"] = (VaultDataResponse) {
+      properties {
+        ["data"] = VaultRequestBody.tokenRole
+      }
+    }
+  }
+}

@@ -34,6 +34,7 @@ paths {
       operationId = "unwrap"
       tags {
         "system"
+        "wrapping"
       }
       requestBody {
         required = true

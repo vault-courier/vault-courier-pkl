@@ -47,7 +47,6 @@ servers {
 }
 
 paths {
-
   ...PoliciesACL.paths
 
   ...Mounts.paths
