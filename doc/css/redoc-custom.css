@@ -114,8 +114,9 @@ body {
     align-items: center;
     height: 300px;
     font-size: 20px;
-    color: #667eea;
-    background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+    color: var(--loading-color);
+    background: var(--bg-secondary);
+    transition: all 0.3s ease;
 }
 
 .loading i {
@@ -137,7 +138,51 @@ body {
 .error-container {
     padding: 60px 40px;
     text-align: center;
-    background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    margin: 20px;
+    box-shadow: 0 4px 20px var(--shadow-light);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.error-container h2 {
+    color: var(--error-color);
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.error-container p {
+    color: var(--text-secondary);
+    margin-bottom: 25px;
+    font-size: 16px;
+}
+
+.error-container details {
+    text-align: left;
+    margin-top: 25px;
+    padding: 20px;
+    background: var(--bg-primary);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.error-container summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: 5px 0;
+}
+
+.error-container pre {
+    background: var(--bg-secondary);
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 15px;
+    font-size: 13px;
+    overflow-x: auto;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
     border-radius: 12px;
     margin: 20px;
     box-shadow: 0 4px 20px rgba(255, 0, 0, 0.1);

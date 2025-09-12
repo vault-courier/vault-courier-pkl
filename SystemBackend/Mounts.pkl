@@ -81,7 +81,7 @@ components {
       properties {
           ["config"] {
             type = "object"
-            description = "Configuration for this mount, such as default_lease_ttl and max_lease_ttl."
+            description = "Configuration for this mount, such as `default_lease_ttl` and `max_lease_ttl`."
             format = "map"
           }
           ["description"] {
@@ -109,7 +109,7 @@ components {
           }
           ["plugin_version"] {
             type = "string"
-            description = "The semantic version of the plugin to use, or image tag if oci_image is provided."
+            description = "The semantic version of the plugin to use, or image tag if `oci_image` is provided."
           }
           ["seal_wrap"] {
             type = "boolean"

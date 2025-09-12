@@ -34,10 +34,6 @@ info {
 
 servers {
   new { 
-    url = "http://127.0.0.1:8200/v1"
-    description = "Default http server url"
-  }
-  new { 
     url = "https://127.0.0.1:8200/v1"
     description = "Default https server url"
   }

@@ -22,6 +22,8 @@ import "../CommonComponents.pkl"
 
 import "../SysWrappingOpenApi.pkl" as Wrapping
 import "../SysAuthOpenApi.pkl" as Auth
+import "../SysPoliciesOpenApi.pkl" as PoliciesACL
+import "../SysMountsOpenApi.pkl" as Mounts
 
 info {
   title = "Vault Courier Authentication API"
@@ -33,10 +35,6 @@ info {
 }
 
 servers {
-  new { 
-    url = "http://127.0.0.1:8200/v1"
-    description = "Default http server url"
-  }
   new { 
     url = "https://127.0.0.1:8200/v1"
     description = "Default https server url"
@@ -55,6 +53,8 @@ tags {
 paths {
   ...Wrapping.paths
   ...Auth.paths
+  ...PoliciesACL.paths
+  ...Mounts.paths
 }
 
 components {
@@ -63,6 +63,8 @@ components {
   }
   schemas {
     ...Auth.authComponents.schemas
+    ...PoliciesACL.policyComponents.schemas
+    ...Mounts.mountComponents.schemas
     ...CommonComponents.schemas
   }
 }

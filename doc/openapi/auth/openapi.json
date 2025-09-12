@@ -10,10 +10,6 @@
   },
   "servers": [
     {
-      "url": "http://127.0.0.1:8200/v1",
-      "description": "Default http server url"
-    },
-    {
       "url": "https://127.0.0.1:8200/v1",
       "description": "Default https server url"
     }
@@ -43,7 +39,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -76,7 +72,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -99,7 +95,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -169,7 +165,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -252,7 +248,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -329,7 +325,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -395,7 +391,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -473,7 +469,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -529,7 +525,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -580,7 +576,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -618,7 +614,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -666,7 +662,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -714,7 +710,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -765,7 +761,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -816,7 +812,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -860,7 +856,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -894,7 +890,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -938,7 +934,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -982,7 +978,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -1023,7 +1019,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -1056,7 +1052,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -1079,7 +1075,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponse"
+                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -2209,7 +2205,7 @@
           "wrap_info"
         ]
       },
-      "VaultErrorsResponse": {
+      "VaultErrorsResponseBody": {
         "type": "object",
         "properties": {
           "errors": {
