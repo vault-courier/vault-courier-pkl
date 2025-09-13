@@ -171,7 +171,7 @@ paths {
       description = "This endpoint closes a connection and it's underlying plugin and restarts it with the configuration stored in the barrier."
       operationId = "database-reset"
       tags {
-        "database/postgres"
+        "database"
       }
       responses {
         ["204"] {
@@ -207,35 +207,15 @@ paths {
       }
     }
     post {
-      summary = "This endpoint performs the same operation as reset connection but for all connections that reference a specific plugin name"
+      summary = "Reload database plugin"
       description = "This endpoint performs the same operation as reset connection but for all connections that reference a specific plugin name. This can be useful to restart a specific plugin after it's been upgraded in the plugin catalog."
       operationId = "reload-database-plugin"
       tags {
-        "database/postgres"
+        "database"
       }
       responses {
         ["204"] {
           description = "OK"
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
-        }
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
         }
       }
     }
@@ -271,21 +251,11 @@ paths {
       description = "the root user's password will not be accessible once rotated so it is highly recommended that you create a user for Vault to utilize rather than using the actual root user."
       operationId = "database-rotate-root"
       tags {
-        "database/postgres"
+        "database"
       }
       responses {
         ["204"] {
           description = "OK"
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
         }
       }
     }
@@ -317,11 +287,11 @@ paths {
       }
     }
     post {
-      summary = "Creates or updates a static role definition"
+      summary = "Creates or updates a static role"
       description = "Vault will rotate the password when creating a static role. Vault must do this in order to know the password."
       operationId = "database-create-static-role"
       tags {
-        "database/postgres"
+        "database"
       }
       requestBody {
         required = true
@@ -340,34 +310,14 @@ paths {
         ["204"] {
           description = "No Content"
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
-        }
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
-        }
       }
     }
     get {
-      summary = "Creates or updates a static role definition"
+      summary = "Creates or updates a static role"
       description = "This endpoint queries the static role definition."
       operationId = "database-read-static-role"
       tags {
-        "database/postgres"
+        "database"
       }
       responses {
         ["200"] {
@@ -380,60 +330,18 @@ paths {
             }
           }
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
-        }
-
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
-        }
       }
     }
     `delete` {
-      summary = "Deletes a static role definition"
+      summary = "Deletes a static role"
       description = "This endpoint deletes the static role definition. The user, having been defined externally, must be cleaned up manually."
       operationId = "database-delete-static-role"
       tags {
-        "database/postgres"
+        "database"
       }
       responses {
         ["204"] {
           description = "No Content"
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
-        }
-
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
         }
       }
     }
@@ -465,7 +373,7 @@ paths {
       }
     }
     get {
-      summary = "Read current credentials based on the named static role."
+      summary = "Read static role credentials"
       description = "returns the current credentials based on the named static role."
       operationId = "database-read-static-role-credentials"
       tags {
@@ -478,27 +386,6 @@ paths {
             ["application/json"] {
               schema = new Reference {
                 `$ref` = "#/components/schemas/ReadStaticRoleCredentialsResponse"
-              }
-            }
-          }
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
-        }
-
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
               }
             }
           }
@@ -533,19 +420,17 @@ paths {
       }
     }
     post {
-      summary = "Creates or updates a role definition"
+      summary = "Creates or updates a dynamic role"
       description = "Creates or updates a dynamic role definition. This endpoint distinguishes between create and update ACL capabilities."
       operationId = "database-create-role"
       tags {
         "database/postgres"
+        "database/valkey"
       }
       requestBody {
         required = true
         content {
           ["application/json"] {
-            // schema = new Reference {
-            //   `$ref` = "#/components/schemas/WritePostgresRoleRequest"
-            // }
             schema = new Schema {
               oneOf {
                 new Reference {
@@ -563,35 +448,14 @@ paths {
         ["204"] {
           description = "No Content"
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
-        }
-
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
-        }
       }
     }
     get {
-      summary = "Queries the role definition"
+      summary = "Read role"
       description = "This endpoint queries the role definition."
       operationId = "database-read-role"
       tags {
-        "database/postgres"
+        "database"
       }
       responses {
         ["200"] {
@@ -604,60 +468,18 @@ paths {
             }
           }
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
-        }
-
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
-        }
       }
     }
     `delete` {
-      summary = "Deletes a role definition"
+      summary = "Delete role"
       description = "This endpoint deletes the dynamic role definition. The user, having been defined externally, must be cleaned up manually."
       operationId = "database-delete-role"
       tags {
-        "database/postgres"
+        "database"
       }
       responses {
         ["204"] {
           description = "No Content"
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
-        }
-
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
         }
       }
     }
@@ -689,11 +511,11 @@ paths {
       }
     }
     get {
-      summary = "Read current credentials based on the named role."
+      summary = "Read dynamic role credentials."
       description = "returns the current credentials based on the named role."
       operationId = "database-read-role-credentials"
       tags {
-        "database/postgres"
+        "database"
       }
       responses {
         ["200"] {
@@ -702,27 +524,6 @@ paths {
             ["application/json"] {
               schema = new Reference {
                 `$ref` = "#/components/schemas/ReadRoleCredentialsResponse"
-              }
-            }
-          }
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
-        }
-
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
               }
             }
           }
