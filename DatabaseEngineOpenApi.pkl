@@ -87,7 +87,7 @@ paths {
       description = "Read database connection configuration"
       operationId = "read-database-configuration"
       tags {
-        "database/postgres"
+        "database"
       }
       responses {
         ["200"] {
@@ -100,34 +100,14 @@ paths {
             }
           }
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
-        }
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
-        }
       }
     }
     post {
-      summary = "This endpoint configures the connection string used to communicate with the desired database"
+      summary = "Configures vault database connection"
       description = "This endpoint configures the connection string used to communicate with the desired database"
       operationId = "configure-database"
       tags {
-        "database/postgres"
+        "database"
       }
       requestBody {
         required = true
@@ -143,26 +123,6 @@ paths {
         ["204"] {
           description = "OK"
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
-        }
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
-        }
       }
     }
 
@@ -171,32 +131,11 @@ paths {
       description = "This endpoint deletes a connection"
       operationId = "delete-database-connection"
       tags {
-        "database/postgres"
+        "database"
       }
       responses {
         ["204"] {
           description = "No Content"
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
-        }
-
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
         }
       }
     }
@@ -228,7 +167,7 @@ paths {
       }
     }
     post {
-      summary = "This endpoint closes a connection"
+      summary = "Reset database connection"
       description = "This endpoint closes a connection and it's underlying plugin and restarts it with the configuration stored in the barrier."
       operationId = "database-reset"
       tags {
@@ -237,26 +176,6 @@ paths {
       responses {
         ["204"] {
           description = "OK"
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
-        }
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
         }
       }
     }
@@ -624,8 +543,18 @@ paths {
         required = true
         content {
           ["application/json"] {
-            schema = new Reference {
-              `$ref` = "#/components/schemas/WriteRoleRequest"
+            // schema = new Reference {
+            //   `$ref` = "#/components/schemas/WritePostgresRoleRequest"
+            // }
+            schema = new Schema {
+              oneOf {
+                new Reference {
+                  `$ref` = "#/components/schemas/WritePostgresRoleRequest"
+                }
+                new Reference {
+                  `$ref` = "#/components/schemas/WriteValkeyRoleRequest"
+                }
+              }
             }
           }
         }
@@ -983,7 +912,7 @@ hidden databaseComponents: Components = new {
       }
     }
 
-    ["WriteRoleRequest"] {
+    ["WritePostgresRoleRequest"] {
       type = "object"
       properties {
         ["db_name"] {
@@ -1003,14 +932,8 @@ hidden databaseComponents: Components = new {
           description = "Specifies the database statements executed to create and configure a user."
           items = new Schema {
             type = "string"
-            // format = "byte"
           }
         }
-        // ["creation_statements"] {
-        //   type = "string"
-        //   format = "byte"
-        //   description = "Specifies the database statements executed to create and configure a user."
-        // }
         ["revocation_statements"] {
           type = "array"
           description = "Specifies the database statements to be executed to revoke a user."
@@ -1049,6 +972,35 @@ hidden databaseComponents: Components = new {
           format = "kvpairs"
         }
 
+      }
+      required {
+        "db_name"
+        "creation_statements"
+      }
+    }
+
+    ["WriteValkeyRoleRequest"] {
+      type = "object"
+      properties {
+        ["db_name"] {
+          type = "string"
+          description = "The name of the database connection to use for this role."
+        }
+        ["default_ttl"] {
+          type = "string"
+          description = "Specifies the TTL for the leases associated with this role. Accepts time suffixed strings (1h) or an integer number of seconds. Defaults to system/engine default TTL time."
+        }
+        ["max_ttl"] {
+          type = "string"
+          description = "Specifies the maximum TTL for the leases associated with this role. Accepts time suffixed strings (1h) or an integer number of seconds. Defaults to sys/mounts's default TTL time; this value is allowed to be less than the mount max TTL (or, if not set, the system max TTL), but it is not allowed to be longer. See also The TTL General Case."
+        }
+        ["creation_statements"] {
+          type = "array"
+          description = "Specifies the database statements executed to create and configure a user."
+          items = new Schema {
+            type = "string"
+          }
+        }
       }
       required {
         "db_name"
@@ -1311,6 +1263,24 @@ hidden connectionConfig: Schema.PropertySchema = new {
             "host"
             "username"
           }
+        }
+      }
+    }
+    new Schema {
+      type = "object"
+    }
+  }
+}
+
+hidden createRole: Schema.PropertySchema = new {
+  anyOf {
+    new Schema {
+      oneOf {
+        new Reference {
+          `$ref` = "#/components/schemas/WritePostgresRoleRequest"
+        }
+        new Reference {
+          `$ref` = "#/components/schemas/WriteValkeyRoleRequest"
         }
       }
     }
