@@ -643,6 +643,7 @@ components {
             }
             ["creation_time"] {
               type = "string"
+              format = "date-time"
             }
             ["expiration_time"] {
               type = "string"

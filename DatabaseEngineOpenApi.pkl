@@ -611,6 +611,7 @@ hidden databaseComponents: Components = new {
           properties {
             ["last_vault_rotation"] {
               type = "string"
+              format = "date-time"
             }
             ["rotation_schedule"] {
               type = "string"
@@ -994,9 +995,6 @@ hidden databaseComponents: Components = new {
         ["data"] {
           type = "object"
           properties {
-            ["last_vault_rotation"] {
-              type = "string"
-            }
             ["ttl"] {
               type = "integer"
             }
