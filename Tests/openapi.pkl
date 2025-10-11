@@ -17,7 +17,28 @@
 amends "pkl:test"
 
 examples {
-  ["openapi.json"] {
-    import(".../VaultOpenApi.pkl").output.text
+  ["SysAuthOpenApi.json"] {
+    import(".../SystemBackend/SysAuthOpenApi.pkl").output.text
+  }
+  ["SysMountsOpenApi.json"] {
+    import(".../SystemBackend/SysMountsOpenApi.pkl").output.text
+  }
+  ["SysPoliciesOpenApi.json"] {
+    import(".../SystemBackend/SysPoliciesOpenApi.pkl").output.text
+  }
+  ["SysWrappingOpenApi.json"] {
+    import(".../SystemBackend/SysWrappingOpenApi.pkl").output.text
+  }
+  ["TokenAuthOpenApi.json"] {
+    import(".../AuthMethods/TokenAuthOpenApi.pkl").output.text
+  }
+  ["AppRoleAuthOpenApi.json"] {
+    import(".../AuthMethods/AppRoleAuthOpenApi.pkl").output.text
+  }
+  ["DatabaseEngineOpenApi.json"] {
+    import(".../SecretEngines/Databases/PostgresSQL/DatabaseEngineOpenApi.pkl").output.text
+  }
+  ["KeyValueEngineOpenApi.json"] {
+    import("../SecretEngines/KeyValue/KeyValueEngineOpenApi.pkl").output.text
   }
 }

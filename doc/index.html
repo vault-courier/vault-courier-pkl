@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - Redoc</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/redoc-custom.css" />
+</head>
+<body>
+    <div class="header">
+        <h1>VaultCourier API Documentation</h1>
+        <p>Supported HTTP API</p>
+    </div>
+
+    <nav class="api-nav">
+        <span class="api-link active" data-spec="../openapi/secrets/openapi.json" onclick="loadSpecFromLink(this)">
+            Secret Engines
+        </span>
+        <span class="api-link" data-spec="../openapi/auth/openapi.json" onclick="loadSpecFromLink(this)">
+            Authentication Methods
+        </span>
+        <span class="api-link" data-spec="../openapi/sys/openapi.json" onclick="loadSpecFromLink(this)">
+            System Backend
+        </span>
+    </nav>
+
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <span>Loading API documentation...</span>
+    </div>
+
+    <div id="redoc-container"></div>
+
+    <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+    
+    <script>
+        let currentRedoc;
+
+        function loadSpecFromLink(element) {
+            // Update active state
+            document.querySelectorAll('.api-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            element.classList.add('active');
+            
+            // Load the specification
+            const specUrl = element.getAttribute('data-spec');
+            loadSpec(specUrl);
+        }
+
+        function loadSpec(specUrl) {
+            const loading = document.getElementById('loading');
+            const container = document.getElementById('redoc-container');
+            
+            // Show loading
+            loading.style.display = 'flex';
+            container.innerHTML = '';
+            
+            // Get the base URL of the repository
+            const baseUrl = window.location.origin + window.location.pathname.replace('/redoc.html', '').replace(/\/$/, '');
+            const fullSpecUrl = `${baseUrl}/${specUrl}`;
+
+            // Redoc configuration options
+            const redocOptions = {
+                theme: {
+                    colors: {
+                        primary: {
+                            main: '#667eea'
+                        },
+                        success: {
+                            main: '#00C851'
+                        },
+                        warning: {
+                            main: '#ffbb33'
+                        },
+                        error: {
+                            main: '#ff4444'
+                        }
+                    },
+                    typography: {
+                        fontSize: '14px',
+                        lineHeight: '1.5em',
+                        code: {
+                            fontSize: '13px',
+                            fontFamily: 'Courier, monospace'
+                        },
+                        headings: {
+                            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                            fontWeight: '600'
+                        }
+                    },
+                    sidebar: {
+                        width: '260px',
+                        backgroundColor: '#fafafa',
+                        groupItems: {
+
+                        }
+                    },
+                    rightPanel: {
+                        backgroundColor: '#263238',
+                        width: '40%'
+                    }
+                },
+                scrollYOffset: 0,
+                sortRequiredPropsFirst: true,
+                hideDownloadButton: false,
+                disableSearch: false,
+                showExtensions: true
+            };
+
+            // Initialize Redoc
+            try {
+                Redoc.init(fullSpecUrl, redocOptions, container, function(errors, spec) {
+                    loading.style.display = 'none';
+                    
+                    if (errors && errors.length > 0) {
+                        container.innerHTML = `
+                            <div style="padding: 40px; text-align: center; color: #ff4444;">
+                                <h2><i class="fas fa-exclamation-triangle"></i> Error Loading Specification</h2>
+                                <p>Could not load the OpenAPI specification file.</p>
+                                <details style="margin-top: 20px; text-align: left;">
+                                    <summary>Error Details</summary>
+                                    <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px; margin-top: 10px;">${JSON.stringify(errors, null, 2)}</pre>
+                                </details>
+                            </div>
+                        `;
+                    }
+                });
+            } catch (error) {
+                loading.style.display = 'none';
+                container.innerHTML = `
+                    <div style="padding: 40px; text-align: center; color: #ff4444;">
+                        <h2><i class="fas fa-exclamation-triangle"></i> Error</h2>
+                        <p>Failed to initialize Redoc: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Load default spec on page load
+        window.onload = function() {
+            loadSpec('../openapi/secrets/openapi.json');
+        };
+    </script>
+</body>
+</html>

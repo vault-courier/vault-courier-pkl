@@ -94,6 +94,7 @@ tokenLookup = (Schema.PropertySchema) {
       type =  "string"
     }
     ["creation_time"] {
+      description = "creation time in unix time stamp"
       type = "integer"
     }
     ["creation_ttl"] {
@@ -109,6 +110,7 @@ tokenLookup = (Schema.PropertySchema) {
     }
     ["expire_time"] {
       type = "string"
+      format = "date-time"
       description = "Optional expire time date in string format."
     }
     ["explicit_max_ttl"] {
@@ -120,7 +122,8 @@ tokenLookup = (Schema.PropertySchema) {
     }
     ["issue_time"] {
       type = "string"
-      description = "Value for the token"
+      format = "date-time"
+      description = "issue time date in string format"
     }
     ["meta"] {
       type = "object"
@@ -388,7 +391,7 @@ kvSecretConfig = (Schema.PropertySchema) {
     }
     ["cas_required"] {
       type = "boolean"
-      description = "If true all keys will require the cas parameter to be set on all write requests."
+      description = "If true all keys will require the Compare-And-Swap (CAS) parameter to be set on all write requests."
       default = "false"
     }
     ["delete_version_after"] {
@@ -406,6 +409,7 @@ kvSecret = (Schema.PropertySchema) {
       properties {
         ["cas"] {
           type = "integer"
+          description = "Compare-And-Swap (CAS)"
         }
       }
     }
@@ -423,6 +427,7 @@ kvMetadata = (Schema.PropertySchema) {
   properties {
     ["created_time"] {
       type = "string"
+      format = "date-time"
     }
     ["custom_metadata"] {
       type = "object"
@@ -431,8 +436,16 @@ kvMetadata = (Schema.PropertySchema) {
         type = "string"
       }
     }
-    ["deletion_time"] {
-      type = "string"
+    ["deletion_time"] = new {
+      oneOf {
+        new Schema {
+          type = "string"
+          format = "date-time"
+        }
+        new Schema {
+          type = "string"
+        }
+      }
     }
     ["destroyed"] {
       type = "boolean"

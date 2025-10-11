@@ -14,15 +14,41 @@
 //  limitations under the License.
 //===----------------------------------------------------------------------===//
 
-module KeyValueEngine
+extends "@openapi/Document.pkl"
 
-amends "@openapi/Document.pkl"
-import "@openapi/PathItem.pkl"
-import "@openapi/Reference.pkl"
+import "@openapi/Components.pkl"
 import "@openapi/Schema.pkl"
+import "@openapi/HTTPResponse.pkl"
 
+import ".../VaultApiResponse.pkl"
 import ".../VaultDataResponse.pkl"
 import ".../VaultRequestBody.pkl"
+import ".../CommonComponents.pkl"
+
+info {
+  title = "Vault Courier KeyValue Secret Engine API"
+  description = "KeyValue endpoints. Vault Courier is a Swift client for Hashicorp Vault and OpenBao"
+  version = "0.2.0"
+  license {
+    name = "Apache License 2.0"
+  }
+}
+
+servers {
+  new { 
+    url = "{protocol}://127.0.0.1:8200/v1"
+    description = "Default server url"
+    variables {
+      ["protocol"] {
+        enum {
+          "http"
+          "https"
+        }
+        default = "https"
+      }
+    }
+  }
+}
 
 /// Parameter name in the crud endpoint
 local parameterKVPathName = "kv_path"
@@ -43,12 +69,11 @@ paths {
     }
     description = "This path configures backend level settings that are applied to every key in the key-value store"
     get {
-      summary = "This path retrieves the current configuration for the secrets backend at the given path."
+      summary = "Get Configuration"
       description = "This path retrieves the current configuration for the secrets backend at the given path."
       operationId = "read-kv-secrets-config"
       tags {
-        "secrets"
-        "kv"
+        "key-value"
       }
       responses {
         ["200"] {
@@ -61,25 +86,14 @@ paths {
             }
           }
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
     post {
-      summary = "This path configures backend level settings that are applied to every key in the key-value store."
+      summary = "Configure Engine"
       description = "This path configures backend level settings that are applied to every key in the key-value store."
       operationId = "config-kv-secrets"
       tags {
-        "secrets"
-        "kv"
+        "key-value"
       }
       requestBody {
         required = true
@@ -92,16 +106,6 @@ paths {
       responses {
         ["204"] {
           description = "NoContent"
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
         }
       }
     }
@@ -143,11 +147,11 @@ paths {
       }
     }
     post {
-      summary = "Writes a kv secret"
+      summary = "Write Secret"
       description = "Writes a kv secret"
       operationId = "write-kv-secrets"
       tags {
-        "secrets"
+        "key-value"
       }
       requestBody {
         required = true
@@ -170,24 +174,14 @@ paths {
             }
           }
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
     get {
-      summary = "Reads an existing secret"
+      summary = "Read Secret"
       description = "Reads an existing secret"
       operationId = "read-kv-secrets"
       tags {
-        "secrets"
+        "key-value"
       }
       responses {
         ["200"] {
@@ -200,24 +194,14 @@ paths {
             }
           }
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
     patch {
-      summary = "Patch a kv secret"
+      summary = "Patch Secret"
       description = "This endpoint provides the ability to patch an existing secret at the specified location. The secret must neither be deleted nor destroyed. The calling token must have an ACL policy granting the patch capability. A new version will be created upon successfully applying a patch with the provided data."
       operationId = "patch-kv-secrets"
       tags {
-        "secrets"
+        "key-value"
       }
       requestBody {
         required = true
@@ -240,38 +224,18 @@ paths {
             }
           }
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
     `delete`{
-      summary = "This endpoint issues a soft delete of the secret's latest version at the specified location."
+      summary = "Soft delete Secret"
       description = "This endpoint issues a soft delete of the secret's latest version at the specified location. This marks the version as deleted and will stop it from being returned from reads, but the underlying data will not be removed. A delete can be undone using the undelete path."
       operationId = "delete-latest-kv-secrets"
       tags {
-        "secrets"
+        "key-value"
       }
       responses {
         ["204"] {
           description = "NoContent"
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
         }
       }
     }
@@ -303,11 +267,11 @@ paths {
       }
     }
     `post`{
-      summary = "This endpoint issues a soft delete of the specified versions of the secret."
+      summary = "Soft delete versioned secret."
       description = "This endpoint issues a soft delete of the specified versions of the secret. This marks the version as deleted and will stop it from being returned from reads, but the underlying data will not be removed. A delete can be undone using the undelete path."
       operationId = "delete-kv-secrets"
       tags {
-        "secrets"
+        "key-value"
       }
       requestBody {
         required = true
@@ -326,16 +290,6 @@ paths {
       responses {
         ["204"] {
           description = "NoContent"
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
         }
       }
     }
@@ -367,11 +321,11 @@ paths {
       }
     }
     post {
-      summary = "Undeletes the data for the provided version and path in the key-value store."
+      summary = "Restore Secret"
       description = "Undeletes the data for the provided version and path in the key-value store. This restores the data, allowing it to be returned on get requests."
       operationId = "undelete-kv-secrets"
       tags {
-        "secrets"
+        "key-value"
       }
       requestBody {
         required = true
@@ -390,16 +344,6 @@ paths {
       responses {
         ["204"] {
           description = "NoContent"
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
         }
       }
     }
@@ -431,11 +375,11 @@ paths {
       }
     }
     put {
-      summary = "Permanently removes the specified version data for the provided key and version numbers from the key-value store."
+      summary = "Destroy Secret"
       description = "Permanently removes the specified version data for the provided key and version numbers from the key-value store."
       operationId = "destroy-kv-secrets"
       tags {
-        "secrets"
+        "key-value"
       }
       requestBody {
         required = true
@@ -454,16 +398,6 @@ paths {
       responses {
         ["204"] {
           description = "NoContent"
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
         }
       }
     }
@@ -515,11 +449,11 @@ paths {
       }
     }
     get {
-      summary = "This endpoint provides the subkeys within a secret entry that exists at the requested path"
+      summary = "Get subkeys within a secret"
       description = "The secret entry at this path will be retrieved and stripped of all data by replacing underlying values of leaf keys (i.e. non-map keys or map keys with no underlying subkeys) with null."
       operationId = "subkeys-kv-secrets"
       tags {
-        "secrets"
+        "key-value"
       }
       responses {
         ["200"] {
@@ -540,16 +474,6 @@ paths {
                     }
                   }
                 }
-              }
-            }
-          }
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
               }
             }
           }
@@ -584,11 +508,11 @@ paths {
       }
     }
     get {
-      summary = "This endpoint retrieves the metadata and versions for the secret at the specified path"
+      summary = "Get Metadata"
       description = "This endpoint retrieves the metadata and versions for the secret at the specified path"
       operationId = "read-metadata-kv-secrets"
       tags {
-        "secrets"
+        "key-value"
       }
       responses {
         ["200"] {
@@ -601,6 +525,7 @@ paths {
                     properties {
                       ["created_time"] {
                         type = "string"
+                        format = "date-time"
                       }
                       ["current_version"] {
                         type = "integer"
@@ -610,6 +535,7 @@ paths {
                       }
                       ["updated_time"] {
                         type = "string"
+                        format = "date-time"
                       }
                       ["versions"] {
                         type = "object"
@@ -620,9 +546,18 @@ paths {
                           properties {
                             ["created_time"] {
                               type = "string"
+                              format = "date-time"
                             }
-                            ["deletion_time"] {
-                              type = "string"
+                            ["deletion_time"] = new {
+                              oneOf {
+                                new Schema {
+                                  type = "string"
+                                  format = "date-time"
+                                }
+                                new Schema {
+                                  type = "string"
+                                }
+                              }
                             }
                             ["destroyed"] {
                               type = "boolean"
@@ -638,7 +573,7 @@ paths {
                     required {
                       "created_time"
                       "current_version"
-                      "updated_time"
+                      // "updated_time"
                       "versions"
                     }
                   }
@@ -647,24 +582,14 @@ paths {
             }
           }
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
     post {
-      summary = "This endpoint creates or updates the metadata of a secret at the specified location."
+      summary = "Create or Update metadata"
       description = "This endpoint creates or updates the metadata of a secret at the specified location. It does not create a new version."
       operationId = "update-metadata-kv-secrets"
       tags {
-        "secrets"
+        "key-value"
       }
       requestBody {
         required = true
@@ -678,38 +603,18 @@ paths {
         ["204"] {
           description = "Metadata updated"
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
     `delete` {
-      summary = "This endpoint permanently deletes the key metadata and all version data for the specified key."
+      summary = "Delete Metadata"
       description = "This endpoint permanently deletes the key metadata and all version data for the specified key. All version history will be removed."
       operationId = "delete-metadata-kv-secrets"
       tags {
-        "secrets"
+        "key-value"
       }
       responses {
         ["204"] {
           description = "All metadata has been deleted"
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
         }
       }
     }
@@ -717,6 +622,28 @@ paths {
 }
 
 components {
+  parameters {
+    ...CommonComponents.parameters
+  }
+  schemas {
+    ...kvComponents.schemas
+
+    ["VaultErrorsResponseBody"] {
+      type = "object"
+      properties {
+        ["errors"] {
+          type = "array"
+          description = "List of errors"
+          items = new Schema {
+            type = "string"
+          }
+        }
+      }
+    }
+  }
+}
+
+hidden kvComponents: Components = new {
   schemas {
     ["KVSecretConfigResponse"] = (VaultDataResponse) {
       properties {

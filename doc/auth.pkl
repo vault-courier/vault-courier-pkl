@@ -13,55 +13,55 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //===----------------------------------------------------------------------===//
-module VaultApiResponse extends "@openapi/Schema.pkl"
+
+amends "@openapi/Document.pkl"
 
 import "@openapi/Schema.pkl"
-import "@openapi/Reference.pkl"
 
-type = "object"
+import "../CommonComponents.pkl"
 
-properties {
-  ["request_id"] {
-    type = "string"
-  }
+import "../AuthMethods/AppRoleAuthOpenApi.pkl" as AppRoleAuth
+import "../AuthMethods/TokenAuthOpenApi.pkl" as TokenAuth
 
-  ["lease_id"] {
-    type = "string"
-  }
-
-  ["renewable"] {
-    type = "boolean"
-  }
-
-  ["lease_duration"] {
-    type = "integer"
-  }
-
-  ["data"] {
-    type = "object"
-  }
-
-  ["wrap_info"] {
-    type = "object"
-  }
-
-  ["warnings"] {
-    type = "array"
-    description = "A list of warnings, e.g. ignored parameters"
-    items = new Schema {
-      type = "string"
-    }
-  }
-
-  ["auth"] {
-    type = "object"
-  }
-  
-  ["mount_type"] {
-    type = "string"
+info {
+  title = "Vault Courier Authentication API"
+  description = "Supported Authentication Methods for interacting with Hashicorp Vault and OpenBao"
+  version = "0.2.0"
+  license {
+    name = "Apache License 2.0"
   }
 }
 
-required {
-  "request_id"
+servers {
+  new { 
+    url = "https://127.0.0.1:8200/v1"
+    description = "Default https server url"
+  }
+}
+
+tags {
+  new {
+    name = "approle"
+  }
+  new {
+    name = "token"
+  }
+}
+
+paths {
+  ...AppRoleAuth.paths
+  ...TokenAuth.paths
+}
+
+components {
+  parameters {
+    ...CommonComponents.parameters
+  }
+  schemas {
+    ...AppRoleAuth.appRoleComponents.schemas
+
+    ...TokenAuth.tokenComponents.schemas
+
+    ...CommonComponents.schemas
+  }
 }

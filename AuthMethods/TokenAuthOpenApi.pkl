@@ -14,23 +14,38 @@
 //  limitations under the License.
 //===----------------------------------------------------------------------===//
 
-/// The token auth method is built-in and automatically available at `/auth/token`. It allows users to authenticate using a token, as well to create new tokens, revoke secrets by token, and more.
-/// When any other auth method returns an identity, Vault core invokes the token method to create a new unique token for that identity.
-/// The token store can also be used to bypass any other auth method: you can create tokens directly, as well as perform a variety of other operations on tokens such as renewal and revocation.
-/// [Token concepts](https://developer.hashicorp.com/vault/docs/concepts/tokens)
-/// [API](https://developer.hashicorp.com/vault/api-docs/auth/token)
-module TokenAuth
+extends "@openapi/Document.pkl"
 
-amends "@openapi/Document.pkl"
-import "@openapi/Reference.pkl"
+import "@openapi/Components.pkl"
 import "@openapi/Schema.pkl"
 import "@openapi/HTTPResponse.pkl"
 
 import ".../VaultDataResponse.pkl"
 import ".../VaultRequestBody.pkl"
+import ".../CommonComponents.pkl"
 
 /// Parameter name in the crud endpoint
 local parameterRoleName = "role_name"
+
+info {
+  title = "Vault Courier Token Authentication Method"
+  description = "Token Authentication endpoints. VaultCourier is a Swift client for Hashicorp Vault and OpenBao"
+  version = "0.1.0"
+  license {
+    name = "Apache License 2.0"
+  }
+}
+
+servers {
+  new { 
+    url = "http://127.0.0.1:8200/v1"
+    description = "Default http server url"
+  }
+  new { 
+    url = "https://127.0.0.1:8200/v1"
+    description = "Default https server url"
+  }
+}
 
 paths {
   ["/auth/token/create"] {
@@ -44,10 +59,10 @@ paths {
       }
     }
     post {
-      summary = "The token create path is used to create new tokens."
+      summary = "Create new Token"
       operationId = "token-create"
       tags {
-        "auth"
+        "token"
       }
       requestBody {
         content {
@@ -70,16 +85,6 @@ paths {
             }
           }
         }
-        [HTTPResponse.BadRequest] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
   }
@@ -92,11 +97,10 @@ paths {
       }
     }
     post {
-      summary = "Returns information about the given token."
+      summary = "Lookup Token"
       description = "Returns information about the given token."
       operationId = "lookup-token"
       tags {
-        "auth"
         "token"
       }
       requestBody {
@@ -120,16 +124,6 @@ paths {
             }
           }
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
   }
@@ -142,11 +136,10 @@ paths {
       }
     }
     post {
-      summary = "Returns information about the current client token."
+      summary = "Lookup client Token"
       description = "Returns information about the current client token."
       operationId = "lookup-token-self"
       tags {
-        "auth"
         "token"
       }
       responses {
@@ -156,16 +149,6 @@ paths {
             ["application/json"] {
               schema = new Reference {
                 `$ref` = "#/components/schemas/TokenLookupResponse"
-              }
-            }
-          }
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
               }
             }
           }
@@ -182,11 +165,10 @@ paths {
       }
     }
     post {
-      summary = "Returns information about the client token from the accessor."
+      summary = "Lookup Token via accessor"
       description = "Returns information about the client token from the accessor."
       operationId = "lookup-token-accessor"
       tags {
-        "auth"
         "token"
       }
       requestBody {
@@ -210,16 +192,6 @@ paths {
             }
           }
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
   }
@@ -235,10 +207,11 @@ paths {
       }
     }
     post {
-      summary = "This endpoint will renew the given token and prevent expiration."
+      summary = "Renew Token"
+      description = "This endpoint will renew the given token and prevent expiration."
       operationId = "token-renew"
       tags {
-        "auth"
+        "token"
       }
       requestBody {
         content {
@@ -261,16 +234,6 @@ paths {
             }
           }
         }
-        [HTTPResponse.BadRequest] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
   }
@@ -286,10 +249,11 @@ paths {
       }
     }
     post {
-      summary = "Renews a lease associated with the calling token."
+      summary = "Renew client Token"
+      description = "Renews a lease associated with the calling token."
       operationId = "token-renew-self"
       tags {
-        "auth"
+        "token"
       }
       requestBody {
         content {
@@ -312,16 +276,6 @@ paths {
             }
           }
         }
-        [HTTPResponse.BadRequest] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
   }
@@ -337,10 +291,11 @@ paths {
       }
     }
     post {
-      summary = "Renews a lease associated with a token using its accessor."
+      summary = "Renew Token via accessor."
+      description = "Renews a lease associated with a token using its accessor."
       operationId = "token-renew-accessor"
       tags {
-        "auth"
+        "token"
       }
       requestBody {
         content {
@@ -363,16 +318,6 @@ paths {
             }
           }
         }
-        [HTTPResponse.BadRequest] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
   }
@@ -388,10 +333,11 @@ paths {
       }
     }
     post {
-      summary = "Revokes a token and all child tokens. When the token is revoked, all dynamic secrets generated with it are also revoked."
+      summary = "Revoke Token"
+      description = "Revokes a token and all child tokens. When the token is revoked, all dynamic secrets generated with it are also revoked."
       operationId = "token-revoke"
       tags {
-        "auth"
+        "token"
       }
       requestBody {
         content {
@@ -406,16 +352,6 @@ paths {
       responses {
         ["204"] {
           description = "NoContent"
-        }
-        [HTTPResponse.BadRequest] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
         }
       }
     }
@@ -432,24 +368,15 @@ paths {
       }
     }
     post {
-      summary = "Revokes the token used to call it and all child tokens. When the token is revoked, all dynamic secrets generated with it are also revoked."
+      summary = "Revoke client Token"
+      description = "Revokes the token used to call it and all child tokens. When the token is revoked, all dynamic secrets generated with it are also revoked."
       operationId = "token-revoke-self"
       tags {
-        "auth"
+        "token"
       }
       responses {
         ["204"] {
           description = "NoContent"
-        }
-        [HTTPResponse.BadRequest] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
         }
       }
     }
@@ -466,10 +393,11 @@ paths {
       }
     }
     post {
-      summary = "Revoke the token associated with the accessor and all the child tokens. This is meant for purposes where there is no access to token ID but there is need to revoke a token and its children."
+      summary = "Revoke token via accessor"
+      description = "Revoke the token associated with the accessor and all the child tokens. This is meant for purposes where there is no access to token ID but there is need to revoke a token and its children."
       operationId = "token-revoke-accessor"
       tags {
-        "auth"
+        "token"
       }
       requestBody {
         content {
@@ -485,22 +413,12 @@ paths {
         ["204"] {
           description = "NoContent"
         }
-        [HTTPResponse.BadRequest] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
   }
 
   ["/auth/token/revoke-orphan"] {
-    description = "Revokes a token but not its child tokens. When the token is revoked, all secrets generated with it are also revoked. All child tokens are orphaned, but can be revoked sub-sequently using /auth/token/revoke/. This is a root-protected endpoint."
+    description = "Revokes a token but not its child tokens. When the token is revoked, all secrets generated with it are also revoked. All child tokens are orphaned, but can be revoked sub-sequently using `/auth/token/revoke/`. This is a root-protected endpoint."
     parameters {
       new Reference {
         `$ref` = "#/components/parameters/VaultTokenHeader"
@@ -510,10 +428,11 @@ paths {
       }
     }
     post {
-      summary = "Revokes a token but not its child tokens. When the token is revoked, all secrets generated with it are also revoked. All child tokens are orphaned, but can be revoked sub-sequently using /auth/token/revoke/. This is a root-protected endpoint."
+      summary = "Revoke Orphan Token"
+      description = "Revokes a token but not its child tokens. When the token is revoked, all secrets generated with it are also revoked. All child tokens are orphaned, but can be revoked sub-sequently using `/auth/token/revoke/`. This is a root-protected endpoint."
       operationId = "token-revoke-orphan"
       tags {
-        "auth"
+        "token"
       }
       requestBody {
         content {
@@ -528,16 +447,6 @@ paths {
       responses {
         ["204"] {
           description = "NoContent"
-        }
-        [HTTPResponse.BadRequest] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
         }
       }
     }
@@ -560,11 +469,10 @@ paths {
       }
     }
     get {
-      summary = "Fetches the named role configuration."
+      summary = "Get token role configuration"
       description = "Fetches the named role configuration."
       operationId = "read-token-role"
       tags {
-        "auth"
         "token"
       }
       responses {
@@ -578,24 +486,14 @@ paths {
             }
           }
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
     post {
-      summary = "Creates (or replaces) the named role"
+      summary = "Create/Update token role"
       description = "Creates (or replaces) the named role. Roles enforce specific behavior when creating tokens that allow token functionality that is otherwise not available or would require sudo/root privileges to access. Role parameters, when set, override any provided options to the create endpoints. The role name is also included in the token path, allowing all tokens created against a role to be revoked using the `/sys/leases/revoke-prefix` endpoint."
       operationId = "update-token-role"
       tags {
-        "auth"
+        "token"
       }
       requestBody {
         content {
@@ -611,38 +509,18 @@ paths {
         ["204"] {
           description = "NoContent"
         }
-        [HTTPResponse.BadRequest] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
     `delete` {
-      summary = "Deletes the named token role."
+      summary = "Delete token role."
       description = "deletes the named token role."
       operationId = "delete-token-role"
       tags {
-        "auth"
+        "token"
       }
       responses {
         ["204"] {
           description = "NoContent"
-        }
-        [HTTPResponse.BadRequest] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
         }
       }
     }
@@ -650,6 +528,16 @@ paths {
 }
 
 components {
+  parameters {
+    ...CommonComponents.parameters
+  }
+  schemas {
+    ...tokenComponents.schemas
+    ...CommonComponents.schemas
+  }
+}
+
+hidden tokenComponents: Components = new {
   schemas {
     ["TokenCreateRequest"] = VaultRequestBody.createToken
 

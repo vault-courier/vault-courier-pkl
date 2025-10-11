@@ -76,9 +76,12 @@ class RotationSchedule {
   window: Duration?
 }
 
+/// Specifies the amount of time Vault should wait before rotating the password. The minimum is 5 seconds.
 class RotationPeriod {
-  period: Duration
+  period: Duration(isAtLeastFiveSeconds)
 }
+
+const hidden isAtLeastFiveSeconds = (d: Duration) -> d > 5.s
 
 class PasswordCredential {
   passwordPolicy: String?

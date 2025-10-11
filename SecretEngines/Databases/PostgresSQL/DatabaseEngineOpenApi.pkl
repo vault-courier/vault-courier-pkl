@@ -14,15 +14,41 @@
 //  limitations under the License.
 //===----------------------------------------------------------------------===//
 
-/// Endpoints to manage Database secret engine. The engine base path is parametric.
-/// This module contains all the generic schemas for the database engine
-/// https://developer.hashicorp.com/vault/api-docs/secret/databases#configure-connection
-module PostgresDatabaseConfiguration
+extends "@openapi/Document.pkl"
 
-amends "@openapi/Document.pkl"
-import "@openapi/PathItem.pkl"
-import "@openapi/Reference.pkl"
+import "@openapi/Components.pkl"
 import "@openapi/Schema.pkl"
+import "@openapi/HTTPResponse.pkl"
+
+import ".../VaultApiResponse.pkl"
+import ".../VaultDataResponse.pkl"
+import ".../VaultRequestBody.pkl"
+import ".../CommonComponents.pkl"
+
+info {
+  title = "Vault Courier Database Secret Engine API"
+  description = "KeyValue endpoints. Vault Courier is a Swift client for Hashicorp Vault and OpenBao"
+  version = "0.2.0"
+  license {
+    name = "Apache License 2.0"
+  }
+}
+
+servers {
+  new { 
+    url = "{protocol}://127.0.0.1:8200/v1"
+    description = "Default server url"
+    variables {
+      ["protocol"] {
+        enum {
+          "http"
+          "https"
+        }
+        default = "https"
+      }
+    }
+  }
+}
 
 /// Parameter name in the crud endpoint
 local parameterConnectionName = "connection_name"
@@ -57,11 +83,10 @@ paths {
       }
     }
     get {
-      summary = "This endpoint returns the configuration settings for a connection."
+      summary = "Get Connection Config"
       description = "Read database connection configuration"
       operationId = "read-database-configuration"
       tags {
-        "secrets"
         "database"
       }
       responses {
@@ -75,34 +100,13 @@ paths {
             }
           }
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
     post {
-      summary = "This endpoint configures the connection string used to communicate with the desired database"
+      summary = "Configures vault database connection"
       description = "This endpoint configures the connection string used to communicate with the desired database"
       operationId = "configure-database"
       tags {
-        "secrets"
         "database"
       }
       requestBody {
@@ -119,26 +123,6 @@ paths {
         ["204"] {
           description = "OK"
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
 
@@ -147,33 +131,11 @@ paths {
       description = "This endpoint deletes a connection"
       operationId = "delete-database-connection"
       tags {
-        "secrets"
         "database"
       }
       responses {
         ["204"] {
           description = "No Content"
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
-
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
         }
       }
     }
@@ -205,36 +167,15 @@ paths {
       }
     }
     post {
-      summary = "This endpoint closes a connection"
+      summary = "Reset database connection"
       description = "This endpoint closes a connection and it's underlying plugin and restarts it with the configuration stored in the barrier."
       operationId = "database-reset"
       tags {
-        "secrets"
         "database"
       }
       responses {
         ["204"] {
           description = "OK"
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
         }
       }
     }
@@ -266,36 +207,15 @@ paths {
       }
     }
     post {
-      summary = "This endpoint performs the same operation as reset connection but for all connections that reference a specific plugin name"
+      summary = "Reload database plugin"
       description = "This endpoint performs the same operation as reset connection but for all connections that reference a specific plugin name. This can be useful to restart a specific plugin after it's been upgraded in the plugin catalog."
       operationId = "reload-database-plugin"
       tags {
-        "secrets"
         "database"
       }
       responses {
         ["204"] {
           description = "OK"
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
         }
       }
     }
@@ -327,26 +247,15 @@ paths {
       }
     }
     post {
-      summary = "Rotate the vaults 'root' postgres role credentials"
+      summary = "Rotate Vault's 'root' role credentials"
       description = "the root user's password will not be accessible once rotated so it is highly recommended that you create a user for Vault to utilize rather than using the actual root user."
       operationId = "database-rotate-root"
       tags {
-        "secrets"
         "database"
       }
       responses {
         ["204"] {
           description = "OK"
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
         }
       }
     }
@@ -378,11 +287,10 @@ paths {
       }
     }
     post {
-      summary = "Creates or updates a static role definition"
+      summary = "Creates or updates a static role"
       description = "Vault will rotate the password when creating a static role. Vault must do this in order to know the password."
       operationId = "database-create-static-role"
       tags {
-        "secrets"
         "database"
       }
       requestBody {
@@ -402,34 +310,13 @@ paths {
         ["204"] {
           description = "No Content"
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
     get {
-      summary = "Creates or updates a static role definition"
+      summary = "Creates or updates a static role"
       description = "This endpoint queries the static role definition."
       operationId = "database-read-static-role"
       tags {
-        "secrets"
         "database"
       }
       responses {
@@ -443,61 +330,18 @@ paths {
             }
           }
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
-
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
     `delete` {
-      summary = "Deletes a static role definition"
+      summary = "Deletes a static role"
       description = "This endpoint deletes the static role definition. The user, having been defined externally, must be cleaned up manually."
       operationId = "database-delete-static-role"
       tags {
-        "secrets"
         "database"
       }
       responses {
         ["204"] {
           description = "No Content"
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
-
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
         }
       }
     }
@@ -529,12 +373,11 @@ paths {
       }
     }
     get {
-      summary = "Read current credentials based on the named static role."
+      summary = "Read static role credentials"
       description = "returns the current credentials based on the named static role."
       operationId = "database-read-static-role-credentials"
       tags {
-        "secrets"
-        "database"
+        "database/postgres"
       }
       responses {
         ["200"] {
@@ -543,27 +386,6 @@ paths {
             ["application/json"] {
               schema = new Reference {
                 `$ref` = "#/components/schemas/ReadStaticRoleCredentialsResponse"
-              }
-            }
-          }
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
-
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
               }
             }
           }
@@ -598,19 +420,26 @@ paths {
       }
     }
     post {
-      summary = "Creates or updates a role definition"
+      summary = "Creates or updates a dynamic role"
       description = "Creates or updates a dynamic role definition. This endpoint distinguishes between create and update ACL capabilities."
       operationId = "database-create-role"
       tags {
-        "secrets"
-        "database"
+        "database/postgres"
+        "database/valkey"
       }
       requestBody {
         required = true
         content {
           ["application/json"] {
-            schema = new Reference {
-              `$ref` = "#/components/schemas/WriteRoleRequest"
+            schema = new Schema {
+              oneOf {
+                new Reference {
+                  `$ref` = "#/components/schemas/WritePostgresRoleRequest"
+                }
+                new Reference {
+                  `$ref` = "#/components/schemas/WriteValkeyRoleRequest"
+                }
+              }
             }
           }
         }
@@ -619,35 +448,13 @@ paths {
         ["204"] {
           description = "No Content"
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
-
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
     get {
-      summary = "Queries the role definition"
+      summary = "Read role"
       description = "This endpoint queries the role definition."
       operationId = "database-read-role"
       tags {
-        "secrets"
         "database"
       }
       responses {
@@ -661,61 +468,18 @@ paths {
             }
           }
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
-
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
     `delete` {
-      summary = "Deletes a role definition"
+      summary = "Delete role"
       description = "This endpoint deletes the dynamic role definition. The user, having been defined externally, must be cleaned up manually."
       operationId = "database-delete-role"
       tags {
-        "secrets"
         "database"
       }
       responses {
         ["204"] {
           description = "No Content"
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
-
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
         }
       }
     }
@@ -747,11 +511,10 @@ paths {
       }
     }
     get {
-      summary = "Read current credentials based on the named role."
+      summary = "Read dynamic role credentials."
       description = "returns the current credentials based on the named role."
       operationId = "database-read-role-credentials"
       tags {
-        "secrets"
         "database"
       }
       responses {
@@ -765,54 +528,40 @@ paths {
             }
           }
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
+      }
+    }
+  }
+}
 
-        ["500"] {
-          description = "Internal Server Error"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
+components {
+  parameters {
+    ...CommonComponents.parameters
+  }
+  schemas {
+    ...databaseComponents.schemas
+
+    ["VaultErrorsResponseBody"] {
+      type = "object"
+      properties {
+        ["errors"] {
+          type = "array"
+          description = "List of errors"
+          items = new Schema {
+            type = "string"
           }
         }
       }
     }
   }
 
+
 }
 
-components {
+hidden databaseComponents: Components = new {
   schemas {
-    ["ReadStaticRoleResponse"] {
+    ["ReadStaticRoleResponse"] = (VaultDataResponse) {
       type = "object"
       properties {
-        ["request_id"] {
-          type = "string"
-          description = "the id of the request associated with this response"
-        }
-        ["lease_id"] {
-          type = "string"
-        }
-        ["renewable"] {
-          type = "boolean"
-        }
-        ["lease_duration"] {
-          type = "integer"
-        }
-        ["mount_type"] {
-          type = "string"
-        }
         ["data"] {
           type = "object"
           properties {
@@ -847,44 +596,22 @@ components {
           }
           required {
             "db_name"
-            "credential_type"
             "last_vault_rotation"
             "username"
           }
         }
       }
-      required {
-        "request_id"
-        "mount_type"
-        "renewable"
-        "data"
-      }
     }
 
-    ["ReadStaticRoleCredentialsResponse"] {
+    ["ReadStaticRoleCredentialsResponse"] = (VaultDataResponse) {
       type = "object"
       properties {
-        ["request_id"] {
-          type = "string"
-          description = "the id of the request associated with this response"
-        }
-        ["lease_id"] {
-          type = "string"
-        }
-        ["renewable"] {
-          type = "boolean"
-        }
-        ["lease_duration"] {
-          type = "integer"
-        }
-        ["mount_type"] {
-          type = "string"
-        }
         ["data"] {
           type = "object"
           properties {
             ["last_vault_rotation"] {
               type = "string"
+              format = "date-time"
             }
             ["rotation_schedule"] {
               type = "string"
@@ -913,32 +640,11 @@ components {
           }
         }
       }
-      required {
-        "request_id"
-        "renewable"
-        "data"
-      }
     }
 
-    ["ReadRoleResponse"] {
+    ["ReadRoleResponse"] = (VaultDataResponse) {
       type = "object"
       properties {
-        ["request_id"] {
-          type = "string"
-          description = "the id of the request associated with this response"
-        }
-        ["lease_id"] {
-          type = "string"
-        }
-        ["renewable"] {
-          type = "boolean"
-        }
-        ["lease_duration"] {
-          type = "integer"
-        }
-        ["mount_type"] {
-          type = "string"
-        }
         ["data"] {
           type = "object"
           properties {
@@ -965,6 +671,7 @@ components {
               description = "Database statements executed to create and configure a user"
               items = new Schema {
                 type = "string"
+                format = "byte"
               }
             }
             ["revocation_statements"] {
@@ -1005,14 +712,9 @@ components {
           }
         }
       }
-      required {
-        "request_id"
-        "mount_type"
-        "renewable"
-        "data"
-      }
     }
-    ["WriteRoleRequest"] {
+
+    ["WritePostgresRoleRequest"] {
       type = "object"
       properties {
         ["db_name"] {
@@ -1079,6 +781,35 @@ components {
       }
     }
 
+    ["WriteValkeyRoleRequest"] {
+      type = "object"
+      properties {
+        ["db_name"] {
+          type = "string"
+          description = "The name of the database connection to use for this role."
+        }
+        ["default_ttl"] {
+          type = "string"
+          description = "Specifies the TTL for the leases associated with this role. Accepts time suffixed strings (1h) or an integer number of seconds. Defaults to system/engine default TTL time."
+        }
+        ["max_ttl"] {
+          type = "string"
+          description = "Specifies the maximum TTL for the leases associated with this role. Accepts time suffixed strings (1h) or an integer number of seconds. Defaults to sys/mounts's default TTL time; this value is allowed to be less than the mount max TTL (or, if not set, the system max TTL), but it is not allowed to be longer. See also The TTL General Case."
+        }
+        ["creation_statements"] {
+          type = "array"
+          description = "Specifies the database statements executed to create and configure a user."
+          items = new Schema {
+            type = "string"
+          }
+        }
+      }
+      required {
+        "db_name"
+        "creation_statements"
+      }
+    }
+
     ["WriteStaticRoleRequest"] {
       type = "object"
       properties {
@@ -1125,119 +856,106 @@ components {
         "db_name"
       }
     }
+
     ["DatabaseConfigRequest"] {
       type = "object"
       properties {
-        ["plugin_name"] {
+        ["plugin_name"] { // parent
           type = "string"
         }
-        ["verify_connection"] {
+        ["plugin_version"] { // parent
+          type = "string"
+        }
+        ["verify_connection"] { // parent
           type = "boolean"
         }
-        ["allowed_roles"] {
+        ["allowed_roles"] { // parent
           type = "array"
           description = "List of the roles allowed to use this connection. Defaults to empty (no roles), if contains a * any role can use this connection."
           items = new Schema {
             type = "string"
           }
         }
-        ["connection_url"] {
+        ["connection_url"] { // postgres
           type = "string"
           description = "Specifies the PostgreSQL DSN. This field can be templated and supports passing the username and password parameters in the following format {{field_name}}. Certificate authentication can be used by setting ?sslmode= to be any of the applicable values as outlined in the Postgres SQL documentation and giving the SSL credentials in the sslrootcert, sslcert and sslkey credentials. A templated connection URL is required when using root credential rotation. This field supports both format string types, URI and keyword/value. Both formats support multiple host connection strings. Due to how pgx works, parameters such as sslrootcert, sslcert, sslkey are treated as paths on the Vault server."
         }
-        ["max_open_connections"] {
+        ["max_open_connections"] { // postgres
           type = "integer"
           description = "Specifies the maximum number of open connections to the database. Defaults to 4 in v1.18.x"
         }
-        ["max_idle_connections"] {
+        ["max_idle_connections"] { // postgres
           type = "integer"
           description = "Specifies the maximum number of idle connections to the database. A zero uses the value of max_open_connections and a negative value disables idle connections. If larger than 'max_open_connections' it will be reduced to be equal. Defaults to zero"
         }
-        ["max_connection_lifetime"] {
+        ["max_connection_lifetime"] { // postgres
           type = "string"
           description = "Specifies the maximum amount of time a connection may be reused. If <= 0s, connections are reused forever. Defaults to '0s'"
         }
-        ["username"] {
+        ["username"] { // postgres
           type = "string"
           description = "The root credential username used in the connection URL."
         }
-        ["password"] {
+        ["password"] { // postgres
           type = "string"
           description = "The root credential password used in the connection URL"
         }
-        ["tls_ca"] {
+        ["tls_ca"] { // postgres-hcp
           type = "string"
           description = "The x509 CA file for validating the certificate presented by the PostgreSQL server. Must be PEM encoded."
         }
-        ["tls_certificate"] {
+        ["tls_certificate"] { // postgres-hcp
           type = "string"
           description = "The x509 client certificate for connecting to the database. Must be PEM encoded."
         }
-        ["private_key"] {
+        ["private_key"] { // postgres-hcp
           type = "string"
           description = "The secret key used for the x509 client certificate. Must be PEM encoded."
         }
-        ["username_template"] {
+        ["username_template"] { // postgres-hcp
           type = "string"
           description = "Template describing how dynamic usernames are generated."
         }
-        ["disable_escaping"] {
+        ["disable_escaping"] { // postgres
           type = "boolean"
           description = "Turns off the escaping of special characters inside of the username and password fields. See the databases secrets engine docs for more information. Defaults to false."
         }
-        ["password_authentication"] {
-          //       // schema = new Schema {
-          //       //   anyOf {
-          //       //     new Reference {
-          //       //       `$ref` = "#/components/schemas/GenerateAppRoleSecretIdResponse"
-          //       //     }
-          //       //     new Reference {
-          //       //       `$ref` = "#/components/schemas/WrapAppRoleSecretIdResponse"
-          //       //     }
-          //       //   }
-          //       // }
-          // enum {
-          //   "password"
-          //   "scram-sha-256"
-          // }
-          
+        ["password_authentication"] { // postgres
           type = "string"
           description = "When set to 'scram-sha-256', passwords will be hashed by Vault and stored as-is by PostgreSQL. Using \"scram-sha-256\" requires a minimum version of PostgreSQL 10. Available options are \"scram-sha-256\" and \"password\". The default is \"password\". When set to \"password\", passwords will be sent to PostgreSQL in plaintext format and may appear in PostgreSQL logs as-is. For more information, please refer to the PostgreSQL documentation."
+          enum {
+            "password"
+            "scram-sha-256"
+          }
         }
-        ["root_rotation_statements"] {
+        ["root_rotation_statements"] { // parent
           type = "array"
           description = "Specifies the database statements to be executed to rotate the root user's credentials. See the plugin's API page for more information on support and formatting for this parameter."
           items = new Schema {
             type = "string"
           }
         }
+        ["password_policy"] { // openbao
+          type = "string"
+          description = "The name of the password policy to use when generating passwords for this database. If not specified, this will use a default policy defined as: 20 characters with at least 1 uppercase, 1 lowercase, 1 number, and 1 dash character."
+        }
+        ["host"] { // valkey
+          type = "string"
+          description = "Valkey host"
+        }
+        ["port"] { // valkey
+          type = "string"
+          description = "Valkey port"
+        }
       }
       required {
         "plugin_name"
-        "connection_url"
       }
     }
 
-    ["ReadDatabaseConfigResponse"] {
+    ["ReadDatabaseConfigResponse"] = (VaultDataResponse) {
       type = "object"
       properties {
-        ["request_id"] {
-          type = "string"
-          description = "the id of the request associated with this response"
-        }
-        ["lease_id"] {
-          type = "string"
-        }
-        ["renewable"] {
-          type = "boolean"
-        }
-        ["lease_duration"] {
-          type = "integer"
-        }
-        ["mount_type"] {
-          type = "string"
-          description = "Only present in hashicorp-vault"
-        }
         ["data"] {
           type = "object"
           properties {
@@ -1247,25 +965,7 @@ components {
                 type = "string"
               }
             }
-            ["connection_details"] {
-              type = "object"
-              properties {
-                ["connection_url"] {
-                  type = "string"
-                }
-                ["password_authentication"] {
-                  type = "string"
-                }
-                ["username"] {
-                  type = "string"
-                }
-              }
-              required {
-                "connection_url"
-                "password_authentication"
-                "username"
-              }
-            }
+            ["connection_details"] = connectionConfig
             ["password_policy"] {
               type = "string"
             }
@@ -1284,42 +984,17 @@ components {
           }
           required {
             "allowed_roles"
-            "connection_details"
           }
         }
       }
-      required {
-        "request_id"
-        "renewable"
-        "data"
-      }
     }
 
-    ["ReadRoleCredentialsResponse"] {
+    ["ReadRoleCredentialsResponse"] = (VaultDataResponse) {
       type = "object"
       properties {
-        ["request_id"] {
-          type = "string"
-          description = "the id of the request associated with this response"
-        }
-        ["lease_id"] {
-          type = "string"
-        }
-        ["renewable"] {
-          type = "boolean"
-        }
-        ["lease_duration"] {
-          type = "integer"
-        }
-        ["mount_type"] {
-          type = "string"
-        }
         ["data"] {
           type = "object"
           properties {
-            ["last_vault_rotation"] {
-              type = "string"
-            }
             ["ttl"] {
               type = "integer"
             }
@@ -1336,11 +1011,81 @@ components {
           }
         }
       }
-      required {
-        "request_id"
-        "renewable"
-        "data"
-      }
     }
   }
 }
+
+hidden connectionConfig: Schema.PropertySchema = new {
+  anyOf {
+    new Schema {
+      oneOf {
+        new Schema {
+          type = "object"
+          properties {
+            ["connection_url"] {
+              type = "string"
+            }
+            ["password_authentication"] {
+              type = "string"
+            }
+            ["username"] {
+              type = "string"
+            }
+          }
+          required {
+            "connection_url"
+            "password_authentication"
+            "username"
+          }
+        }
+        new Schema {
+          type = "object"
+          properties {
+            ["username"] {
+              type = "string"
+            }
+            ["host"] {
+              type = "string"
+            }
+            ["port"] {
+              type = "string"
+            }
+            ["insecure_tls"] {
+              type = "boolean"
+            }
+            ["tls"] {
+              type = "boolean"
+            }
+          }
+          required {
+            "port"
+            "host"
+            "username"
+          }
+        }
+      }
+    }
+    new Schema {
+      type = "object"
+    }
+  }
+}
+
+hidden createRole: Schema.PropertySchema = new {
+  anyOf {
+    new Schema {
+      oneOf {
+        new Reference {
+          `$ref` = "#/components/schemas/WritePostgresRoleRequest"
+        }
+        new Reference {
+          `$ref` = "#/components/schemas/WriteValkeyRoleRequest"
+        }
+      }
+    }
+    new Schema {
+      type = "object"
+    }
+  }
+}
+

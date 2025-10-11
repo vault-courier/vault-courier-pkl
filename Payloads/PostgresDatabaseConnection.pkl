@@ -22,7 +22,7 @@ module PostgresDatabaseConnection
 enginePath: String?
 
 /// The name of the connection
-connection: String
+connection: String(!isBlank)
 
 /// The database's name which the vault role is going to admin
 hidden databaseName: String
@@ -39,8 +39,8 @@ verify_connection: Boolean? = true
 /// Currently, roles and connections are bounded if this parameter is different than `*`. This means credentials cannot be generated and accessed by a role which is not on the list.
 allowed_roles: Listing<String>?
 
-/// Localhost or ipv4 host address
-hidden host: "localhost"|String(matches(Regex(#"((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}"#)))
+/// ipv4 host address, localhost or any string matching aliases in hosts file.
+hidden host: String(!isBlank)
 
 hidden port: UInt16
 

@@ -1,0 +1,70 @@
+//===----------------------------------------------------------------------===//
+//  Copyright (c) 2025 Javier Cuesta
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//===----------------------------------------------------------------------===//
+
+amends "@openapi/Document.pkl"
+
+import "@openapi/Schema.pkl"
+
+import "../CommonComponents.pkl"
+
+import "../SysWrappingOpenApi.pkl" as Wrapping
+import "../SystemBackend/SysAuthOpenApi.pkl" as Auth
+import "../SysPoliciesOpenApi.pkl" as PoliciesACL
+import "../SysMountsOpenApi.pkl" as Mounts
+
+info {
+  title = "Vault Courier Authentication API"
+  description = "API client for Hashicorp Vault and OpenBao"
+  version = "0.2.0"
+  license {
+    name = "Apache License 2.0"
+  }
+}
+
+servers {
+  new { 
+    url = "https://127.0.0.1:8200/v1"
+    description = "Default https server url"
+  }
+}
+
+tags {
+  new {
+    name = "policies"
+  }
+  new {
+    name = "wrapping"
+  }
+}
+
+paths {
+  ...Wrapping.paths
+  ...Auth.paths
+  ...PoliciesACL.paths
+  ...Mounts.paths
+}
+
+components {
+  parameters {
+    ...CommonComponents.parameters
+  }
+  schemas {
+    ...Auth.authComponents.schemas
+    ...PoliciesACL.policyComponents.schemas
+    ...Mounts.mountComponents.schemas
+    ...CommonComponents.schemas
+  }
+}

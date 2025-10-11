@@ -14,28 +14,49 @@
 //  limitations under the License.
 //===----------------------------------------------------------------------===//
 
-/// The approle auth method allows machines or apps to authenticate with Vault-defined roles.
-/// This auth method is oriented to automated workflows (machines and services), and is less useful
-/// for human operators. We recommend using batch tokens with the AppRole auth method.
-/// https://developer.hashicorp.com/vault/api-docs/auth/approle
-module AppRoleAuth
+extends "@openapi/Document.pkl"
 
-amends "@openapi/Document.pkl"
-import "@openapi/PathItem.pkl"
-import "@openapi/Reference.pkl"
 import "@openapi/Schema.pkl"
+import "@openapi/Components.pkl"
 import "@openapi/HTTPResponse.pkl"
 
 import ".../VaultDataResponse.pkl"
 import ".../VaultRequestBody.pkl"
+import ".../CommonComponents.pkl"
 
 /// Parameter name in the crud endpoint
 local parameterRoleName = "role_name"
 local parameterEnginePathName = "engine_path"
 
+info {
+  title = "Vault Courier AppRole Authentication API"
+  description = "API client for Hashicorp Vault and OpenBao"
+  version = "0.1.0"
+  license {
+    name = "Apache License 2.0"
+  }
+}
+
+servers {
+  new { 
+    url = "http://127.0.0.1:8200/v1"
+    description = "Default http server url"
+  }
+  new { 
+    url = "https://127.0.0.1:8200/v1"
+    description = "Default https server url"
+  }
+}
+
+tags {
+  new {
+    name = "approle"
+    description = "Authentication method"
+  }
+}
+
 paths {
   ["/auth/{\(parameterEnginePathName)}/role/{\(parameterRoleName)}"] {
-    description = "Creates a new role"
     parameters {
       new {
         name = parameterEnginePathName
@@ -60,11 +81,11 @@ paths {
       }
     }
     get {
-      summary = "Reads the properties of an existing AppRole."
+      summary = "Get AppRole properties."
       description = "Reads the properties of an existing AppRole."
       operationId = "auth-read-approle"
       tags {
-        "auth"
+        "approle"
       }
       responses {
         ["200"] {
@@ -77,24 +98,14 @@ paths {
             }
           }
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
     post {
-      summary = "Creates a new AppRole or updates an existing AppRole. AppRole Path defined for MyApp"
+      summary = "Creates or updates AppRole"
       description = "Creates a new AppRole or updates an existing AppRole. This endpoint supports both create and update capabilities."
       operationId = "auth-create-approle"
       tags {
-        "auth"
+        "approle"
       }
       requestBody {
         required = true
@@ -110,38 +121,18 @@ paths {
         ["204"] {
           description = "OK"
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
     `delete` {
-      summary = "Deletes an existing AppRole from the auth method."
-      description = "Deletes an existing AppRole"
+      summary = "Delete AppRole"
+      description = "Deletes an existing AppRole from the auth method."
       operationId = "auth-delete-approle"
       tags {
-        "auth"
+        "approle"
       }
       responses {
         ["204"] {
           description = "OK"
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
         }
       }
     }
@@ -171,31 +162,38 @@ paths {
       new Reference {
         `$ref` = "#/components/parameters/VaultTokenHeader"
       }
+      new Reference {
+        `$ref` = "#/components/parameters/WrapTTLHeader"
+      }      
     }
     get {
-      summary = "Reads the RoleID of an existing AppRole."
+      summary = "Get RoleID"
       description = "Reads the RoleID of an existing AppRole."
       operationId = "auth-read-role-id"
       tags {
-        "auth"
+        "approle"
       }
       responses {
         ["200"] {
           description = "OK"
           content {
             ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/ReadAppRoleIdResponse"
-              }
-            }
-          }
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
+              schema = new Schema {
+                anyOf {
+                  new Schema {
+                    oneOf {
+                      new Reference {
+                        `$ref` = "#/components/schemas/ReadAppRoleIdResponse"
+                      }
+                      new Reference {
+                        `$ref` = "#/components/schemas/VaultWrappedResponse"
+                      }
+                    }
+                  }
+                  new Schema {
+                    type = "object"
+                  }
+                }
               }
             }
           }
@@ -228,22 +226,16 @@ paths {
       new Reference {
         `$ref` = "#/components/parameters/VaultTokenHeader"
       }
-      new {
-        name = "X-Vault-Wrap-TTL"
-        description = "Use the X-Vault-Wrap-TTL header with any Vault API call where you want to wrap the response."
-        `in` = "header"
-        schema {
-          type = "string"
-        }
-        required = false
-      }
+      new Reference {
+        `$ref` = "#/components/parameters/WrapTTLHeader"
+      }      
     }
     post {
-      summary = "Generates and issues a new SecretID on an existing AppRole"
-      description = "Creates a new AppRole or updates an existing AppRole. This endpoint supports both create and update capabilities."
+      summary = "Generate AppRole SecretID"
+      description = "Generates and issues a new SecretID on an existing AppRole"
       operationId = "auth-approle-secret-id"
       tags {
-        "auth"
+        "approle"
       }
       requestBody {
         required = true
@@ -280,16 +272,6 @@ paths {
             }
           }
         }
-        [HTTPResponse.BadRequest] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
   }
@@ -320,11 +302,11 @@ paths {
       }
     }
     post {
-      summary = "Reads out the properties of a SecretID via the secret id accessor"
+      summary = "Get SecretID properties via accessor"
       description = "Reads out the properties of a SecretID via the secret id accessor"
       operationId = "auth-read-approle-secret-id-with-accessor"
       tags {
-        "auth"
+        "approle"
       }
       requestBody {
         required = true
@@ -351,16 +333,6 @@ paths {
             ["application/json"] {
               schema = new Reference {
                 `$ref` = "#/components/schemas/ReadAppRoleSecretIdWithAccessorResponse"
-              }
-            }
-          }
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
               }
             }
           }
@@ -396,10 +368,9 @@ paths {
     }
     post {
       summary = "Destroy an AppRole secret ID by its accessor."
-      description = "Destroy an AppRole secret ID by its accessor."
       operationId = "auth-destroy-approle-secret-id-with-accessor"
       tags {
-        "auth"
+        "approle"
       }
       requestBody {
         required = true
@@ -423,16 +394,6 @@ paths {
         ["204"] {
           description = "OK"
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
   }
@@ -454,11 +415,11 @@ paths {
       }
     }
     post {
-      summary = "Issues a Vault token based on the presented credentials"
+      summary = "Login with AppRole"
       description = "Issues a Vault token based on the presented credentials. `role_id` is always required; if `bind_secret_id` is enabled (the default) on the AppRole, `secret_id` is required too. Any other bound authentication values on the AppRole (such as client IP CIDR) are also evaluated."
       operationId = "auth-approle-login"
       tags {
-        "auth"
+        "approle"
       }
       requestBody {
         required = true
@@ -493,62 +454,22 @@ paths {
             }
           }
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponse"
-              }
-            }
-          }
-        }
       }
     }
   }
 }
 
-// UPDATE: OAS v3.2 will support custom commands
-// OpenAPI does not support LIST requests. Wait for update of Vault's API.
-// list: Path = new {
-//   name = "/auth/\(basePath)/role"
-//   item {
-//     description = "Returns a list of the existing AppRoles in the specific approle base path"
-//     list {
-//       summary = "This endpoint returns a list the existing AppRoles in the method."
-//       description = "List the existing AppRoles for this path"
-//       operationId = "auth-\(baseOpId)-list-approle"
-//       tags {
-//         "auth"
-//       }
-//       responses {
-//         ["200"] {
-//           description = "OK"
-//           content {
-//             ["application/json"] {
-//               schema = new Reference {
-//                 `$ref` = "#/components/schemas/ListAppRoleResponse"
-//               }
-//             }
-//           }
-//         }
-//         ["400"] {
-//           description = "BadRequest"
-//           content {
-//             ["application/json"] {
-//               schema = new Reference {
-//                 `$ref` = "#/components/schemas/VaultErrorsResponse"
-//               }
-//             }
-//           }
-//         }
-//       }
-//     }
-//   }
-// }
-
-
 components {
+  parameters {
+    ...CommonComponents.parameters
+  }
+  schemas {
+    ...appRoleComponents.schemas
+    ...CommonComponents.schemas
+  }
+}
+
+hidden appRoleComponents: Components = new {
   schemas {
     ["AuthCreateAppRoleRequest"] = VaultRequestBody.createAppRole
 
@@ -591,14 +512,9 @@ components {
       }
     }
 
-    ["GenerateAppRoleSecretIdResponse"] {
-      type = "object"
+    ["GenerateAppRoleSecretIdResponse"] = (VaultDataResponse) {
       properties {
-        ["request_id"] {
-          type = "string"
-        }
         ["data"] {
-          type = "object"
           properties {
             ["secret_id_accessor"] {
               type = "string"
@@ -621,17 +537,10 @@ components {
           }
         }
       }
-      required {
-        "data"
-      }
     }
 
-    ["ReadAppRoleSecretIdWithAccessorResponse"] {
-      type = "object"
+    ["ReadAppRoleSecretIdWithAccessorResponse"] = (VaultDataResponse) {
       properties {
-        ["request_id"] {
-          type = "string"
-        }
         ["data"] {
           type = "object"
           properties {
@@ -643,16 +552,22 @@ components {
             }
             ["creation_time"] {
               type = "string"
+              format = "date-time"
             }
             ["expiration_time"] {
               type = "string"
+              format = "date-time"
             }
             ["last_updated_time"] {
               type = "string"
+              format = "date-time"
             }
             ["metadata"] {
               type = "object"
               format = "kvpairs"
+              additionalProperties {
+                type = "string"
+              }
             }
             ["secret_id_accessor"] {
               type = "string"
@@ -677,9 +592,6 @@ components {
             "secret_id_num_uses"
           }
         }
-      }
-      required {
-        "data"
       }
     }
 
