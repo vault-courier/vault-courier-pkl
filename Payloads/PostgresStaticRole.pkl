@@ -81,7 +81,7 @@ class RotationPeriod {
   period: Duration(isAtLeastFiveSeconds)
 }
 
-isAtLeastFiveSeconds = (d: Duration) -> d > 5.s
+const hidden isAtLeastFiveSeconds = (d: Duration) -> d > 5.s
 
 class PasswordCredential {
   passwordPolicy: String?
