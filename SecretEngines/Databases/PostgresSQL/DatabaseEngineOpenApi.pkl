@@ -20,10 +20,10 @@ import "@openapi/Components.pkl"
 import "@openapi/Schema.pkl"
 import "@openapi/HTTPResponse.pkl"
 
-import "VaultApiResponse.pkl"
-import "VaultDataResponse.pkl"
-import "VaultRequestBody.pkl"
-import "CommonComponents.pkl"
+import ".../VaultApiResponse.pkl"
+import ".../VaultDataResponse.pkl"
+import ".../VaultRequestBody.pkl"
+import ".../CommonComponents.pkl"
 
 info {
   title = "Vault Courier Database Secret Engine API"

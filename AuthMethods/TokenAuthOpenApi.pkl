@@ -20,9 +20,9 @@ import "@openapi/Components.pkl"
 import "@openapi/Schema.pkl"
 import "@openapi/HTTPResponse.pkl"
 
-import "VaultDataResponse.pkl"
-import "VaultRequestBody.pkl"
-import "CommonComponents.pkl"
+import ".../VaultDataResponse.pkl"
+import ".../VaultRequestBody.pkl"
+import ".../CommonComponents.pkl"
 
 /// Parameter name in the crud endpoint
 local parameterRoleName = "role_name"

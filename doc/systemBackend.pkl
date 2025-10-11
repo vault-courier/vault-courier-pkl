@@ -21,7 +21,7 @@ import "@openapi/Schema.pkl"
 import "../CommonComponents.pkl"
 
 import "../SysWrappingOpenApi.pkl" as Wrapping
-import "../SysAuthOpenApi.pkl" as Auth
+import "../SystemBackend/SysAuthOpenApi.pkl" as Auth
 import "../SysPoliciesOpenApi.pkl" as PoliciesACL
 import "../SysMountsOpenApi.pkl" as Mounts
 

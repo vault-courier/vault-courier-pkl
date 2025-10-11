@@ -42,16 +42,6 @@
                 }
               }
             }
-          },
-          "400": {
-            "description": "BadRequest",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
-                }
-              }
-            }
           }
         }
       },
@@ -99,16 +89,6 @@
                 }
               }
             }
-          },
-          "400": {
-            "description": "BadRequest",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
-                }
-              }
-            }
           }
         }
       },
@@ -147,16 +127,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/VaultApiResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "BadRequest",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
                 }
               }
             }
@@ -218,7 +188,8 @@
                           "type": "string"
                         },
                         "creation_time": {
-                          "type": "string"
+                          "type": "string",
+                          "format": "date-time"
                         },
                         "creation_ttl": {
                           "type": "integer"
@@ -254,16 +225,6 @@
                 }
               }
             }
-          },
-          "400": {
-            "description": "BadRequest",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
-                }
-              }
-            }
           }
         }
       },
@@ -292,16 +253,6 @@
                 }
               }
             }
-          },
-          "400": {
-            "description": "BadRequest",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
-                }
-              }
-            }
           }
         }
       },
@@ -325,16 +276,6 @@
         "responses": {
           "204": {
             "description": "NoContent"
-          },
-          "400": {
-            "description": "BadRequest",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
-                }
-              }
-            }
           }
         }
       },
@@ -348,16 +289,6 @@
         "responses": {
           "204": {
             "description": "NoContent"
-          },
-          "400": {
-            "description": "BadRequest",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
-                }
-              }
-            }
           }
         }
       },
@@ -395,16 +326,6 @@
                 }
               }
             }
-          },
-          "400": {
-            "description": "BadRequest",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
-                }
-              }
-            }
           }
         }
       },
@@ -428,16 +349,6 @@
         "responses": {
           "204": {
             "description": "NoContent"
-          },
-          "400": {
-            "description": "BadRequest",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
-                }
-              }
-            }
           }
         }
       },
@@ -451,16 +362,6 @@
         "responses": {
           "204": {
             "description": "NoContent"
-          },
-          "400": {
-            "description": "BadRequest",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
-                }
-              }
-            }
           }
         }
       },
@@ -498,16 +399,6 @@
                 }
               }
             }
-          },
-          "400": {
-            "description": "BadRequest",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
-                }
-              }
-            }
           }
         }
       },
@@ -531,16 +422,6 @@
         "responses": {
           "204": {
             "description": "NoContent"
-          },
-          "400": {
-            "description": "BadRequest",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
-                }
-              }
-            }
           }
         }
       },
@@ -554,16 +435,6 @@
         "responses": {
           "204": {
             "description": "NoContent"
-          },
-          "400": {
-            "description": "BadRequest",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VaultErrorsResponseBody"
-                }
-              }
-            }
           }
         }
       },
@@ -1063,7 +934,8 @@
                 "type": "integer"
               },
               "creation_time": {
-                "type": "string"
+                "type": "string",
+                "format": "date-time"
               },
               "accessor": {
                 "type": "string"

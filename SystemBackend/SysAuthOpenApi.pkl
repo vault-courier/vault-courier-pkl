@@ -14,12 +14,35 @@
 //  limitations under the License.
 //===----------------------------------------------------------------------===//
 
-module SystemAuth
+extends "@openapi/Document.pkl"
 
-amends "@openapi/Document.pkl"
-import "@openapi/PathItem.pkl"
-import "@openapi/Reference.pkl"
+import "@openapi/Components.pkl"
 import "@openapi/Schema.pkl"
+import "@openapi/HTTPResponse.pkl"
+
+import ".../VaultApiResponse.pkl"
+import ".../VaultDataResponse.pkl"
+import ".../CommonComponents.pkl"
+
+info {
+  title = "Vault Courier System Auth API"
+  description = "System auth endpoints. Vault Courier is a Swift client for Hashicorp Vault and OpenBao"
+  version = "0.2.0"
+  license {
+    name = "Apache License 2.0"
+  }
+}
+
+servers {
+  new { 
+    url = "http://127.0.0.1:8200/v1"
+    description = "Default http server url"
+  }
+  new { 
+    url = "https://127.0.0.1:8200/v1"
+    description = "Default https server url"
+  }
+}
 
 paths {
   // https://developer.hashicorp.com/vault/api-docs/system/auth#enable-auth-method
@@ -40,11 +63,11 @@ paths {
       }
     }
     get {
-      summary = "Reads auth method."
-      description = "This endpoints returns the configuration of the auth method at the given path. This endpoint requires sudo capability on the final path, but the same functionality can be achieved without sudo via `sys/mounts/auth/[auth-path]`."
+      summary = "Get AuthMethod Config"
+      description = "This endpoints returns the configuration of the auth method at the given path. This endpoint requires `sudo` capability on the final path, but the same functionality can be achieved without sudo via `sys/mounts/auth/[auth-path]`."
       operationId = "auth-read-method"
       tags {
-        "system"
+        "auth"
       }
       responses {
         ["200"] {
@@ -57,24 +80,14 @@ paths {
             }
           }
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
-        }
       }
     }
     post {
-      summary = "Enables a new auth method."
+      summary = "Enable AuthMethod"
       description = "After enabling, the auth method can be accessed and configured via the auth path specified as part of the URL. This auth path will be nested under the auth prefix.\n\nFor example, enable the \"foo\" auth method will make it accessible at `/auth/foo`."
       operationId = "auth-enable-method"
       tags {
-        "system"
+        "auth"
       }
       requestBody {
         required = true
@@ -90,38 +103,18 @@ paths {
         ["204"] {
           description = "NoContent"
         }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
-        }
       }
     }
     `delete` {
-      summary = "Disables the auth method at the given auth path."
+      summary = "Disable AuthMethod"
       description = "This endpoint disables the auth method at the given auth path. This endpoint requires sudo capability in addition to any path-specific capabilities."
       operationId = "auth-disable-method"
       tags {
-        "system"
+        "auth"
       }
       responses {
         ["204"] {
           description = "NoContent"
-        }
-        ["400"] {
-          description = "BadRequest"
-          content {
-            ["application/json"] {
-              schema = new Reference {
-                `$ref` = "#/components/schemas/VaultErrorsResponseBody"
-              }
-            }
-          }
         }
       }
     }
@@ -129,6 +122,28 @@ paths {
 }
 
 components {
+  parameters {
+    ...CommonComponents.parameters
+  }
+  schemas {
+    ...authComponents.schemas
+
+    ["VaultErrorsResponseBody"] {
+      type = "object"
+      properties {
+        ["errors"] {
+          type = "array"
+          description = "List of errors"
+          items = new Schema {
+            type = "string"
+          }
+        }
+      }
+    }
+  }
+}
+
+hidden authComponents: Components = new {
   schemas {
     ["AuthEnableMethodRequest"] {
       type = "object"
@@ -185,7 +200,7 @@ components {
             }
             ["config"] {
               type = "object"
-              description = "Configuration for this mount, such as plugin_name."
+              description = "Configuration for this mount, such as `plugin_name`."
               format = "kvpairs"
             }
             ["options"] {

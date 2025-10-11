@@ -20,8 +20,8 @@ import "@openapi/Schema.pkl"
 
 import "../CommonComponents.pkl"
 
-import "../AppRoleAuthOpenApi.pkl" as AppRoleAuth
-import "../TokenAuthOpenApi.pkl" as TokenAuth
+import "../AuthMethods/AppRoleAuthOpenApi.pkl" as AppRoleAuth
+import "../AuthMethods/TokenAuthOpenApi.pkl" as TokenAuth
 
 info {
   title = "Vault Courier Authentication API"

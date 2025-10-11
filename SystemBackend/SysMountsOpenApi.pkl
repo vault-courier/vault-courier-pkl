@@ -22,8 +22,8 @@ import "@openapi/Schema.pkl"
 
 import "@openapi/Components.pkl"
 
-import "VaultDataResponse.pkl"
-import "CommonComponents.pkl"
+import ".../VaultDataResponse.pkl"
+import ".../CommonComponents.pkl"
 
 info {
   title = "Vault Courier System Mounts API"
