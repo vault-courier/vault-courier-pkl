@@ -86,7 +86,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
     post {
@@ -108,7 +107,6 @@ paths {
         ["204"] {
           description = "NoContent"
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -176,7 +174,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
     get {
@@ -197,7 +194,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
     patch {
@@ -228,7 +224,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
     `delete`{
@@ -242,7 +237,6 @@ paths {
         ["204"] {
           description = "NoContent"
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -297,7 +291,6 @@ paths {
         ["204"] {
           description = "NoContent"
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -352,7 +345,6 @@ paths {
         ["204"] {
           description = "NoContent"
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -407,7 +399,6 @@ paths {
         ["204"] {
           description = "NoContent"
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -487,7 +478,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -535,6 +525,7 @@ paths {
                     properties {
                       ["created_time"] {
                         type = "string"
+                        format = "date-time"
                       }
                       ["current_version"] {
                         type = "integer"
@@ -544,6 +535,7 @@ paths {
                       }
                       ["updated_time"] {
                         type = "string"
+                        format = "date-time"
                       }
                       ["versions"] {
                         type = "object"
@@ -554,9 +546,18 @@ paths {
                           properties {
                             ["created_time"] {
                               type = "string"
+                              format = "date-time"
                             }
-                            ["deletion_time"] {
-                              type = "string"
+                            ["deletion_time"] = new {
+                              oneOf {
+                                new Schema {
+                                  type = "string"
+                                  format = "date-time"
+                                }
+                                new Schema {
+                                  type = "string"
+                                }
+                              }
                             }
                             ["destroyed"] {
                               type = "boolean"
@@ -572,7 +573,7 @@ paths {
                     required {
                       "created_time"
                       "current_version"
-                      "updated_time"
+                      // "updated_time"
                       "versions"
                     }
                   }
@@ -581,7 +582,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
     post {
@@ -603,7 +603,6 @@ paths {
         ["204"] {
           description = "Metadata updated"
         }
-        ...CommonComponents.responses
       }
     }
     `delete` {
@@ -617,7 +616,6 @@ paths {
         ["204"] {
           description = "All metadata has been deleted"
         }
-        ...CommonComponents.responses
       }
     }
   }

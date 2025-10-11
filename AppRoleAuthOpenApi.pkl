@@ -24,7 +24,6 @@ import "VaultDataResponse.pkl"
 import "VaultRequestBody.pkl"
 
 import "CommonComponents.pkl"
-import "AuthMethods/AppRoleAuth.pkl" as AppRoleAuth
 
 /// Parameter name in the crud endpoint
 local parameterRoleName = "role_name"
@@ -100,7 +99,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
     post {
@@ -124,7 +122,6 @@ paths {
         ["204"] {
           description = "OK"
         }
-        ...CommonComponents.responses
       }
     }
     `delete` {
@@ -138,7 +135,6 @@ paths {
         ["204"] {
           description = "OK"
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -203,7 +199,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -278,7 +273,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -344,7 +338,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -402,7 +395,6 @@ paths {
         ["204"] {
           description = "OK"
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -463,7 +455,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -549,12 +540,8 @@ hidden appRoleComponents: Components = new {
       }
     }
 
-    ["ReadAppRoleSecretIdWithAccessorResponse"] {
-      type = "object"
+    ["ReadAppRoleSecretIdWithAccessorResponse"] = (VaultDataResponse) {
       properties {
-        ["request_id"] {
-          type = "string"
-        }
         ["data"] {
           type = "object"
           properties {
@@ -566,16 +553,22 @@ hidden appRoleComponents: Components = new {
             }
             ["creation_time"] {
               type = "string"
+              format = "date-time"
             }
             ["expiration_time"] {
               type = "string"
+              format = "date-time"
             }
             ["last_updated_time"] {
               type = "string"
+              format = "date-time"
             }
             ["metadata"] {
               type = "object"
               format = "kvpairs"
+              additionalProperties {
+                type = "string"
+              }
             }
             ["secret_id_accessor"] {
               type = "string"
@@ -600,9 +593,6 @@ hidden appRoleComponents: Components = new {
             "secret_id_num_uses"
           }
         }
-      }
-      required {
-        "data"
       }
     }
 

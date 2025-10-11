@@ -81,7 +81,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -127,7 +126,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -170,7 +168,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -216,6 +213,7 @@ paths {
                       }
                       ["creation_time"] {
                         type = "string"
+                        format = "date-time"
                       }
                       ["creation_ttl"] {
                         type = "integer"
@@ -232,7 +230,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -257,6 +254,7 @@ components {
             }
             ["creation_time"] {
               type = "string"
+              format = "date-time"
             }
             ["accessor"] {
               type = "string"

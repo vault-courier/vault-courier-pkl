@@ -85,7 +85,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -125,7 +124,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -155,7 +153,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -195,7 +192,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -238,7 +234,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -281,7 +276,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -324,7 +318,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -360,7 +353,6 @@ paths {
         ["204"] {
           description = "NoContent"
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -386,7 +378,6 @@ paths {
         ["204"] {
           description = "NoContent"
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -422,7 +413,6 @@ paths {
         ["204"] {
           description = "NoContent"
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -458,7 +448,6 @@ paths {
         ["204"] {
           description = "NoContent"
         }
-        ...CommonComponents.responses
       }
     }
   }
@@ -497,7 +486,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
     post {
@@ -521,7 +509,6 @@ paths {
         ["204"] {
           description = "NoContent"
         }
-        ...CommonComponents.responses
       }
     }
     `delete` {
@@ -535,7 +522,6 @@ paths {
         ["204"] {
           description = "NoContent"
         }
-        ...CommonComponents.responses
       }
     }
   }

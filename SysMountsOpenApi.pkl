@@ -36,12 +36,17 @@ info {
 
 servers {
   new { 
-    url = "http://127.0.0.1:8200/v1"
-    description = "Default http server url"
-  }
-  new { 
-    url = "https://127.0.0.1:8200/v1"
-    description = "Default https server url"
+    url = "{protocol}://127.0.0.1:8200/v1"
+    description = "Default server url"
+    variables {
+      ["protocol"] {
+        enum {
+          "http"
+          "https"
+        }
+        default = "https"
+      }
+    }
   }
 }
 
@@ -81,7 +86,6 @@ paths {
             }
           }
         }
-        ...CommonComponents.responses
       }
     }
     post {
@@ -105,7 +109,6 @@ paths {
         ["204"] {
           description = "NoContent"
         }
-        ...CommonComponents.responses
       }
     }
     `delete` {
@@ -119,7 +122,6 @@ paths {
         ["204"] {
           description = "NoContent"
         }
-        ...CommonComponents.responses
       }
     }
   }
