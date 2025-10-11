@@ -13,18 +13,21 @@
         <p>Supported HTTP API</p>
     </div>
 
-    <div class="api-selector">
-        <label for="api-select">Mount:</label>
-        <select id="api-select" onchange="loadSpec()">
-            <option value="openapi/secrets/openapi.json">Secret Engines</option>
-            <option value="openapi/auth/openapi.json">Authentication Methods</option>
-            <option value="openapi/sys/openapi.json">System Backend</option>
-        </select>
-    </div>
+    <nav class="api-nav">
+        <span class="api-link active" data-spec="openapi/secrets/openapi.json" onclick="loadSpecFromLink(this)">
+            Secret Engines
+        </span>
+        <span class="api-link" data-spec="openapi/auth/openapi.json" onclick="loadSpecFromLink(this)">
+            Authentication Methods
+        </span>
+        <span class="api-link" data-spec="openapi/sys/openapi.json" onclick="loadSpecFromLink(this)">
+            System Backend
+        </span>
+    </nav>
 
     <div id="loading" class="loading">
-        <i class="fas fa-spinner"></i>
-        Loading API documentation...
+        <div class="spinner"></div>
+        <span>Loading API documentation...</span>
     </div>
 
     <div id="redoc-container"></div>
@@ -34,9 +37,19 @@
     <script>
         let currentRedoc;
 
-        function loadSpec() {
-            const select = document.getElementById('api-select');
-            const specUrl = select.value;
+        function loadSpecFromLink(element) {
+            // Update active state
+            document.querySelectorAll('.api-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            element.classList.add('active');
+            
+            // Load the specification
+            const specUrl = element.getAttribute('data-spec');
+            loadSpec(specUrl);
+        }
+
+        function loadSpec(specUrl) {
             const loading = document.getElementById('loading');
             const container = document.getElementById('redoc-container');
             
@@ -127,7 +140,7 @@
 
         // Load default spec on page load
         window.onload = function() {
-            loadSpec();
+            loadSpec('openapi/secrets/openapi.json');
         };
     </script>
 </body>
