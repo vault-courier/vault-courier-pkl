@@ -14,13 +14,13 @@
     </div>
 
     <nav class="api-nav">
-        <span class="api-link active" data-spec="docs/openapi/secrets/openapi.json" onclick="loadSpecFromLink(this)">
+        <span class="api-link active" data-spec="openapi/secrets/openapi.json" onclick="loadSpecFromLink(this)">
             Secret Engines
         </span>
-        <span class="api-link" data-spec="docs/openapi/auth/openapi.json" onclick="loadSpecFromLink(this)">
+        <span class="api-link" data-spec="openapi/auth/openapi.json" onclick="loadSpecFromLink(this)">
             Authentication Methods
         </span>
-        <span class="api-link" data-spec="docs/openapi/sys/openapi.json" onclick="loadSpecFromLink(this)">
+        <span class="api-link" data-spec="openapi/sys/openapi.json" onclick="loadSpecFromLink(this)">
             System Backend
         </span>
     </nav>
@@ -58,7 +58,7 @@
             container.innerHTML = '';
             
             // Get the base URL of the repository
-            const baseUrl = window.location.origin + window.location.pathname.replace('/redoc.html', '').replace(/\/$/, '');
+            const baseUrl = window.location.origin + window.location.pathname.replace('/index.html', '').replace(/\/$/, '');
             const fullSpecUrl = `${baseUrl}/${specUrl}`;
 
             // Redoc configuration options
@@ -140,7 +140,7 @@
 
         // Load default spec on page load
         window.onload = function() {
-            loadSpec('docs/openapi/secrets/openapi.json');
+            loadSpec('openapi/secrets/openapi.json');
         };
     </script>
 </body>
