@@ -30,7 +30,7 @@ local parameterRoleName = "role_name"
 info {
   title = "Vault Courier Token Authentication Method"
   description = "Token Authentication endpoints. VaultCourier is a Swift client for Hashicorp Vault and OpenBao"
-  version = "0.1.0"
+  version = "0.2.0"
   license {
     name = "Apache License 2.0"
   }
