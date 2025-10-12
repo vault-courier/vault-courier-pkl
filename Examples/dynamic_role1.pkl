@@ -1,4 +1,4 @@
-amends "../Payloads/PostgresRole.pkl"
+amends "../Payloads/SecretEngines/Databases/PostgreSQL/PostgresRole.pkl"
 
 name = "test_dynamic_role"
 

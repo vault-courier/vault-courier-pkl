@@ -1,26 +1,26 @@
-// amends "package://pkg.pkl-lang.org/github.com/vault-courier/vault-courier-pkl/vault-courier-pkl@0.0.6#/Payloads/VaultToken.pkl"
+amends "../Payloads/AuthMethods/Token/VaultToken.pkl"
 
-// role_name = "test_user"
+role_name = "test_user"
 
-// policies {
-//   "web"
-//   "eu-central"
-// }
+policies {
+  "web"
+  "eu-central"
+}
 
-// meta {
-//   ["user"] = "John"
-// }
+meta {
+  ["user"] = "John"
+}
 
-// no_parent = true
+no_parent = true
 
-// no_default_policy = false
+no_default_policy = false
 
-// renewable = true
+renewable = true
 
-// ttl = 1.h
+ttl = 1.h
 
-// type = "service"
+type = "service"
 
-// explicit_max_ttl = 4.h
+explicit_max_ttl = 4.h
 
-// display_name = "user_token"
+display_name = "user_token"

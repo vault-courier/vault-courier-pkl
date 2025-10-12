@@ -7,3 +7,5 @@ Packages are available at:
 ```
 package://pkg.pkl-lang.org/github.com/vault-courier/vault-courier-pkl/vault-courier-pkl@<VERSION>
 ```
+
+The Vault/OpenBao API currently supported by VaultCourier is available at https://vault-courier.github.io/vault-courier-pkl/

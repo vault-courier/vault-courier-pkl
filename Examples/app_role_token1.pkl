@@ -1,4 +1,4 @@
-amends "../Payloads/AppRoleToken.pkl"
+amends "../Payloads/AuthMethods/AppRole/AppRoleToken.pkl"
 
 import "app_role1.pkl" as appRole
 

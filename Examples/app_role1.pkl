@@ -1,4 +1,4 @@
-amends "../Payloads/VaultAppRole.pkl"
+amends "../Payloads/AuthMethods/AppRole/VaultAppRole.pkl"
 
 role_name = "server_app_us_west"
 
