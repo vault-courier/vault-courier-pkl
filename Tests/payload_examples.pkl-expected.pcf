@@ -67,6 +67,27 @@ examples {
     """
   }
   ["user_token"] {
-    ""
+    """
+    id = null
+    role_name = "test_user"
+    policies {
+      "web"
+      "eu-central"
+    }
+    meta {
+      ["user"] = "John"
+    }
+    no_parent = true
+    no_default_policy = false
+    renewable = true
+    ttl = 1.h
+    type = "service"
+    explicit_max_ttl = 4.h
+    display_name = "user_token"
+    num_uses = null
+    period = null
+    entity_alias = null
+    
+    """
   }
 }

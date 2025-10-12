@@ -36,7 +36,7 @@ examples {
     import(".../AuthMethods/AppRoleAuthOpenApi.pkl").output.text
   }
   ["DatabaseEngineOpenApi.json"] {
-    import(".../SecretEngines/Databases/PostgresSQL/DatabaseEngineOpenApi.pkl").output.text
+    import(".../SecretEngines/Databases/PostgreSQL/DatabaseEngineOpenApi.pkl").output.text
   }
   ["KeyValueEngineOpenApi.json"] {
     import("../SecretEngines/KeyValue/KeyValueEngineOpenApi.pkl").output.text

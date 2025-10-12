@@ -1,4 +1,4 @@
-amends "../Payloads/PostgresStaticRole.pkl"
+amends "../Payloads/SecretEngines/Databases/PostgreSQL/PostgresStaticRole.pkl"
 
 vault_role_name = "test_static_role"
 
