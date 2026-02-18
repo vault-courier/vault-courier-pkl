@@ -1,0 +1,259 @@
+//===----------------------------------------------------------------------===//
+//  Copyright (c) 2025 Javier Cuesta
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//===----------------------------------------------------------------------===//
+
+extends "@openapi/Document.pkl"
+
+import "@openapi/PathItem.pkl"
+import "@openapi/Reference.pkl"
+import "@openapi/Schema.pkl"
+
+import "@openapi/Components.pkl"
+
+import ".../VaultDataResponse.pkl"
+import ".../VaultApiResponse.pkl"
+import ".../CommonComponents.pkl"
+
+info {
+  title = "Vault Courier System Namespaces API"
+  description = "System Mounts endpoints. Vault Courier is a Swift client for Hashicorp Vault and OpenBao"
+  version = "0.2.0"
+  license {
+    name = "Apache License 2.0"
+  }
+}
+
+servers {
+  new { 
+    url = "{protocol}://127.0.0.1:8200/v1"
+    description = "Default server url"
+    variables {
+      ["protocol"] {
+        enum {
+          "http"
+          "https"
+        }
+        default = "https"
+      }
+    }
+  }
+}
+
+paths {
+  // https://openbao.org/api-docs/system/namespaces/#create-namespace
+  ["/sys/namespaces/{path}"] {
+    description = "Namespaces"
+    parameters {
+      new {
+        name = "path"
+        description = "The name of the namespace"
+        `in` = "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    get {
+      summary = "Get Namespace Information"
+      description = "Returns the namespace information"
+      operationId = "read-namespace-info"
+      tags {
+        "namespaces"
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/NamespaceInfoResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+    post {
+      summary = "Creates a new namespace"
+      description = "Creates a new namespace"
+      operationId = "write-namespace"
+      tags {
+        "namespaces"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = customMetadata
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/NamespaceInfoResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+    patch {
+      summary = "Patches existing namespace"
+      description = "Patches existing namespace"
+      operationId = "patch-namespace"
+      tags {
+        "namespaces"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/merge-patch+json"] {
+            schema = customMetadata
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/NamespaceInfoResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+    `delete` {
+      summary = "Delete a namespace"
+      description = "Deletes namespace"
+      operationId = "delete-namespace"
+      tags {
+        "namespaces"
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = (VaultApiResponse) {
+                properties {
+                  ["data"] {
+                    type = "object"
+                    nullable = true
+                    required {
+                      "status"
+                    }
+                    properties {
+                      ["status"] {
+                        type = "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+components {
+  parameters {
+    ...CommonComponents.parameters
+  }
+
+  schemas {
+    ...namespacesComponents.schemas
+
+    ["VaultErrorsResponseBody"] {
+      type = "object"
+      properties {
+        ["errors"] {
+          type = "array"
+          description = "List of errors"
+          items = new Schema {
+            type = "string"
+          }
+        }
+      }
+    }
+  }
+}
+
+hidden namespacesComponents: Components = new {
+  schemas {
+    ["NamespaceInfoResponse"] = (VaultDataResponse) {
+      properties {
+        ["data"] {
+          required {
+            "id"
+            "locked"
+            "path"
+            "tainted"
+            "uuid"
+          }
+          properties {
+            // ["custom_metadata"] = customMetadata
+            ["custom_metadata"] = customMetadata.properties["custom_metadata"]
+            ["id"] {
+              type = "string"
+              description = "namespace identity"
+            }
+            ["locked"] {
+              type = "boolean"
+            }
+            ["path"] {
+              type = "string"
+              description = "relative path with respect to parent namespace"
+            }
+            ["tainted"] {
+              type = "boolean"
+            }
+            ["uuid"] {
+              type = "string"
+              description = "unique identifier"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+hidden customMetadata: Schema.PropertySchema = new {
+  type = "object"
+  properties {
+    ["custom_metadata"] {
+      type = "object"
+      description = "Custom user-provided metadata meant to describe the namespace"
+      format="kvpairs"
+      additionalProperties {
+        type="string"
+      }
+    }
+  }
+}

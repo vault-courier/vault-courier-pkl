@@ -39,6 +39,14 @@ parameters {
       type = "string"
     }
   }
+  ["VaultNamespace"] {
+    name = "X-Vault-Namespace"
+    description = "Namespaces enable secure multi-tenancy. Each tenant (isolated environments e.g., team, organisation, or application) operates within its namespace, isolated from others"
+    `in` = "header"
+    schema {
+      type = "string"
+    }
+  }
 }
 
 schemas {

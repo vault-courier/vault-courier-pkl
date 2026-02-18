@@ -29,6 +29,9 @@ examples {
   ["SysWrappingOpenApi.json"] {
     import(".../SystemBackend/SysWrappingOpenApi.pkl").output.text
   }
+  ["SysNamespacesOpenApi.json"] {
+    import(".../SystemBackend/SysNamespacesOpenApi.pkl").output.text
+  }
   ["TokenAuthOpenApi.json"] {
     import(".../AuthMethods/TokenAuthOpenApi.pkl").output.text
   }
