@@ -569,7 +569,7 @@ paths {
     post {
       summary = "Decrypts data"
       description = "This endpoint decrypts the provided ciphertext using the named key."
-      operationId = "encrypt"
+      operationId = "decrypt"
       tags {
         "transit"
       }
@@ -594,6 +594,120 @@ paths {
                 properties {
                   ["plaintext"] {
                     type = "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/rewrap/{\(secretKeyParameter)}"] {
+    description = "Rewraps the provided ciphertext using the latest version of the named key. Because this never returns plaintext, it is possible to delegate this functionality to untrusted users or scripts."
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "The key path for a stored secret in this path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Rewrap ciphertext"
+      description = "rewraps the provided ciphertext using the latest version of the named key. Because this never returns plaintext, it is possible to delegate this functionality to untrusted users or scripts."
+      operationId = "rewrap-ciphertext"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = VaultRequestBody.rewrapData
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = (VaultDataResponse) {
+                properties  {
+                  ["data"] {
+                    oneOf {
+                      new Schema {
+                        type = "object"
+                        required {
+                          "batch_results"
+                        }
+                        properties {
+                          ["batch_results"] {
+                            type = "array"
+                            items = new Schema {
+                              oneOf {
+                                new Schema {
+                                  type = "object"
+                                  required {
+                                    "hmac"
+                                  }
+                                  properties {
+                                    ["hmac"] {
+                                      type = "string"
+                                    }
+                                    ["reference"] {
+                                      type = "string"
+                                      description = "A user-supplied string"
+                                    }
+                                  }
+                                }
+
+                                new Schema {
+                                  type = "object"
+                                  required {
+                                    "error"
+                                  }
+                                  properties {
+                                    ["error"] {
+                                      type = "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+
+                      new Schema {
+                        type = "object"
+                        required {
+                          "hmac"
+                        }
+                        properties {
+                          ["hmac"] {
+                            type = "string"
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }

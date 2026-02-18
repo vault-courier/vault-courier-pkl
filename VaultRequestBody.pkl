@@ -795,6 +795,56 @@ signData = (Schema.PropertySchema) {
   }
 }
 
+rewrapData = (Schema.PropertySchema) {
+  type = "object"
+  required {
+    "ciphertext"
+  }
+  properties {
+    ["ciphertext"] {
+      type = "string"
+      description = "Specifies the ciphertext to re-encrypt."
+    }
+    ["key_version"] {
+      type = "integer"
+      description = "Specifies the version of the key to use for the operation. If not set, uses the latest version. Must be greater than or equal to the key's min_encryption_version, if set."
+    }
+    ["nonce"] {
+      type = "string"
+      description = "Specifies a base64 encoded nonce value used during encryption."
+    }
+    ["batch_input"] {
+      type = "array"
+      items = new Schema {
+        type = "object"
+        required {
+          "ciphertext"
+        }
+        properties {
+          ["ciphertext"] {
+            type = "string"
+            description = "Specifies the ciphertext to re-encrypt."
+          }
+          ["context"] {
+            type = "string"
+            description = "Base64 encoded context for key derivation. Required if key derivation is enabled; currently only available with ed25519 keys."
+          }
+          ["reference"] {
+            type = "string"
+            description = """
+            A user-supplied string that will be present in the reference field on the corresponding batch_results item in the response, to assist in understanding which result corresponds to a particular input.
+            """
+          }
+        }
+      }
+    }
+    ["context"] {
+      type = "string"
+      description = "Specifies the base64 encoded context for key derivation. This is required if key derivation is enabled."
+    }
+  }
+}
+
 encryptionKey = (createEncryptionKeyCore) {
   type = "object"
   required {
