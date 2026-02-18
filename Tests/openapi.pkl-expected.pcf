@@ -8404,6 +8404,10 @@ examples {
                   "schema": {
                     "type": "object",
                     "properties": {
+                      "backup": {
+                        "type": "string",
+                        "description": "Backed up key data to be restored. This should be the output from the /backup endpoint."
+                      },
                       "name": {
                         "type": "string",
                         "description": "If set, this will be the name of the restored key."
@@ -8705,10 +8709,7 @@ examples {
                         "type": "integer",
                         "description": "The version of the key to use for signing. If the version is set to latest or is not set, the current key will be returned."
                       }
-                    },
-                    "required": [
-                      "min_available_version"
-                    ]
+                    }
                   }
                 }
               },

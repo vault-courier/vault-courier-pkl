@@ -1581,6 +1581,10 @@ paths {
                 "backup"
               }
               properties {
+                ["backup"] {
+                  type = "string"
+                  description = "Backed up key data to be restored. This should be the output from the /backup endpoint."
+                }
                 ["name"] {
                   type = "string"
                   description = "If set, this will be the name of the restored key."
@@ -1821,9 +1825,6 @@ paths {
           ["application/json"] {
             schema {
               type = "object"
-              required {
-                "min_available_version"
-              }
               properties {
                 ["csr"] {
                   type = "string"
