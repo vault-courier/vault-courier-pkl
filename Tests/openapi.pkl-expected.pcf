@@ -214,6 +214,14 @@ examples {
             "schema": {
               "type": "string"
             }
+          },
+          "VaultNamespace": {
+            "description": "Namespaces enable secure multi-tenancy. Each tenant (isolated environments e.g., team, organisation, or application) operates within its namespace, isolated from others",
+            "name": "X-Vault-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
           }
         }
       }
@@ -514,6 +522,14 @@ examples {
             "schema": {
               "type": "string"
             }
+          },
+          "VaultNamespace": {
+            "description": "Namespaces enable secure multi-tenancy. Each tenant (isolated environments e.g., team, organisation, or application) operates within its namespace, isolated from others",
+            "name": "X-Vault-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
           }
         }
       }
@@ -708,6 +724,14 @@ examples {
           "WrapTTLHeader": {
             "description": "Use the X-Vault-Wrap-TTL header with any Vault API call where you want to wrap the response.",
             "name": "X-Vault-Wrap-TTL",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "VaultNamespace": {
+            "description": "Namespaces enable secure multi-tenancy. Each tenant (isolated environments e.g., team, organisation, or application) operates within its namespace, isolated from others",
+            "name": "X-Vault-Namespace",
             "in": "header",
             "schema": {
               "type": "string"
@@ -1096,6 +1120,14 @@ examples {
           "WrapTTLHeader": {
             "description": "Use the X-Vault-Wrap-TTL header with any Vault API call where you want to wrap the response.",
             "name": "X-Vault-Wrap-TTL",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "VaultNamespace": {
+            "description": "Namespaces enable secure multi-tenancy. Each tenant (isolated environments e.g., team, organisation, or application) operates within its namespace, isolated from others",
+            "name": "X-Vault-Namespace",
             "in": "header",
             "schema": {
               "type": "string"
@@ -1771,9 +1803,7 @@ examples {
                   "creation_time",
                   "creation_ttl",
                   "display_name",
-                  "entity_id",
                   "id",
-                  "issue_time",
                   "num_uses",
                   "orphan",
                   "path",
@@ -2347,6 +2377,14 @@ examples {
           "WrapTTLHeader": {
             "description": "Use the X-Vault-Wrap-TTL header with any Vault API call where you want to wrap the response.",
             "name": "X-Vault-Wrap-TTL",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "VaultNamespace": {
+            "description": "Namespaces enable secure multi-tenancy. Each tenant (isolated environments e.g., team, organisation, or application) operates within its namespace, isolated from others",
+            "name": "X-Vault-Namespace",
             "in": "header",
             "schema": {
               "type": "string"
@@ -3431,6 +3469,14 @@ examples {
           "WrapTTLHeader": {
             "description": "Use the X-Vault-Wrap-TTL header with any Vault API call where you want to wrap the response.",
             "name": "X-Vault-Wrap-TTL",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "VaultNamespace": {
+            "description": "Namespaces enable secure multi-tenancy. Each tenant (isolated environments e.g., team, organisation, or application) operates within its namespace, isolated from others",
+            "name": "X-Vault-Namespace",
             "in": "header",
             "schema": {
               "type": "string"
@@ -4631,6 +4677,14 @@ examples {
             "schema": {
               "type": "string"
             }
+          },
+          "VaultNamespace": {
+            "description": "Namespaces enable secure multi-tenancy. Each tenant (isolated environments e.g., team, organisation, or application) operates within its namespace, isolated from others",
+            "name": "X-Vault-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
           }
         }
       }
@@ -5640,6 +5694,14 @@ examples {
           "WrapTTLHeader": {
             "description": "Use the X-Vault-Wrap-TTL header with any Vault API call where you want to wrap the response.",
             "name": "X-Vault-Wrap-TTL",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "VaultNamespace": {
+            "description": "Namespaces enable secure multi-tenancy. Each tenant (isolated environments e.g., team, organisation, or application) operates within its namespace, isolated from others",
+            "name": "X-Vault-Namespace",
             "in": "header",
             "schema": {
               "type": "string"
