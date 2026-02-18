@@ -6829,7 +6829,7 @@ examples {
             ],
             "summary": "Decrypts data",
             "description": "This endpoint decrypts the provided ciphertext using the named key.",
-            "operationId": "encrypt",
+            "operationId": "decrypt",
             "requestBody": {
               "content": {
                 "application/json": {
@@ -6902,6 +6902,197 @@ examples {
                       },
                       "required": [
                         "plaintext"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "parameters": [
+            {
+              "description": "transit engine path",
+              "name": "transit_path",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "description": "The key path for a stored secret in this path",
+              "name": "secret_key",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/components/parameters/VaultTokenHeader"
+            }
+          ]
+        },
+        "/{transit_path}/rewrap/{secret_key}": {
+          "description": "Rewraps the provided ciphertext using the latest version of the named key. Because this never returns plaintext, it is possible to delegate this functionality to untrusted users or scripts.",
+          "post": {
+            "tags": [
+              "transit"
+            ],
+            "summary": "Rewrap ciphertext",
+            "description": "rewraps the provided ciphertext using the latest version of the named key. Because this never returns plaintext, it is possible to delegate this functionality to untrusted users or scripts.",
+            "operationId": "rewrap-ciphertext",
+            "requestBody": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "ciphertext": {
+                        "type": "string",
+                        "description": "Specifies the ciphertext to re-encrypt."
+                      },
+                      "key_version": {
+                        "type": "integer",
+                        "description": "Specifies the version of the key to use for the operation. If not set, uses the latest version. Must be greater than or equal to the key's min_encryption_version, if set."
+                      },
+                      "nonce": {
+                        "type": "string",
+                        "description": "Specifies a base64 encoded nonce value used during encryption."
+                      },
+                      "batch_input": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "ciphertext": {
+                              "type": "string",
+                              "description": "Specifies the ciphertext to re-encrypt."
+                            },
+                            "context": {
+                              "type": "string",
+                              "description": "Base64 encoded context for key derivation. Required if key derivation is enabled; currently only available with ed25519 keys."
+                            },
+                            "reference": {
+                              "type": "string",
+                              "description": "A user-supplied string that will be present in the reference field on the corresponding batch_results item in the response, to assist in understanding which result corresponds to a particular input."
+                            }
+                          },
+                          "required": [
+                            "ciphertext"
+                          ]
+                        }
+                      },
+                      "context": {
+                        "type": "string",
+                        "description": "Specifies the base64 encoded context for key derivation. This is required if key derivation is enabled."
+                      }
+                    },
+                    "required": [
+                      "ciphertext"
+                    ]
+                  }
+                }
+              },
+              "required": true
+            },
+            "responses": {
+              "200": {
+                "description": "OK",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "lease_id": {
+                          "type": "string"
+                        },
+                        "renewable": {
+                          "type": "boolean"
+                        },
+                        "lease_duration": {
+                          "type": "integer"
+                        },
+                        "data": {
+                          "type": "object",
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "batch_results": {
+                                  "type": "array",
+                                  "items": {
+                                    "oneOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "hmac": {
+                                            "type": "string"
+                                          },
+                                          "reference": {
+                                            "type": "string",
+                                            "description": "A user-supplied string"
+                                          }
+                                        },
+                                        "required": [
+                                          "hmac"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "error": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "error"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              },
+                              "required": [
+                                "batch_results"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "hmac": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "hmac"
+                              ]
+                            }
+                          ]
+                        },
+                        "wrap_info": {
+                          "type": "object"
+                        },
+                        "warnings": {
+                          "type": "array",
+                          "description": "A list of warnings, e.g. ignored parameters",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "auth": {
+                          "type": "object"
+                        },
+                        "mount_type": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "request_id",
+                        "data"
                       ]
                     }
                   }
