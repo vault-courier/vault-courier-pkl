@@ -1991,8 +1991,19 @@ components {
 hidden kvComponents: Components = new {
   schemas {
     ["WriteEncryptionKeyRequest"] = VaultRequestBody.createEncryptionKey
+    
+    ["WriteEncryptionKeyResponse"] = (VaultDataResponse) {
+      properties {
+        ["data"] = (VaultRequestBody.encryptionKey) {
+          properties {
+            ["auto_rotate_period"] {
+              type = "integer"
+            }
+          }
+        }
+      }
+    }
 
-    ["WriteEncryptionKeyResponse"] = VaultRequestBody.encryptionKey
 
   }
 }
