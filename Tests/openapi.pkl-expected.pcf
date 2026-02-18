@@ -6081,7 +6081,7 @@ examples {
             ],
             "summary": "Get Upsert Config",
             "description": "This path retrieves the current configuration for disable upserting on encryption (automatic creation of unknown keys).",
-            "operationId": "read-transit-config",
+            "operationId": "read-upsert-config",
             "responses": {
               "200": {
                 "description": "Ok",
@@ -6147,7 +6147,7 @@ examples {
             ],
             "summary": "Configure Key Upsert",
             "description": "This path configures backend level settings that are applied to every key in the transit store.",
-            "operationId": "config-kv-secrets",
+            "operationId": "write-upsert-config",
             "requestBody": {
               "content": {
                 "application/json": {
@@ -6280,7 +6280,7 @@ examples {
             ],
             "summary": "Deletes Encryption Key",
             "description": " deletes a named encryption key. It will no longer be possible to decrypt any data encrypted with the named key. Because this is a potentially catastrophic operation, the 'deletion_allowed' tunable must be set in the key's `/config` endpoint.",
-            "operationId": "delete-encyption-key",
+            "operationId": "delete-encryption-key",
             "responses": {
               "204": {
                 "description": "NoContent"
@@ -6439,7 +6439,7 @@ examples {
             "tags": [
               "transit"
             ],
-            "summary": "Import encryption key",
+            "summary": "Import versioned encryption key",
             "description": "imports existing key material into a new transit-managed encryption key. To import key material into an existing key, see the import_version/ endpoint.\n\nThis supports one of two forms:\n\nPrivate/Symmetric Key import, requiring the ciphertext, hash_function parameters be set (and automatically deriving the public key), or\nPublic Key-only import, restricting the operations that can be done with this key, and requiring only the public_key parameter.\nThe remaining parameters (including name, type, allow_rotation, derived, context, exportable, allow_plaintext_backup, and auto_rotate_period) remain the same across both versions of this call.",
             "operationId": "import-versioned-encryption-key",
             "requestBody": {
@@ -7132,7 +7132,7 @@ examples {
             ],
             "summary": "Configure encryption key",
             "description": "Sets configuration like if its allow for deletion",
-            "operationId": "config-encryption-key",
+            "operationId": "rotate-encryption-key",
             "responses": {
               "200": {
                 "description": "OK",
@@ -7291,12 +7291,9 @@ examples {
                       },
                       "bits": {
                         "type": "integer",
-                        "description": "Specifies the number of bits in the desired key. Can be 128, 256, or 512."
+                        "description": "Specifies the number of bits in the desired key. Can be 128, 256, or 512. Defaults to 256"
                       }
-                    },
-                    "required": [
-                      "ciphertext"
-                    ]
+                    }
                   }
                 }
               },
@@ -7394,11 +7391,7 @@ examples {
                         "type": "string",
                         "description": "Specifies the source of the requested bytes. platform, the default, sources bytes from the platform's entropy source. all mixes bytes from all available sources."
                       }
-                    },
-                    "required": [
-                      "ciphertext",
-                      "key_version"
-                    ]
+                    }
                   }
                 }
               },
@@ -8818,7 +8811,7 @@ examples {
             ],
             "summary": "Sign CSR",
             "description": "Signs a CSR using the :name key, ensuring the key material stays within Transit",
-            "operationId": "sign-csr",
+            "operationId": "set-certificate-chain",
             "requestBody": {
               "content": {
                 "application/json": {

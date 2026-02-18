@@ -1061,9 +1061,6 @@ encryptionCoreData = (Schema.PropertySchema) {
 
 generateKeyData = (Schema.PropertySchema) {
   type = "object"
-  required {
-    "ciphertext"
-  }
   properties {
     ["associated_data"] {
       type = "string"
@@ -1079,7 +1076,7 @@ generateKeyData = (Schema.PropertySchema) {
     }
     ["bits"] {
       type = "integer"
-      description = "Specifies the number of bits in the desired key. Can be 128, 256, or 512."
+      description = "Specifies the number of bits in the desired key. Can be 128, 256, or 512. Defaults to 256"
     }
   }
 }

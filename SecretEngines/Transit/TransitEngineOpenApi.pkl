@@ -71,7 +71,7 @@ paths {
     get {
       summary = "Get Upsert Config"
       description = "This path retrieves the current configuration for disable upserting on encryption (automatic creation of unknown keys)."
-      operationId = "read-transit-config"
+      operationId = "read-upsert-config"
       tags {
         "transit"
       }
@@ -104,7 +104,7 @@ paths {
     post {
       summary = "Configure Key Upsert"
       description = "This path configures backend level settings that are applied to every key in the transit store."
-      operationId = "config-kv-secrets"
+      operationId = "write-upsert-config"
       tags {
         "transit"
       }
@@ -217,7 +217,7 @@ paths {
     `delete`{
       summary = "Deletes Encryption Key"
       description = " deletes a named encryption key. It will no longer be possible to decrypt any data encrypted with the named key. Because this is a potentially catastrophic operation, the 'deletion_allowed' tunable must be set in the key's `/config` endpoint."
-      operationId = "delete-encyption-key"
+      operationId = "delete-encryption-key"
       tags {
         "transit"
       }
@@ -322,7 +322,7 @@ paths {
       }
     }
     `post`{
-      summary = "Import encryption key"
+      summary = "Import versioned encryption key"
       description = """
       imports existing key material into a new transit-managed encryption key. To import key material into an existing key, see the import_version/ endpoint.
 
@@ -746,7 +746,7 @@ paths {
     post {
       summary = "Configure encryption key"
       description = "Sets configuration like if its allow for deletion"
-      operationId = "config-encryption-key"
+      operationId = "rotate-encryption-key"
       tags {
         "transit"
       }
@@ -985,10 +985,6 @@ paths {
           ["application/json"] {
             schema = new Schema {
               type = "object"
-              required {
-                "ciphertext"
-                "key_version"
-              }
               properties {
                 ["bytes"] {
                   type = "string"
@@ -1907,7 +1903,7 @@ paths {
       summary = "Sign CSR"
       description = "Signs a CSR using the :name key, ensuring the key material stays within Transit"
 
-      operationId = "sign-csr"
+      operationId = "set-certificate-chain"
       tags {
         "transit"
       }
