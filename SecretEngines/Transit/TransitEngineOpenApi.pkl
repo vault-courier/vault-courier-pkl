@@ -66,6 +66,9 @@ paths {
         }
         required = true
       }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
     }
     description = "This endpoint maintains global configuration across all keys. This allows removing the upsert capability of the `/encrypt/:key` endpoint, preventing new keys from being created if none exists."
     get {
@@ -77,24 +80,11 @@ paths {
       }
       responses {
         ["200"] {
-          description = "Ok"
+          description = "OK"
           content {
             ["application/json"] {
-              schema = (VaultDataResponse) {
-                properties  {
-                  ["data"] {
-                    type = "object"
-                    required {
-                      "disable_upsert"
-                    }
-                    properties {
-                      ["disable_upsert"] {
-                        type = "boolean"
-                        description = "Specifies whether to disable upserting on encryption (automatic creation of unknown keys)."
-                      }
-                    }
-                  }
-                }
+              schema = new Reference {
+                `$ref` = "#/components/schemas/WriteUpsertResponse"
               }
             }
           }
@@ -112,19 +102,15 @@ paths {
         required = true
         content {
           ["application/json"] {
-            schema = (VaultDataResponse) {
-              properties  {
-                ["data"] {
-                  type = "object"
-                  required {
-                    "disable_upsert"
-                  }
-                  properties {
-                    ["disable_upsert"] {
-                      type = "boolean"
-                      description = "Specifies whether to disable upserting on encryption (automatic creation of unknown keys)."
-                    }
-                  }
+            schema = new {
+              type = "object"
+              required {
+                "disable_upsert"
+              }
+              properties {
+                ["disable_upsert"] {
+                  type = "boolean"
+                  description = "Specifies whether to disable upserting on encryption (automatic creation of unknown keys)."
                 }
               }
             }
@@ -132,8 +118,15 @@ paths {
         }
       }
       responses {
-        ["204"] {
-          description = "NoContent"
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/WriteUpsertResponse"
+              }
+            }
+          }
         }
       }
     }
@@ -359,6 +352,103 @@ paths {
     }
   }
 
+  ["/{\(parameterEnginePathName)}/export/{key_type}/{name}"] {
+    description = """
+    Returns the named key. The keys object shows the value of the key for each version. If version is specified, the specific version will be returned. 
+    If latest is provided as the version, the current key will be provided. Depending on the type of key, different information may be returned. 
+    The key must be exportable to support this operation and the version must still be valid.
+
+    Note: This endpoint has originally an OPTIONAL version path parameter, but this is illegal in openapi v3
+    """
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = "key_type"
+        description = "Specifies the type of the key to export"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = "name"
+        description = "Specifies the name of the key to read information about"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    `get`{
+      summary = "Export encryption key"
+      description = """
+      Returns the named key. The keys object shows the value of the key for each version. If version is specified, the specific version will be returned. 
+      If latest is provided as the version, the current key will be provided. Depending on the type of key, different information may be returned. 
+      The key must be exportable to support this operation and the version must still be valid.
+      """
+      operationId = "export-encryption-key"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = VaultRequestBody.exportKey
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = (VaultDataResponse) {
+                properties  {
+                  ["data"] {
+                    type = "object"
+                    required {
+                      "keys"
+                      "name"
+                      "type"
+                    }
+                    properties {
+                      ["keys"] {
+                        type = "object"
+                        additionalProperties {
+                          type = "string"
+                        }
+                      }
+                      ["name"] {
+                        type = "string"
+                      }
+                      ["type"] {
+                        type = "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   ["/{\(parameterEnginePathName)}/wrapping_key"] {
     description = """
     Note: using this method, a private key matching a public key can be imported at a later date.
@@ -520,17 +610,20 @@ paths {
           description = "OK"
           content {
             ["application/json"] {
-              schema = new Schema {
-                type = "object"
-                required {
-                  "ciphertext"
-                }
+              schema = (VaultDataResponse) {
                 properties {
-                  ["ciphertext"] {
-                    type = "string"
-                  }
-                  ["key_version"] {
-                    type = "integer"
+                  ["data"] {
+                    required {
+                      "ciphertext"
+                    }
+                    properties {
+                      ["ciphertext"] {
+                        type = "string"
+                      }
+                      ["key_version"] {
+                        type = "integer"
+                      }
+                    }
                   }
                 }
               }
@@ -1998,6 +2091,22 @@ hidden kvComponents: Components = new {
           properties {
             ["auto_rotate_period"] {
               type = "integer"
+            }
+          }
+        }
+      }
+    }
+
+    ["WriteUpsertResponse"] = (VaultDataResponse) {
+      properties {
+        ["data"] {
+          required {
+            "disable_upsert"
+          }
+          properties {
+            ["disable_upsert"] {
+              type = "boolean"
+              description = "Specifies whether to disable upserting on encryption (automatic creation of unknown keys)."
             }
           }
         }

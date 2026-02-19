@@ -554,9 +554,6 @@ createEncryptionKey = (createEncryptionKeyCore) {
 
 importEncryptionKey = (createEncryptionKeyCore) {
   type = "object"
-  required {
-    "ciphertext"
-  }
   properties {
     ["ciphertext"] {
       type = "string"
@@ -581,9 +578,6 @@ importEncryptionKey = (createEncryptionKeyCore) {
 
 importVersionedEncryptionKey = (Schema.PropertySchema) {
   type = "object"
-  required {
-    "ciphertext"
-  }
   properties {
     ["ciphertext"] {
       type = "string"
@@ -601,6 +595,27 @@ importVersionedEncryptionKey = (Schema.PropertySchema) {
     ["version"] {
       type = "integer"
       description = "Key version to be updated, if left empty, a new version will be created unless a private key is specified and the 'Latest' key is missing a private key."
+    }
+  }
+}
+
+exportKey = (Schema.PropertySchema) {
+  type = "object"
+  properties {
+    ["format"] {
+      type = "string"
+      description = """
+      Specifies the format of the exported key. The empty string preserves existing behavior, 
+      with format unique to each key type (base64 encoded raw keys for symmetric keys or Ed25519 keys, PKCS#1 for RSA private keys, SEC 1 for EC private keys, and PKIX format for RSA or EC public keys). 
+      The raw format always returns a base64 encoded raw key (only applicable to symmetric keys and Ed25519 keys). 
+      The der and pem formats always returns a PKIX (SubjectPublicKeyInfo) or PrivateKeyInfo encoded object for asymmetric keys.
+      """
+      enum {
+        "base64"
+        "raw"
+        "der"
+        "pem"
+      }
     }
   }
 }
@@ -1025,10 +1040,6 @@ encryptionCoreData = (Schema.PropertySchema) {
       type = "string"
       description = "Specifies the base64 encoded nonce value. The value must be exactly 96 bits (12 bytes) long and the user must ensure that for any given context (and thus, any given encryption key) this nonce value is never reused."
     }
-    ["reference"] {
-      type = "string"
-      description = " A user-supplied string that will be present in the reference field on the corresponding batch_results item in the response, to assist in understanding which result corresponds to a particular input. Only valid on batch requests when using `batch_input` below."
-    }
     ["batch_input"] {
       type = "array"
       items = new Schema {
@@ -1044,6 +1055,10 @@ encryptionCoreData = (Schema.PropertySchema) {
           ["context"] {
             type = "string"
             description = "Specifies the base64 encoded context for key derivation. This is required if key derivation is enabled for this key."
+          }
+          ["reference"] {
+            type = "string"
+            description = "A user-supplied string that will be present in the reference field on the corresponding batch_results item in the response, to assist in understanding which result corresponds to a particular input."
           }
         }
       }
