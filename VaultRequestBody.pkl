@@ -734,14 +734,6 @@ signData = (Schema.PropertySchema) {
       type = "string"
       description = "Specifies the base64 encoded input data. One of input or batch_input must be supplied."
     }
-    ["signature"] {
-      type = "string"
-      description = "Specifies the signature output from the /transit/sign function. Either this must be supplied or hmac must be supplied."
-    }
-    ["hmac"] {
-      type = "string"
-      description = "Specifies the signature output from the /transit/hmac function. Either this must be supplied or signature must be supplied."
-    }
     ["batch_input"] {
       type = "array"
       items = new Schema {

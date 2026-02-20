@@ -679,14 +679,17 @@ paths {
           description = "OK"
           content {
             ["application/json"] {
-              schema = new Schema {
-                type = "object"
-                required {
-                  "plaintext"
-                }
+              schema = (VaultDataResponse) {
                 properties {
-                  ["plaintext"] {
-                    type = "string"
+                  ["data"] {
+                    required {
+                      "plaintext"
+                    }
+                    properties {
+                      ["plaintext"] {
+                        type = "string"
+                      }
+                    }
                   }
                 }
               }
@@ -743,62 +746,18 @@ paths {
           content {
             ["application/json"] {
               schema = (VaultDataResponse) {
-                properties  {
+                properties {
                   ["data"] {
-                    oneOf {
-                      new Schema {
-                        type = "object"
-                        required {
-                          "batch_results"
-                        }
-                        properties {
-                          ["batch_results"] {
-                            type = "array"
-                            items = new Schema {
-                              oneOf {
-                                new Schema {
-                                  type = "object"
-                                  required {
-                                    "hmac"
-                                  }
-                                  properties {
-                                    ["hmac"] {
-                                      type = "string"
-                                    }
-                                    ["reference"] {
-                                      type = "string"
-                                      description = "A user-supplied string"
-                                    }
-                                  }
-                                }
-
-                                new Schema {
-                                  type = "object"
-                                  required {
-                                    "error"
-                                  }
-                                  properties {
-                                    ["error"] {
-                                      type = "string"
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
+                    type = "object"
+                    required {
+                      "ciphertext"
+                    }
+                    properties {
+                      ["ciphertext"] {
+                        type = "string"
                       }
-
-                      new Schema {
-                        type = "object"
-                        required {
-                          "hmac"
-                        }
-                        properties {
-                          ["hmac"] {
-                            type = "string"
-                          }
-                        }
+                      ["key_version"] {
+                        type = "integer"
                       }
                     }
                   }
@@ -1022,21 +981,24 @@ paths {
           description = "OK"
           content {
             ["application/json"] {
-              schema = new Schema {
-                type = "object"
-                required {
-                  "ciphertext"
-                  "key_version"
-                }
+              schema = (VaultDataResponse) {
                 properties {
-                  ["ciphertext"] {
-                    type = "string"
-                  }
-                  ["key_version"] {
-                    type = "string"
-                  }
-                  ["plaintext"] {
-                    type = "string"
+                  ["data"] {
+                    required {
+                      "ciphertext"
+                      "key_version"
+                    }
+                    properties {
+                      ["ciphertext"] {
+                        type = "string"
+                      }
+                      ["key_version"] {
+                        type = "integer"
+                      }
+                      ["plaintext"] {
+                        type = "string"
+                      }
+                    }
                   }
                 }
               }
@@ -1080,7 +1042,7 @@ paths {
               type = "object"
               properties {
                 ["bytes"] {
-                  type = "string"
+                  type = "integer"
                   description = "Specifies the number of bytes to return."
                 }
                 ["format"] {
@@ -1094,6 +1056,10 @@ paths {
                 ["source"] {
                   type = "string"
                   description = "Specifies the source of the requested bytes. platform, the default, sources bytes from the platform's entropy source. all mixes bytes from all available sources."
+                  enum {
+                    "platform"
+                    "all"
+                  }
                 }
               }
             }
@@ -1484,7 +1450,18 @@ paths {
         required = true
         content {
           ["application/json"] {
-            schema = VaultRequestBody.signData
+            schema = (VaultRequestBody.signData) {
+              properties {
+                ["signature"] {
+                  type = "string"
+                  description = "Specifies the signature output from the /transit/sign function. Either this must be supplied or hmac must be supplied."
+                }
+                ["hmac"] {
+                  type = "string"
+                  description = "Specifies the signature output from the /transit/hmac function. Either this must be supplied or signature must be supplied."
+                }
+              }
+            }
           }
         }
       }
@@ -1548,11 +1525,11 @@ paths {
                       new Schema {
                         type = "object"
                         required {
-                          "signature"
+                          "valid"
                         }
                         properties {
-                          ["signature"] {
-                            type = "string"
+                          ["valid"] {
+                            type = "boolean"
                           }
                         }
                       }
@@ -1645,7 +1622,7 @@ paths {
       }
       new {
         name = secretKeyParameter
-        description = "Specifies the name of the encryption key to generate hmac against."
+        description = "Name of the restored key."
         `in`= "path"
         schema {
           type = "string"
@@ -1678,12 +1655,8 @@ paths {
                   type = "string"
                   description = "Backed up key data to be restored. This should be the output from the /backup endpoint."
                 }
-                ["name"] {
-                  type = "string"
-                  description = "If set, this will be the name of the restored key."
-                }
                 ["force"] {
-                  type = "string"
+                  type = "boolean"
                   description = "If set, force the restore to proceed even if a key by this name already exists."
                 }
               }
@@ -1942,6 +1915,7 @@ paths {
                   ["data"] {
                     required {
                       "csr"
+                      "name"
                       "type"
                     }
                     properties {
@@ -2034,6 +2008,7 @@ paths {
                   ["data"] {
                     required {
                       "certificate_chain"
+                      "name"
                       "type"
                     }
                     properties {
@@ -2109,6 +2084,21 @@ hidden kvComponents: Components = new {
               description = "Specifies whether to disable upserting on encryption (automatic creation of unknown keys)."
             }
           }
+        }
+      }
+    }
+
+    ["EncryptionResponseBody"] {
+      type = "object"
+      required {
+        "ciphertext"
+      }
+      properties {
+        ["ciphertext"] {
+          type = "string"
+        }
+        ["key_version"] {
+          type = "integer"
         }
       }
     }
