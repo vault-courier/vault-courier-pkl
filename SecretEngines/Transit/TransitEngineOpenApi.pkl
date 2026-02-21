@@ -2145,7 +2145,7 @@ components {
     ...CommonComponents.parameters
   }
   schemas {
-    ...kvComponents.schemas
+    ...transitComponents.schemas
 
     ["VaultErrorsResponseBody"] {
       type = "object"
@@ -2162,7 +2162,7 @@ components {
   }
 }
 
-hidden kvComponents: Components = new {
+hidden transitComponents: Components = new {
   schemas {
     ["WriteEncryptionKeyRequest"] = VaultRequestBody.createEncryptionKey
     
