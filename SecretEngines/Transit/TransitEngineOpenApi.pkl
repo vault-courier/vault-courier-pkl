@@ -613,15 +613,65 @@ paths {
               schema = (VaultDataResponse) {
                 properties {
                   ["data"] {
-                    required {
-                      "ciphertext"
-                    }
-                    properties {
-                      ["ciphertext"] {
-                        type = "string"
+                    oneOf {
+                      new Schema {
+                        type = "object"
+                        required {
+                          "batch_results"
+                        }
+                        properties {
+                          ["batch_results"] {
+                            type = "array"
+                            items = new Schema {
+                              oneOf {
+                                new Schema {
+                                  type = "object"
+                                  required {
+                                    "ciphertext"
+                                  }
+                                  properties {
+                                    ["ciphertext"] {
+                                      type = "string"
+                                    }
+                                    ["key_version"] {
+                                      type = "integer"
+                                    }
+                                    ["reference"] {
+                                      type = "string"
+                                    }
+                                  }
+                                }
+
+                                new Schema {
+                                  type = "object"
+                                  required {
+                                    "error"
+                                  }
+                                  properties {
+                                    ["error"] {
+                                      type = "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
                       }
-                      ["key_version"] {
-                        type = "integer"
+
+                      new Schema {
+                        type = "object"
+                        required {
+                          "ciphertext"
+                        }
+                        properties {
+                          ["ciphertext"] {
+                            type = "string"
+                          }
+                          ["key_version"] {
+                            type = "integer"
+                          }
+                        }
                       }
                     }
                   }
@@ -682,12 +732,68 @@ paths {
               schema = (VaultDataResponse) {
                 properties {
                   ["data"] {
-                    required {
-                      "plaintext"
-                    }
-                    properties {
-                      ["plaintext"] {
-                        type = "string"
+                    oneOf {
+                      new Schema {
+                        type = "object"
+                        required {
+                          "batch_results"
+                        }
+                        properties {
+                          ["batch_results"] {
+                            type = "array"
+                            items = new Schema {
+                              oneOf {
+                                new Schema {
+                                  type = "object"
+                                  required {
+                                    "plaintext"
+                                  }
+                                  properties {
+                                    ["plaintext"] {
+                                      type = "string"
+                                    }
+                                    ["reference"] {
+                                      type = "string"
+                                    }
+                                    ["error"] {
+                                      type = "string"
+                                    }
+                                  }
+                                }
+
+                                new Schema {
+                                  type = "object"
+                                  required {
+                                    "error"
+                                  }
+                                  properties {
+                                    ["error"] {
+                                      type = "string"
+                                    }
+                                    ["reference"] {
+                                      type = "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+
+                      new Schema {
+                        type = "object"
+                        required {
+                          "plaintext"
+                        }
+                        properties {
+                          ["plaintext"] {
+                            type = "string"
+                          }
+                          ["reference"] {
+                            type = "string"
+                          }
+                        }
                       }
                     }
                   }
