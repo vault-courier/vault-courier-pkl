@@ -44,4 +44,7 @@ examples {
   ["KeyValueEngineOpenApi.json"] {
     import("../SecretEngines/KeyValue/KeyValueEngineOpenApi.pkl").output.text
   }
+  ["TransitEngineOpenApi.json"] {
+    import("../SecretEngines/Transit/TransitEngineOpenApi.pkl").output.text
+  }
 }

@@ -554,9 +554,6 @@ createEncryptionKey = (createEncryptionKeyCore) {
 
 importEncryptionKey = (createEncryptionKeyCore) {
   type = "object"
-  required {
-    "ciphertext"
-  }
   properties {
     ["ciphertext"] {
       type = "string"
@@ -581,9 +578,6 @@ importEncryptionKey = (createEncryptionKeyCore) {
 
 importVersionedEncryptionKey = (Schema.PropertySchema) {
   type = "object"
-  required {
-    "ciphertext"
-  }
   properties {
     ["ciphertext"] {
       type = "string"
@@ -601,6 +595,27 @@ importVersionedEncryptionKey = (Schema.PropertySchema) {
     ["version"] {
       type = "integer"
       description = "Key version to be updated, if left empty, a new version will be created unless a private key is specified and the 'Latest' key is missing a private key."
+    }
+  }
+}
+
+exportKey = (Schema.PropertySchema) {
+  type = "object"
+  properties {
+    ["format"] {
+      type = "string"
+      description = """
+      Specifies the format of the exported key. The empty string preserves existing behavior, 
+      with format unique to each key type (base64 encoded raw keys for symmetric keys or Ed25519 keys, PKCS#1 for RSA private keys, SEC 1 for EC private keys, and PKIX format for RSA or EC public keys). 
+      The raw format always returns a base64 encoded raw key (only applicable to symmetric keys and Ed25519 keys). 
+      The der and pem formats always returns a PKIX (SubjectPublicKeyInfo) or PrivateKeyInfo encoded object for asymmetric keys.
+      """
+      enum {
+        "base64"
+        "raw"
+        "der"
+        "pem"
+      }
     }
   }
 }
@@ -719,14 +734,6 @@ signData = (Schema.PropertySchema) {
       type = "string"
       description = "Specifies the base64 encoded input data. One of input or batch_input must be supplied."
     }
-    ["signature"] {
-      type = "string"
-      description = "Specifies the signature output from the /transit/sign function. Either this must be supplied or hmac must be supplied."
-    }
-    ["hmac"] {
-      type = "string"
-      description = "Specifies the signature output from the /transit/hmac function. Either this must be supplied or signature must be supplied."
-    }
     ["batch_input"] {
       type = "array"
       items = new Schema {
@@ -795,6 +802,56 @@ signData = (Schema.PropertySchema) {
   }
 }
 
+rewrapData = (Schema.PropertySchema) {
+  type = "object"
+  required {
+    "ciphertext"
+  }
+  properties {
+    ["ciphertext"] {
+      type = "string"
+      description = "Specifies the ciphertext to re-encrypt."
+    }
+    ["key_version"] {
+      type = "integer"
+      description = "Specifies the version of the key to use for the operation. If not set, uses the latest version. Must be greater than or equal to the key's min_encryption_version, if set."
+    }
+    ["nonce"] {
+      type = "string"
+      description = "Specifies a base64 encoded nonce value used during encryption."
+    }
+    ["batch_input"] {
+      type = "array"
+      items = new Schema {
+        type = "object"
+        required {
+          "ciphertext"
+        }
+        properties {
+          ["ciphertext"] {
+            type = "string"
+            description = "Specifies the ciphertext to re-encrypt."
+          }
+          ["context"] {
+            type = "string"
+            description = "Base64 encoded context for key derivation. Required if key derivation is enabled; currently only available with ed25519 keys."
+          }
+          ["reference"] {
+            type = "string"
+            description = """
+            A user-supplied string that will be present in the reference field on the corresponding batch_results item in the response, to assist in understanding which result corresponds to a particular input.
+            """
+          }
+        }
+      }
+    }
+    ["context"] {
+      type = "string"
+      description = "Specifies the base64 encoded context for key derivation. This is required if key derivation is enabled."
+    }
+  }
+}
+
 encryptionKey = (createEncryptionKeyCore) {
   type = "object"
   required {
@@ -826,7 +883,7 @@ encryptionKey = (createEncryptionKeyCore) {
         oneOf {
           encryptionAsymmetricKeyData
           new Schema {
-            type = "string"
+            type = "integer"
           }
         }
       }
@@ -936,13 +993,39 @@ encryptionData = (encryptionCoreData) {
     }
     ["type"] = encryptionKeyType
     ["convergent_encryption"] {
-      type = "string"
+      type = "boolean"
       description = """
       This parameter will only be used when a key is expected to be created. Whether to support convergent encryption. 
       This is only supported when using a key with key derivation enabled and will require all requests to carry both a context and 96-bit (12-byte) for AES and ChaCha20 or 192-bit (24-byte) for XChaCha20 nonce. 
       The given nonce will be used in place of a randomly generated nonce. As a result, when the same context and nonce are supplied, the same ciphertext is generated. 
       It is very important when using this mode that you ensure that all nonces are unique for a given context. Failing to do so will severely impact the ciphertext's security.
       """
+    }
+    ["batch_input"] {
+      type = "array"
+      items = new Schema {
+        type = "object"
+        required {
+          "plaintext"
+        }
+        properties {
+          ["plaintext"] {
+            type = "string"
+            description = "Specifies base64 encoded plaintext to be encoded."
+          }
+          ["context"] {
+            type = "string"
+            description = "Specifies the base64 encoded context for key derivation. This is required if key derivation is enabled for this key."
+          }
+          ["nonce"] {
+            type = "string"
+          }
+          ["reference"] {
+            type = "string"
+            description = "A user-supplied string that will be present in the reference field on the corresponding batch_results item in the response, to assist in understanding which result corresponds to a particular input."
+          }
+        }
+      }
     }
   }
 }
@@ -956,6 +1039,32 @@ decryptionData = (encryptionCoreData) {
     ["ciphertext"] {
       type = "string"
       description = "Specifies base64 encoded plaintext to be encoded."
+    }
+    ["batch_input"] {
+      type = "array"
+      items = new Schema {
+        type = "object"
+        required {
+          "plaintext"
+        }
+        properties {
+          ["ciphertext"] {
+            type = "string"
+            description = "Specifies base64 encoded plaintext to be encoded."
+          }
+          ["context"] {
+            type = "string"
+            description = "Specifies the base64 encoded context for key derivation. This is required if key derivation is enabled for this key."
+          }
+          ["nonce"] {
+            type = "string"
+          }
+          ["reference"] {
+            type = "string"
+            description = "A user-supplied string that will be present in the reference field on the corresponding batch_results item in the response, to assist in understanding which result corresponds to a particular input."
+          }
+        }
+      }
     }
   }
 }
@@ -975,29 +1084,6 @@ encryptionCoreData = (Schema.PropertySchema) {
       type = "string"
       description = "Specifies the base64 encoded nonce value. The value must be exactly 96 bits (12 bytes) long and the user must ensure that for any given context (and thus, any given encryption key) this nonce value is never reused."
     }
-    ["reference"] {
-      type = "string"
-      description = " A user-supplied string that will be present in the reference field on the corresponding batch_results item in the response, to assist in understanding which result corresponds to a particular input. Only valid on batch requests when using `batch_input` below."
-    }
-    ["batch_input"] {
-      type = "array"
-      items = new Schema {
-        type = "object"
-        required {
-          "plaintext"
-        }
-        properties {
-          ["plaintext"] {
-            type = "string"
-            description = "Specifies base64 encoded plaintext to be encoded."
-          }
-          ["context"] {
-            type = "string"
-            description = "Specifies the base64 encoded context for key derivation. This is required if key derivation is enabled for this key."
-          }
-        }
-      }
-    }
     ["partial_failure_response_code"] {
       type = "integer"
       description = """
@@ -1011,9 +1097,6 @@ encryptionCoreData = (Schema.PropertySchema) {
 
 generateKeyData = (Schema.PropertySchema) {
   type = "object"
-  required {
-    "ciphertext"
-  }
   properties {
     ["associated_data"] {
       type = "string"
@@ -1029,7 +1112,7 @@ generateKeyData = (Schema.PropertySchema) {
     }
     ["bits"] {
       type = "integer"
-      description = "Specifies the number of bits in the desired key. Can be 128, 256, or 512."
+      description = "Specifies the number of bits in the desired key. Can be 128, 256, or 512. Defaults to 256"
     }
   }
 }

@@ -1,0 +1,2214 @@
+//===----------------------------------------------------------------------===//
+//  Copyright (c) 2025 Javier Cuesta
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//===----------------------------------------------------------------------===//
+
+extends "@openapi/Document.pkl"
+
+import "@openapi/Components.pkl"
+import "@openapi/Schema.pkl"
+import "@openapi/HTTPResponse.pkl"
+
+import ".../VaultApiResponse.pkl"
+import ".../VaultDataResponse.pkl"
+import ".../VaultRequestBody.pkl"
+import ".../CommonComponents.pkl"
+
+info {
+  title = "Vault Courier Transit Secret Engine API"
+  description = "Transit (cryptography-as-a-service) endpoints. Vault Courier is a Swift client for Hashicorp Vault and OpenBao"
+  version = "0.2.0"
+  license {
+    name = "Apache License 2.0"
+  }
+}
+
+servers {
+  new { 
+    url = "{protocol}://127.0.0.1:8200/v1"
+    description = "Default server url"
+    variables {
+      ["protocol"] {
+        enum {
+          "http"
+          "https"
+        }
+        default = "https"
+      }
+    }
+  }
+}
+
+/// Parameter name in the crud endpoint
+local parameterEnginePathName = "transit_path"
+local secretKeyParameter = "secret_key"
+
+paths {
+  ["/{\(parameterEnginePathName)}/config/keys"] {
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "Transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    description = "This endpoint maintains global configuration across all keys. This allows removing the upsert capability of the `/encrypt/:key` endpoint, preventing new keys from being created if none exists."
+    get {
+      summary = "Get Upsert Config"
+      description = "This path retrieves the current configuration for disable upserting on encryption (automatic creation of unknown keys)."
+      operationId = "read-upsert-config"
+      tags {
+        "transit"
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/WriteUpsertResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+    post {
+      summary = "Configure Key Upsert"
+      description = "This path configures backend level settings that are applied to every key in the transit store."
+      operationId = "write-upsert-config"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = new {
+              type = "object"
+              required {
+                "disable_upsert"
+              }
+              properties {
+                ["disable_upsert"] {
+                  type = "boolean"
+                  description = "Specifies whether to disable upserting on encryption (automatic creation of unknown keys)."
+                }
+              }
+            }
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/WriteUpsertResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/keys/{\(secretKeyParameter)}"] {
+    description = "Encryption Keys"
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "The key path for a stored secret in this path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Write encryption key"
+      description = "Creates a new named encryption key of the specified type. The values set here cannot be changed after key creation."
+      operationId = "write-encryption-key"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = new Reference {
+              `$ref` = "#/components/schemas/WriteEncryptionKeyRequest"
+            }
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/WriteEncryptionKeyResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+    get {
+      summary = "Read encryption key"
+      description = "Returns information about a named encryption key"
+      operationId = "read-encryption-key"
+      tags {
+        "transit"
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/WriteEncryptionKeyResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+    `delete`{
+      summary = "Deletes Encryption Key"
+      description = " deletes a named encryption key. It will no longer be possible to decrypt any data encrypted with the named key. Because this is a potentially catastrophic operation, the 'deletion_allowed' tunable must be set in the key's `/config` endpoint."
+      operationId = "delete-encryption-key"
+      tags {
+        "transit"
+      }
+      responses {
+        ["204"] {
+          description = "NoContent"
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/keys/{\(secretKeyParameter)}/import"] {
+    description = "Import encryption key"
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "The key path for a stored secret in this path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    `post`{
+      summary = "Import encryption key"
+      description = """
+      imports existing key material into a new transit-managed encryption key. To import key material into an existing key, see the import_version/ endpoint.
+
+      This supports one of two forms:
+
+      Private/Symmetric Key import, requiring the ciphertext, hash_function parameters be set (and automatically deriving the public key), or
+      Public Key-only import, restricting the operations that can be done with this key, and requiring only the public_key parameter.
+      The remaining parameters (including name, type, allow_rotation, derived, context, exportable, allow_plaintext_backup, and auto_rotate_period) remain the same across both versions of this call.
+      """
+      operationId = "import-encryption-key"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = VaultRequestBody.importEncryptionKey
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/WriteEncryptionKeyResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/keys/{\(secretKeyParameter)}/import_version"] {
+    description = """
+    Note: using this method, a private key matching a public key can be imported at a later date.
+
+    Important: Keys whose material was generated by OpenBao do not support importing key material. Only keys that were previously imported into OpenBao can import new key material from an external source.
+    """
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "The key path for a stored secret in this path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    `post`{
+      summary = "Import versioned encryption key"
+      description = """
+      imports existing key material into a new transit-managed encryption key. To import key material into an existing key, see the import_version/ endpoint.
+
+      This supports one of two forms:
+
+      Private/Symmetric Key import, requiring the ciphertext, hash_function parameters be set (and automatically deriving the public key), or
+      Public Key-only import, restricting the operations that can be done with this key, and requiring only the public_key parameter.
+      The remaining parameters (including name, type, allow_rotation, derived, context, exportable, allow_plaintext_backup, and auto_rotate_period) remain the same across both versions of this call.
+      """
+      operationId = "import-versioned-encryption-key"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = VaultRequestBody.importVersionedEncryptionKey
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/WriteEncryptionKeyResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/export/{key_type}/{name}"] {
+    description = """
+    Returns the named key. The keys object shows the value of the key for each version. If version is specified, the specific version will be returned. 
+    If latest is provided as the version, the current key will be provided. Depending on the type of key, different information may be returned. 
+    The key must be exportable to support this operation and the version must still be valid.
+
+    Note: This endpoint has originally an OPTIONAL version path parameter, but this is illegal in openapi v3
+    """
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = "key_type"
+        description = "Specifies the type of the key to export"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = "name"
+        description = "Specifies the name of the key to read information about"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    `get`{
+      summary = "Export encryption key"
+      description = """
+      Returns the named key. The keys object shows the value of the key for each version. If version is specified, the specific version will be returned. 
+      If latest is provided as the version, the current key will be provided. Depending on the type of key, different information may be returned. 
+      The key must be exportable to support this operation and the version must still be valid.
+      """
+      operationId = "export-encryption-key"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = VaultRequestBody.exportKey
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = (VaultDataResponse) {
+                properties  {
+                  ["data"] {
+                    type = "object"
+                    required {
+                      "keys"
+                      "name"
+                      "type"
+                    }
+                    properties {
+                      ["keys"] {
+                        type = "object"
+                        additionalProperties {
+                          type = "string"
+                        }
+                      }
+                      ["name"] {
+                        type = "string"
+                      }
+                      ["type"] {
+                        type = "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/wrapping_key"] {
+    description = """
+    Note: using this method, a private key matching a public key can be imported at a later date.
+
+    Important: Keys whose material was generated by OpenBao do not support importing key material. Only keys that were previously imported into OpenBao can import new key material from an external source.
+    """
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    `get`{
+      summary = "Read wrapping key"
+      description = "retrieve the wrapping key to use for importing keys. The returned key will be a 4096-bit RSA public key."
+      operationId = "read-wrapping-key"
+      tags {
+        "transit"
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = (VaultDataResponse) {
+                properties  {
+                  ["data"] {
+                    type = "object"
+                    required {
+                      "public_key"
+                    }
+                    properties {
+                      ["public_key"] {
+                        type = "string"
+                        description = "4096-bit RSA public key"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+
+  ["/{\(parameterEnginePathName)}/keys/{\(secretKeyParameter)}/config"] {
+    description = "Allows tuning configuration values for a given key. (These values are returned during a read operation on the named key.)"
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "The key path for a stored secret in this path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Configure encryption key"
+      description = "Sets configuration like if its allow for deletion"
+      operationId = "config-encryption-key"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = VaultRequestBody.ecnryptionKeyConfig
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/WriteEncryptionKeyResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/encrypt/{\(secretKeyParameter)}"] {
+    description = """
+    Encrypts the provided plaintext using the named key. This path supports the create and update policy capabilities as follows: if the user has the create capability for this endpoint in their policies, 
+    and the key does not exist, it will be upserted with default values (whether the key requires derivation depends on whether the context parameter is empty or not). 
+    If the user only has update capability and the key does not exist, an error will be returned.
+    """
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "The key path for a stored secret in this path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Encrypts data"
+      description = "Encrypts the provided plaintext using the named key"
+      operationId = "encrypt"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = VaultRequestBody.encryptionData
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = (VaultDataResponse) {
+                properties {
+                  ["data"] {
+                    oneOf {
+                      new Schema {
+                        type = "object"
+                        required {
+                          "batch_results"
+                        }
+                        properties {
+                          ["batch_results"] {
+                            type = "array"
+                            items = new Schema {
+                              oneOf {
+                                new Schema {
+                                  type = "object"
+                                  required {
+                                    "ciphertext"
+                                  }
+                                  properties {
+                                    ["ciphertext"] {
+                                      type = "string"
+                                    }
+                                    ["key_version"] {
+                                      type = "integer"
+                                    }
+                                    ["reference"] {
+                                      type = "string"
+                                    }
+                                  }
+                                }
+
+                                new Schema {
+                                  type = "object"
+                                  required {
+                                    "error"
+                                  }
+                                  properties {
+                                    ["error"] {
+                                      type = "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+
+                      new Schema {
+                        type = "object"
+                        required {
+                          "ciphertext"
+                        }
+                        properties {
+                          ["ciphertext"] {
+                            type = "string"
+                          }
+                          ["key_version"] {
+                            type = "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/decrypt/{\(secretKeyParameter)}"] {
+    description = "This endpoint decrypts the provided ciphertext using the named key."
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "The key path for a stored secret in this path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Decrypts data"
+      description = "This endpoint decrypts the provided ciphertext using the named key."
+      operationId = "decrypt"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = VaultRequestBody.decryptionData
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = (VaultDataResponse) {
+                properties {
+                  ["data"] {
+                    oneOf {
+                      new Schema {
+                        type = "object"
+                        required {
+                          "batch_results"
+                        }
+                        properties {
+                          ["batch_results"] {
+                            type = "array"
+                            items = new Schema {
+                              oneOf {
+                                new Schema {
+                                  type = "object"
+                                  required {
+                                    "plaintext"
+                                  }
+                                  properties {
+                                    ["plaintext"] {
+                                      type = "string"
+                                    }
+                                    ["reference"] {
+                                      type = "string"
+                                    }
+                                    ["error"] {
+                                      type = "string"
+                                    }
+                                  }
+                                }
+
+                                new Schema {
+                                  type = "object"
+                                  required {
+                                    "error"
+                                  }
+                                  properties {
+                                    ["error"] {
+                                      type = "string"
+                                    }
+                                    ["reference"] {
+                                      type = "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+
+                      new Schema {
+                        type = "object"
+                        required {
+                          "plaintext"
+                        }
+                        properties {
+                          ["plaintext"] {
+                            type = "string"
+                          }
+                          ["reference"] {
+                            type = "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/rewrap/{\(secretKeyParameter)}"] {
+    description = "Rewraps the provided ciphertext using the latest version of the named key. Because this never returns plaintext, it is possible to delegate this functionality to untrusted users or scripts."
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "The key path for a stored secret in this path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Rewrap ciphertext"
+      description = "rewraps the provided ciphertext using the latest version of the named key. Because this never returns plaintext, it is possible to delegate this functionality to untrusted users or scripts."
+      operationId = "rewrap-ciphertext"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = VaultRequestBody.rewrapData
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = (VaultDataResponse) {
+                properties {
+                  ["data"] {
+                    type = "object"
+                    required {
+                      "ciphertext"
+                    }
+                    properties {
+                      ["ciphertext"] {
+                        type = "string"
+                      }
+                      ["key_version"] {
+                        type = "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/keys/{\(secretKeyParameter)}/rotate"] {
+    description = "Allows tuning configuration values for a given key. (These values are returned during a read operation on the named key.)"
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "The key path for a stored secret in this path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Configure encryption key"
+      description = "Sets configuration like if its allow for deletion"
+      operationId = "rotate-encryption-key"
+      tags {
+        "transit"
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/WriteEncryptionKeyResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/keys/{\(secretKeyParameter)}/soft-delete"] {
+    description = "This endpoint issues a soft delete of the specified versions of the secret. This marks the versions as deleted and will stop them from being returned from reads, but the underlying data will not be removed. A delete can be undone using the undelete path."
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "The key path for a stored secret in this path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    `delete`{
+      summary = "Soft delete encryption key"
+      description = """
+      softly deletes a named encryption key, allowing it to be restored later if this deletion was done in error. This doesn't depend on the value of deletion_allowed.
+
+      The following operations will not work on the :name'd key until the key is restored:
+
+      - BYOK exporting, either as a source or destination key (/transit/byok-export/:dest/:name and /transit/byok-export/:name/:src),
+      - Exporting (`/transit/export/:key_type/:name`),
+      - Encrypting and decrypting (/transit/encrypt/:name and /transit/decrypt/:name),
+      - Signing and verifying including with HMAC keys (/transit/sign/:name, /transit/hmac/:name, and /transit/verify/:name), and
+      - Rotating the specified key (/transit/keys/:name/rotate).
+      
+      However, this key will still be able to be updated, backed up, read, and will appear in list operations.
+      """
+      operationId = "soft-delete-encryption-key"
+      tags {
+        "transit"
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/WriteEncryptionKeyResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/keys/{\(secretKeyParameter)}/soft-delete-restore"] {
+    description = "restores a softly deleted named encryption key, allowing it to be used again."
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "The key path for a stored secret in this path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    `post`{
+      summary = "Restores soft-deleted encryption key"
+      description = "Restores a softly deleted named encryption key, allowing it to be used again."
+      operationId = "restore-encryption-key"
+      tags {
+        "transit"
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/WriteEncryptionKeyResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/datakey/{type}/{\(secretKeyParameter)}"] {
+    description = "This endpoint decrypts the provided ciphertext using the named key."
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = "type"
+        description = "return type of generated key"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "The key path for a stored secret in this path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Generate Key data"
+      description = """
+      Generates a new high-entropy key and the value encrypted with the named key. Optionally return the plaintext of the key as well. 
+      Whether plaintext is returned depends on the path; as a result, you can use OpenBao ACL policies to control whether a user is allowed to retrieve the plaintext value of a key. 
+      This is useful if you want an untrusted user or operation to generate keys that are then made available to trusted users.
+      """
+      operationId = "generate-key-data"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = VaultRequestBody.generateKeyData
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = (VaultDataResponse) {
+                properties {
+                  ["data"] {
+                    required {
+                      "ciphertext"
+                      "key_version"
+                    }
+                    properties {
+                      ["ciphertext"] {
+                        type = "string"
+                      }
+                      ["key_version"] {
+                        type = "integer"
+                      }
+                      ["plaintext"] {
+                        type = "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+  ["/{\(parameterEnginePathName)}/random"] {
+    description = "Returns high-quality random bytes of the specified length.."
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Generate random bytes"
+      description = "returns high-quality random bytes of the specified length."
+
+      operationId = "generate-random-bytes"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = new Schema {
+              type = "object"
+              properties {
+                ["bytes"] {
+                  type = "integer"
+                  description = "Specifies the number of bytes to return."
+                }
+                ["format"] {
+                  type = "string"
+                  description = "Specifies the output encoding. Valid options are hex or base64."
+                  enum {
+                    "hex"
+                    "base64"
+                  }
+                }
+                ["source"] {
+                  type = "string"
+                  description = "Specifies the source of the requested bytes. platform, the default, sources bytes from the platform's entropy source. all mixes bytes from all available sources."
+                  enum {
+                    "platform"
+                    "all"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = (VaultDataResponse) {
+                properties  {
+                  ["data"] {
+                    type = "object"
+                    required {
+                      "random_bytes"
+                    }
+                    properties {
+                      ["random_bytes"] {
+                        type = "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/hash"] {
+    description = "Returns the cryptographic hash of given data using the specified algorithm."
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Hash data"
+      description = "returns the cryptographic hash of given data using the specified algorithm."
+
+      operationId = "hash-data"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = new Schema {
+              type = "object"
+              required {
+                "input"
+              }
+              properties {
+                ["algorithm"] = VaultRequestBody.hashAlgorithms
+                ["format"] {
+                  type = "string"
+                  description = "Specifies the output encoding. Valid options are hex or base64."
+                  enum {
+                    "hex"
+                    "base64"
+                  }
+                }
+                ["input"] {
+                  type = "string"
+                  description = "Specifies the base64 encoded input data."
+                }
+              }
+            }
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = (VaultDataResponse) {
+                properties  {
+                  ["data"] {
+                    type = "object"
+                    required {
+                      "sum"
+                    }
+                    properties {
+                      ["sum"] {
+                        type = "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/hmac/{\(secretKeyParameter)}"] {
+    description = "Returns the cryptographic hash of given data using the specified algorithm."
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "Specifies the name of the encryption key to generate hmac against."
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Generate HMAC"
+      description = "returns the cryptographic hash of given data using the specified algorithm."
+
+      operationId = "generate-hmac"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = VaultRequestBody.generateHMAC
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = (VaultDataResponse) {
+                properties  {
+                  ["data"] {
+                    oneOf {
+                      new Schema {
+                        type = "object"
+                        required {
+                          "batch_results"
+                        }
+                        properties {
+                          ["batch_results"] {
+                            type = "array"
+                            items = new Schema {
+                              oneOf {
+                                new Schema {
+                                  type = "object"
+                                  required {
+                                    "hmac"
+                                  }
+                                  properties {
+                                    ["hmac"] {
+                                      type = "string"
+                                    }
+                                    ["reference"] {
+                                      type = "string"
+                                      description = "A user-supplied string"
+                                    }
+                                  }
+                                }
+
+                                new Schema {
+                                  type = "object"
+                                  required {
+                                    "error"
+                                  }
+                                  properties {
+                                    ["error"] {
+                                      type = "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+
+                      new Schema {
+                        type = "object"
+                        required {
+                          "hmac"
+                        }
+                        properties {
+                          ["hmac"] {
+                            type = "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/sign/{\(secretKeyParameter)}"] {
+    description = "Returns the cryptographic hash of given data using the specified algorithm."
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "Specifies the name of the encryption key to generate the signature or hmac against."
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Sign Data"
+      description = "Returns the cryptographic signature of the given data using the named key and the specified hash algorithm. The key must be of a type that supports signing."
+
+      operationId = "sign-data"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = VaultRequestBody.signData
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = (VaultDataResponse) {
+                properties  {
+                  ["data"] {
+                    oneOf {
+                      new Schema {
+                        type = "object"
+                        required {
+                          "batch_results"
+                        }
+                        properties {
+                          ["batch_results"] {
+                            type = "array"
+                            items = new Schema {
+                              oneOf {
+                                new Schema {
+                                  type = "object"
+                                  required {
+                                    "signature"
+                                  }
+                                  properties {
+                                    ["signature"] {
+                                      type = "string"
+                                    }
+                                    ["publickey"] {
+                                      type = "string"
+                                    }
+                                    ["reference"] {
+                                      type = "string"
+                                    }
+                                    ["key_version"] {
+                                      type = "integer"
+                                    }
+                                  }
+                                }
+
+                                new Schema {
+                                  type = "object"
+                                  required {
+                                    "error"
+                                  }
+                                  properties {
+                                    ["error"] {
+                                      type = "string"
+                                    }
+                                    ["key_version"] {
+                                      type = "integer"
+                                    }
+                                    ["reference"] {
+                                      type = "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+
+                      new Schema {
+                        type = "object"
+                        required {
+                          "signature"
+                        }
+                        properties {
+                          ["signature"] {
+                            type = "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/verify/{\(secretKeyParameter)}"] {
+    description = "Returns whether the provided signature is valid for the given data."
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "Specifies the name of the encryption key to generate signature or hmac against."
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Verify Signed Data"
+      description = "returns whether the provided signature is valid for the given data."
+
+      operationId = "verify-signed-data"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema = (VaultRequestBody.signData) {
+              properties {
+                ["signature"] {
+                  type = "string"
+                  description = "Specifies the signature output from the /transit/sign function. Either this must be supplied or hmac must be supplied."
+                }
+                ["hmac"] {
+                  type = "string"
+                  description = "Specifies the signature output from the /transit/hmac function. Either this must be supplied or signature must be supplied."
+                }
+              }
+            }
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = (VaultDataResponse) {
+                properties  {
+                  ["data"] {
+                    oneOf {
+                      new Schema {
+                        type = "object"
+                        required {
+                          "batch_results"
+                        }
+                        properties {
+                          ["batch_results"] {
+                            type = "array"
+                            items = new Schema {
+                              oneOf {
+                                new Schema {
+                                  type = "object"
+                                  required {
+                                    "valid"
+                                  }
+                                  properties {
+                                    ["valid"] {
+                                      type = "boolean"
+                                    }
+                                    ["reference"] {
+                                      type = "string"
+                                    }
+                                  }
+                                }
+
+                                new Schema {
+                                  type = "object"
+                                  required {
+                                    "error"
+                                  }
+                                  properties {
+                                    ["error"] {
+                                      type = "string"
+                                    }
+                                    ["valid"] {
+                                      type = "boolean"
+                                    }
+                                    ["reference"] {
+                                      type = "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+
+                      new Schema {
+                        type = "object"
+                        required {
+                          "valid"
+                        }
+                        properties {
+                          ["valid"] {
+                            type = "boolean"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/backup/{\(secretKeyParameter)}"] {
+    description = """
+    Returns a plaintext backup of a named key. The backup contains all the configuration data and keys of all the versions along with the HMAC key.
+    The response from this endpoint can be used with the /restore endpoint to restore the key.
+    """
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "Specifies the name of the encryption key to backup. It won't work if the creation policy did not allow for backup"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    get {
+      summary = "Backup Key"
+      description = "returns the cryptographic hash of given data using the specified algorithm."
+
+      operationId = "backup-key"
+      tags {
+        "transit"
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = (VaultDataResponse) {
+                properties  {
+                  ["data"] {
+                    required {
+                      "backup"
+                    }
+                    properties {
+                      ["backup"] {
+                        type = "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/restore/{\(secretKeyParameter)}"] {
+    description = """
+    Restores the backup as a named key. This will restore the key configurations and all the versions of the named key along with HMAC keys. The input to this endpoint should be the output of /backup endpoint.
+    """
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "Name of the restored key."
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Restore Key"
+      description = "returns the cryptographic hash of given data using the specified algorithm."
+
+      operationId = "restore-key"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema {
+              type = "object"
+              required {
+                "backup"
+              }
+              properties {
+                ["backup"] {
+                  type = "string"
+                  description = "Backed up key data to be restored. This should be the output from the /backup endpoint."
+                }
+                ["force"] {
+                  type = "boolean"
+                  description = "If set, force the restore to proceed even if a key by this name already exists."
+                }
+              }
+            }
+          }
+        }
+      }
+      responses {
+        ["204"] {
+          description = "NoContent"
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/keys/{\(secretKeyParameter)}/trim"] {
+    description = """
+    Restores the backup as a named key. This will restore the key configurations and all the versions of the named key along with HMAC keys. The input to this endpoint should be the output of /backup endpoint.
+    """
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "Specifies the name of the encryption key to trim."
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Restore Key"
+      description = "returns the cryptographic hash of given data using the specified algorithm."
+
+      operationId = "trim-key"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema {
+              type = "object"
+              required {
+                "min_available_version"
+              }
+              properties {
+                ["min_available_version"] {
+                  type = "integer"
+                  description = """
+                  The minimum available version for the key ring. All versions before this version will be permanently deleted. 
+                  This value can at most be equal to the lesser of min_decryption_version and min_encryption_version. 
+                  This is not allowed to be set when either min_encryption_version or min_decryption_version is set to zero.
+                  """
+                }
+              }
+            }
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = new Reference {
+                `$ref` = "#/components/schemas/WriteEncryptionKeyResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/cache-config"] {
+    description = "Retrieves configurations for the transit engine's cache."
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    get {
+      summary = "Read cache size"
+      description = "retrieves configurations for the transit engine's cache."
+
+      operationId = "cache-size"
+      tags {
+        "transit"
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = (VaultDataResponse) {
+                properties  {
+                  ["data"] {
+                    required {
+                      "size"
+                    }
+                    properties {
+                      ["size"] {
+                        type = "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    post {
+      summary = "Configure cache"
+      description = "configure the transit engine's cache. Note that configuration changes will not be applied until the transit plugin is reloaded which can be achieved using the [/sys/plugins/reload/backend][sys-plugin-reload-backend] endpoint."
+
+      operationId = "configure-cache-size"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema {
+              type = "object"
+              required {
+                "size"
+              }
+              properties {
+                ["size"] {
+                  type = "integer"
+                  description = """
+                  Specifies the size in terms of number of entries. A size of 0 means unlimited. A Least Recently Used (LRU) caching strategy is used for a non-zero cache size. 
+                  Must be 0 (default) or a value greater or equal to 10 (minimum cache size).
+                  """
+                }
+              }
+            }
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = (VaultDataResponse) {
+                properties  {
+                  ["data"] {
+                    required {
+                      "size"
+                    }
+                    properties {
+                      ["size"] {
+                        type = "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/keys/{\(secretKeyParameter)}/csr"] {
+    description = """
+    Signs a CSR using the :name key, ensuring the key material stays within Transit. If no CSR is provided, it signs an empty CSR. Otherwise, it signs the provided CSR, 
+    replacing its key material with the :name key material. The key in transit must be a signing key and not be derived.
+    """
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "Specifies the name of the encryption key to trim."
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Sign CSR"
+      description = "Signs a CSR using the :name key, ensuring the key material stays within Transit"
+
+      operationId = "sign-csr"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema {
+              type = "object"
+              properties {
+                ["csr"] {
+                  type = "string"
+                  description = "Optional PEM-encoded CSR template to use as a basis for the new CSR signed by this key. If not set, an empty CSR is used."
+                }
+                ["version"] {
+                  type = "integer"
+                  description = "The version of the key to use for signing. If the version is set to latest or is not set, the current key will be returned."
+                }
+              }
+            }
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = (VaultDataResponse) {
+                properties  {
+                  ["data"] {
+                    required {
+                      "csr"
+                      "name"
+                      "type"
+                    }
+                    properties {
+                      ["csr"] {
+                        type = "string"
+                      }
+                      ["name"] {
+                        type = "string"
+                      }
+                      ["type"] {
+                        type = "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ["/{\(parameterEnginePathName)}/keys/{\(secretKeyParameter)}/set-certificate"] {
+    description = """
+    Sets the certificate chain for the :name key, ensuring the key material stays within Transit and certificates are managed in one place. 
+    It also allows chain updates and rotation, as it will overwrite any existing certificate chain.
+    """
+    parameters {
+      new {
+        name = parameterEnginePathName
+        description = "transit engine path"
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new {
+        name = secretKeyParameter
+        description = "Specifies the name of the encryption key to trim."
+        `in`= "path"
+        schema {
+          type = "string"
+        }
+        required = true
+      }
+      new Reference {
+        `$ref` = "#/components/parameters/VaultTokenHeader"
+      }
+    }
+    post {
+      summary = "Sign CSR"
+      description = "Signs a CSR using the :name key, ensuring the key material stays within Transit"
+
+      operationId = "set-certificate-chain"
+      tags {
+        "transit"
+      }
+      requestBody {
+        required = true
+        content {
+          ["application/json"] {
+            schema {
+              type = "object"
+              required {
+                "certificate_chain"
+              }
+              properties {
+                ["certificate_chain"] {
+                  type = "string"
+                  description = "A PEM encoded certificate chain. It should be composed by one or more concatenated PEM blocks and ordered starting from the end-entity certificate."
+                }
+                ["version"] {
+                  type = "integer"
+                  description = "Specifies the version of the key to import the certificate chain against. If the version is set to latest or is not set, the current key will be returned."
+                }
+              }
+            }
+          }
+        }
+      }
+      responses {
+        ["200"] {
+          description = "OK"
+          content {
+            ["application/json"] {
+              schema = (VaultDataResponse) {
+                properties  {
+                  ["data"] {
+                    required {
+                      "certificate_chain"
+                      "name"
+                      "type"
+                    }
+                    properties {
+                      ["certificate_chain"] {
+                        type = "string"
+                      }
+                      ["name"] {
+                        type = "string"
+                      }
+                      ["type"] {
+                        type = "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+}
+
+components {
+  parameters {
+    ...CommonComponents.parameters
+  }
+  schemas {
+    ...kvComponents.schemas
+
+    ["VaultErrorsResponseBody"] {
+      type = "object"
+      properties {
+        ["errors"] {
+          type = "array"
+          description = "List of errors"
+          items = new Schema {
+            type = "string"
+          }
+        }
+      }
+    }
+  }
+}
+
+hidden kvComponents: Components = new {
+  schemas {
+    ["WriteEncryptionKeyRequest"] = VaultRequestBody.createEncryptionKey
+    
+    ["WriteEncryptionKeyResponse"] = (VaultDataResponse) {
+      properties {
+        ["data"] = (VaultRequestBody.encryptionKey) {
+          properties {
+            ["auto_rotate_period"] {
+              type = "integer"
+            }
+          }
+        }
+      }
+    }
+
+    ["WriteUpsertResponse"] = (VaultDataResponse) {
+      properties {
+        ["data"] {
+          required {
+            "disable_upsert"
+          }
+          properties {
+            ["disable_upsert"] {
+              type = "boolean"
+              description = "Specifies whether to disable upserting on encryption (automatic creation of unknown keys)."
+            }
+          }
+        }
+      }
+    }
+
+    ["EncryptionResponseBody"] {
+      type = "object"
+      required {
+        "ciphertext"
+      }
+      properties {
+        ["ciphertext"] {
+          type = "string"
+        }
+        ["key_version"] {
+          type = "integer"
+        }
+      }
+    }
+
+
+  }
+}
